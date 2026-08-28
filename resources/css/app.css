@@ -1,0 +1,318 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    /* ── Tipografia ── */
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* ── Paleta zinc (superfícies) ── */
+    --color-zinc-50:  #f9fafb;
+    --color-zinc-100: #f3f4f6;
+    --color-zinc-200: #e5e7eb;
+    --color-zinc-300: #d1d5db;
+    --color-zinc-400: #9ca3af;
+    --color-zinc-500: #6b7280;
+    --color-zinc-600: #4b5563;
+    --color-zinc-700: #374151;
+    --color-zinc-800: #1f2937;
+    --color-zinc-900: #111827;
+    --color-zinc-950: #030712;
+
+    /* ── Accent / Marca (vermelho angolano) ── */
+    --color-accent:            #ce1126;
+    --color-accent-content:    #ce1126;
+    --color-accent-foreground: #ffffff;
+}
+
+@layer theme {
+    .dark {
+        --color-accent:            #e8253b;
+        --color-accent-content:    #e8253b;
+        --color-accent-foreground: #ffffff;
+    }
+}
+
+@layer base {
+    *, ::after, ::before, ::backdrop, ::file-selector-button {
+        border-color: var(--color-zinc-200, currentColor);
+    }
+
+    /* Skip link */
+    .skip-link {
+        position: absolute;
+        left: -9999px;
+        z-index: 9999;
+        padding: 0.5rem 1rem;
+        background: #ce1126;
+        color: #fff;
+        font-weight: 600;
+        border-radius: 0 0 6px 0;
+        text-decoration: none;
+    }
+    .skip-link:focus {
+        left: 0;
+    }
+
+    /* Animação de entrada suave */
+    @keyframes fade-up {
+        from { opacity: 0; transform: translateY(8px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-up {
+        animation: fade-up 0.2s ease forwards;
+    }
+
+    /* Skeleton loader */
+    @keyframes shimmer {
+        0%   { background-position: -400px 0; }
+        100% { background-position: 400px 0; }
+    }
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 800px 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 6px;
+    }
+    .dark .skeleton {
+        background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+        background-size: 800px 100%;
+    }
+}
+
+/* ── Flux UI overrides ── */
+[data-flux-field]:not(ui-radio, ui-checkbox) { @apply grid gap-1.5; }
+[data-flux-label] { @apply !mb-0 !leading-tight text-sm font-medium; }
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-none ring-2 ring-red-500/40 ring-offset-0 border-red-500;
+}
+
+/* ── Scrollbar global ── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+.dark ::-webkit-scrollbar-thumb { background: #374151; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+
+/* ── Focus visível global ── */
+*:focus-visible {
+    outline: 2px solid #ce1126;
+    outline-offset: 2px;
+}
+
+/* ── Line clamp ── */
+.line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* ── Utilitários de tabela ── */
+.table-gov { @apply w-full text-sm; }
+.table-gov thead th { @apply px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700; }
+.table-gov tbody td { @apply px-4 py-3 border-b border-zinc-100 dark:border-zinc-800; }
+.table-gov tbody tr:last-child td { @apply border-b-0; }
+.table-gov tbody tr { @apply transition-colors hover:bg-red-50/40 dark:hover:bg-red-950/10; }
+
+/* ── Breadcrumb ── */
+.breadcrumb { @apply flex items-center gap-1.5 text-sm text-zinc-400 dark:text-zinc-500 flex-wrap; }
+.breadcrumb a { @apply hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors; }
+.breadcrumb-sep { @apply text-zinc-300 dark:text-zinc-600 text-xs; }
+
+/* ── Card padrão (premium global) ── */
+.card {
+    @apply rounded-xl border shadow-sm;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    color: #f8fafc;
+    background:
+        radial-gradient(120% 120% at 85% -10%, rgba(255, 255, 255, 0.14), transparent 48%),
+        linear-gradient(160deg, #121b2f 0%, #1f304a 58%, #263f62 100%);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow: 0 10px 28px -20px rgba(2, 6, 23, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.card::before {
+    content: "";
+    position: absolute;
+    inset: auto -20% -55% -20%;
+    height: 70%;
+    background: radial-gradient(50% 60% at 50% 40%, rgba(255, 255, 255, 0.22), transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.card > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Texto padrão em cards premium */
+.card:not(.card-surface) .text-zinc-900,
+.card:not(.card-surface) .text-zinc-800,
+.card:not(.card-surface) .text-zinc-700,
+.card:not(.card-surface) .dark\:text-zinc-50 {
+    color: #f8fafc !important;
+}
+
+.card:not(.card-surface) .text-zinc-600,
+.card:not(.card-surface) .text-zinc-500,
+.card:not(.card-surface) .text-zinc-400,
+.card:not(.card-surface) .dark\:text-zinc-400,
+.card:not(.card-surface) .dark\:text-zinc-500 {
+    color: rgba(226, 232, 240, 0.82) !important;
+}
+
+/* Fallback automático para cards estruturais (tabela/formulário) */
+.card-surface,
+.card:has(table),
+.card:has(form),
+.card:has(.table-gov),
+.card:has([data-card-surface]) {
+    @apply bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700/60 shadow-sm;
+    color: inherit;
+    box-shadow: var(--shadow-sm);
+}
+
+.card-surface::before,
+.card:has(table)::before,
+.card:has(form)::before,
+.card:has(.table-gov)::before,
+.card:has([data-card-surface])::before {
+    display: none;
+}
+
+.card-surface > *,
+.card:has(table) > *,
+.card:has(form) > *,
+.card:has(.table-gov) > *,
+.card:has([data-card-surface]) > * {
+    z-index: auto;
+}
+
+.card-surface .text-zinc-900,
+.card:has(table) .text-zinc-900,
+.card:has(form) .text-zinc-900,
+.card:has(.table-gov) .text-zinc-900,
+.card:has([data-card-surface]) .text-zinc-900 {
+    color: rgb(24 24 27) !important;
+}
+
+.dark .card-surface .text-zinc-900,
+.dark .card:has(table) .text-zinc-900,
+.dark .card:has(form) .text-zinc-900,
+.dark .card:has(.table-gov) .text-zinc-900,
+.dark .card:has([data-card-surface]) .text-zinc-900 {
+    color: rgb(250 250 250) !important;
+}
+
+.card-hover { @apply transition-all duration-200 hover:shadow-md hover:border-red-200 dark:hover:border-red-900/50 hover:-translate-y-0.5; }
+
+/* ── Card visual premium por categoria ── */
+.card-media {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    background:
+        radial-gradient(120% 120% at 85% -10%, rgba(255, 255, 255, 0.14), transparent 48%),
+        linear-gradient(160deg, #121b2f 0%, #1f304a 58%, #263f62 100%);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow: 0 10px 28px -20px rgba(2, 6, 23, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.card-media::before {
+    content: "";
+    position: absolute;
+    inset: auto -20% -55% -20%;
+    height: 70%;
+    background: radial-gradient(50% 60% at 50% 40%, rgba(255, 255, 255, 0.22), transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.card-media > * {
+    position: relative;
+    z-index: 1;
+}
+
+.card-media .card-title,
+.card-media .card-value {
+    color: #f8fafc;
+}
+
+.card-media .card-subtitle {
+    color: rgba(226, 232, 240, 0.82);
+}
+
+.card-media-red {
+    background:
+        radial-gradient(120% 120% at 88% -14%, rgba(255, 230, 234, 0.30), transparent 46%),
+        linear-gradient(160deg, #2a1220 0%, #4f1c2e 52%, #7c2539 100%);
+}
+
+.card-media-blue {
+    background:
+        radial-gradient(120% 120% at 86% -12%, rgba(219, 234, 254, 0.28), transparent 46%),
+        linear-gradient(160deg, #0f1e39 0%, #1f3a63 52%, #2d5c8f 100%);
+}
+
+.card-media-amber {
+    background:
+        radial-gradient(120% 120% at 86% -12%, rgba(254, 243, 199, 0.28), transparent 46%),
+        linear-gradient(160deg, #2f1c11 0%, #513222 52%, #7a5128 100%);
+}
+
+.card-media-purple {
+    background:
+        radial-gradient(120% 120% at 86% -12%, rgba(233, 213, 255, 0.28), transparent 46%),
+        linear-gradient(160deg, #221435 0%, #3f2866 52%, #5a3f8f 100%);
+}
+
+.card-media-teal {
+    background:
+        radial-gradient(120% 120% at 86% -12%, rgba(153, 246, 228, 0.24), transparent 46%),
+        linear-gradient(160deg, #11292a 0%, #1e4a4b 52%, #2b6e70 100%);
+}
+
+.card-icon-badge {
+    @apply w-11 h-11 rounded-xl flex items-center justify-center shrink-0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(2, 6, 23, 0.34);
+    backdrop-filter: blur(3px);
+}
+
+.card-icon-red { color: #fda4af; }
+.card-icon-blue { color: #93c5fd; }
+.card-icon-amber { color: #fcd34d; }
+.card-icon-purple { color: #c4b5fd; }
+.card-icon-teal { color: #5eead4; }
+
+/* ── Badge de estado ── */
+.badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
+.badge-red    { @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
+.badge-zinc   { @apply bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400; }
+.badge-blue   { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
+.badge-amber  { @apply bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
+.badge-purple { @apply bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400; }
+
+/* ── Botão primário ── */
+.btn-primary { @apply inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:bg-red-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600; }
+.btn-ghost   { @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors; }
+
+/* ── Estado vazio ── */
+.empty-state { @apply flex flex-col items-center justify-center py-16 px-6 text-center; }
+.empty-state-icon { @apply w-14 h-14 text-zinc-300 dark:text-zinc-600 mx-auto mb-4; }
+
+/* ── Pulse de loading ── */
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+.loading-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+

@@ -1,0 +1,1415 @@
+/* ═══════════════════════════════════════════════════════
+   resources/css/editor.css
+   Editor GIS — QGIS-like Professional Layout
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Layout Fullscreen (Terrenos, etc.) ──────────────── */
+
+.editor-fullscreen {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    height: 100vh;
+    overflow: hidden;
+    margin: -1.5rem;
+    width: calc(100% + 3rem);
+    background: #1e2433;
+}
+
+.editor-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 40px;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    flex-shrink: 0;
+}
+
+.editor-topbar__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.editor-topbar__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #1e293b;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+.editor-topbar__back:hover {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+.editor-topbar__title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.editor-topbar__tipo {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #64748b;
+    background: #1e293b;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.editor-topbar__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.editor-topbar__badge {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: #1e293b;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+.editor-body {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.editor-main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ─── Layout QGIS completo ────────────────────────────── */
+
+.editor-qgis-root {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #1e2433;
+}
+
+.editor-qgis {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* ─── Barra de título QGIS ────────────────────────────── */
+
+.qgis-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    height: 40px;
+    background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+    flex-shrink: 0;
+}
+
+.qgis-titlebar__left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.qgis-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid #1e293b;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    text-decoration: none;
+}
+.qgis-back:hover {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+.qgis-project-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qgis-badge {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: #64748b;
+    background: #1e293b;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.qgis-titlebar__right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.qgis-feat-count {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    background: #1e293b;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+/* ─── Status de salvamento ────────────────────────────── */
+
+.save-status {
+    font-size: 0.75rem;
+    color: #64748b;
+    padding: 2px 10px;
+    border-radius: 10px;
+    transition: color 0.2s, background 0.2s;
+}
+
+.save-status--saving {
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    animation: pulse-save 1.2s infinite;
+}
+
+.save-status--saved {
+    color: #34d399;
+    background: rgba(52, 211, 153, 0.1);
+}
+
+.save-status--error {
+    color: #f87171;
+    background: rgba(248, 113, 113, 0.1);
+}
+
+@keyframes pulse-save {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.5; }
+}
+
+/* ─── Corpo: workspace QGIS ───────────────────────────── */
+
+.qgis-workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.qgis-canvas {
+    flex: 1;
+    position: relative;
+    background: #2d3748;
+    min-height: 0;
+    min-width: 0;
+}
+
+.qgis-base-toggle {
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    z-index: 200;
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 6px;
+    color: #9ca3af;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.qgis-base-toggle:hover {
+    background: #2d3a52;
+    color: #f1f5f9;
+}
+
+/* ─── Barra de estado QGIS ────────────────────────────── */
+
+.qgis-statusbar {
+    display: flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    background: #0f172a;
+    border-top: 1px solid #1e293b;
+    flex-shrink: 0;
+    gap: 0;
+    overflow: hidden;
+}
+
+.statusbar-section {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+}
+
+.statusbar-section--right {
+    margin-left: auto;
+}
+
+.statusbar-sep {
+    width: 1px;
+    height: 14px;
+    background: #2a3448;
+    flex-shrink: 0;
+}
+
+.statusbar-item {
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    color: #64748b;
+    white-space: nowrap;
+}
+
+.statusbar-coords {
+    min-width: 210px;
+    color: #94a3b8;
+}
+
+.statusbar-crs {
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.statusbar-muni {
+    color: #94a3b8;
+    font-family: inherit;
+    font-weight: 500;
+}
+
+/* ─── Barra de ferramentas ────────────────────────────── */
+
+#editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 5px 10px;
+    background: #171f2e;
+    border-bottom: 1px solid #2a3448;
+    flex-shrink: 0;
+}
+
+.toolbar-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.toolbar-btn:hover {
+    background: #2d3a52;
+    color: #f3f4f6;
+    border-color: #374151;
+}
+
+.toolbar-btn.active {
+    background: #1d4ed8;
+    color: #fff;
+    border-color: #2563eb;
+}
+
+.toolbar-sep {
+    width: 1px;
+    height: 22px;
+    background: #2a3448;
+    margin: 0 4px;
+}
+
+/* ─── Painel de Camadas ───────────────────────────────── */
+
+#layer-panel {
+    width: 220px;
+    min-width: 160px;
+    background: #1a2236;
+    border-right: 1px solid #2a3448;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #2a3448;
+}
+
+.panel-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #6b7280;
+}
+
+.panel-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: 1px solid #2a3448;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+.panel-add-btn:hover {
+    background: #2d3a52;
+    color: #f1f5f9;
+}
+
+/* ─── Menu de adicionar camada ────────────────────────── */
+
+.layer-add-menu {
+    background: #151c2c;
+    border-bottom: 1px solid #2a3448;
+    max-height: 240px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: max-height 0.2s ease;
+}
+
+.layer-add-menu.hidden {
+    display: none;
+}
+
+.layer-add-menu.open {
+    display: flex;
+}
+
+.layer-add-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    color: #9ca3af;
+    border-bottom: 1px solid #2a3448;
+}
+
+.layer-add-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px;
+    line-height: 1;
+}
+.layer-add-close:hover { color: #f3f4f6; }
+
+.layer-add-list {
+    overflow-y: auto;
+    padding: 4px 0;
+    flex: 1;
+}
+
+.layer-add-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 5px 10px;
+    border: none;
+    background: transparent;
+    color: #d1d5db;
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s;
+}
+.layer-add-item:hover:not(.disabled) {
+    background: #202c42;
+}
+.layer-add-item.disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.layer-add-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.layer-add-name {
+    flex: 1;
+}
+
+.layer-add-check {
+    color: #34d399;
+    font-size: 0.72rem;
+}
+
+/* ─── Lista de camadas ────────────────────────────────── */
+
+.layer-list-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+#layer-panel-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.layer-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.1s;
+    border-left: 3px solid transparent;
+}
+
+.layer-item:hover {
+    background: #202c42;
+}
+
+.layer-item.active {
+    background: #1d2e48;
+    border-left-color: #3b82f6;
+}
+
+.layer-vis-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.layer-vis-btn:hover { color: #f3f4f6; }
+
+.layer-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.layer-name {
+    flex: 1;
+    font-size: 0.825rem;
+    color: #d1d5db;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.layer-count {
+    font-size: 0.7rem;
+    color: #4b5563;
+}
+
+/* ─── Inline rename input ─────────────────────────────── */
+
+.layer-rename-input {
+    flex: 1;
+    background: #0f172a;
+    border: 1px solid #3b82f6;
+    border-radius: 4px;
+    color: #f3f4f6;
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    outline: none;
+    min-width: 0;
+    font-family: inherit;
+}
+
+/* ─── Footer do painel de camadas ─────────────────────── */
+
+.layer-panel-footer {
+    padding: 6px 10px;
+    border-top: 1px solid #2a3448;
+    flex-shrink: 0;
+}
+
+.layer-stats {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    color: #4b5563;
+}
+
+.layer-stats-icon {
+    display: flex;
+    align-items: center;
+}
+
+.layer-stats-sep {
+    color: #374151;
+}
+
+/* ─── Mapa ────────────────────────────────────────────── */
+
+#map-editor {
+    flex: 1;
+    position: relative;
+    background: #2d3748;
+    min-height: 0;
+    min-width: 0;
+}
+
+/* ─── Barra de status / coordenadas ──────────────────── */
+
+#map-status {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 3px 10px;
+    background: rgba(15, 23, 42, .85);
+    color: #64748b;
+    font-size: 0.7rem;
+    font-family: monospace;
+    z-index: 100;
+    pointer-events: none;
+}
+
+/* ─── Botão de alternância de base ────────────────────── */
+
+#btn-toggle-base {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 200;
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 6px;
+    color: #9ca3af;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+#btn-toggle-base:hover {
+    background: #2d3a52;
+    color: #f1f5f9;
+}
+
+/* ─── Painel de Propriedades (flutuante) ─────────────── */
+
+#property-panel {
+    position: absolute;
+    top: 12px;
+    right: 54px;
+    z-index: 200;
+    width: 280px;
+    max-height: calc(100% - 40px);
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#property-panel.hidden { display: none; }
+#property-panel.open   { display: flex; }
+
+.prop-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #171f2e;
+    border-bottom: 1px solid #2a3448;
+    flex-shrink: 0;
+}
+
+.prop-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.prop-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+}
+
+.prop-header button {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 2px 4px;
+    line-height: 1;
+}
+.prop-header button:hover { color: #f3f4f6; }
+
+.prop-body {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.prop-section {
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #2a3448;
+}
+
+.prop-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.prop-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.prop-row label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+    flex-shrink: 0;
+}
+
+.prop-row span {
+    font-size: 0.82rem;
+    color: #d1d5db;
+    text-align: right;
+}
+
+.prop-id {
+    font-family: monospace;
+    font-size: 0.72rem !important;
+    color: #4b5563 !important;
+}
+
+.prop-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 8px;
+}
+
+.prop-field label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6b7280;
+}
+
+.prop-input {
+    background: #0f172a;
+    border: 1px solid #2a3448;
+    border-radius: 5px;
+    color: #f3f4f6;
+    font-size: 0.82rem;
+    padding: 5px 8px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: inherit;
+    resize: vertical;
+}
+.prop-input:focus { border-color: #3b82f6; }
+
+.prop-footer {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    border-top: 1px solid #2a3448;
+    flex-shrink: 0;
+}
+
+.prop-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.prop-btn--primary {
+    flex: 1;
+    background: #1d4ed8;
+    color: #fff;
+}
+.prop-btn--primary:hover { background: #2563eb; }
+
+.prop-btn--danger {
+    background: #7f1d1d;
+    color: #fca5a5;
+    padding: 5px 10px;
+}
+.prop-btn--danger:hover { background: #991b1b; }
+
+/* ─── Tooltip de medição ─────────────────────────────── */
+
+.measure-tooltip {
+    position: absolute;
+    background: rgba(15, 23, 42, .92);
+    color: #fbbf24;
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 0.78rem;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 300;
+}
+
+/* ─── OpenLayers overrides ───────────────────────────── */
+
+.ol-zoom {
+    top: auto;
+    bottom: 28px;
+    left: 10px;
+    right: auto;
+}
+
+.ol-zoom .ol-zoom-in,
+.ol-zoom .ol-zoom-out {
+    background: #1a2236;
+    color: #d1d5db;
+    border: 1px solid #2a3448;
+    border-radius: 6px;
+    width: 30px;
+    height: 30px;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.ol-attribution {
+    background: rgba(15, 23, 42, .7);
+    color: #4b5563;
+    font-size: 0.65rem;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────── */
+
+#layer-panel-list::-webkit-scrollbar,
+.layer-list-container::-webkit-scrollbar,
+.layer-add-list::-webkit-scrollbar,
+.prop-body::-webkit-scrollbar {
+    width: 4px;
+}
+#layer-panel-list::-webkit-scrollbar-thumb,
+.layer-list-container::-webkit-scrollbar-thumb,
+.layer-add-list::-webkit-scrollbar-thumb,
+.prop-body::-webkit-scrollbar-thumb {
+    background: #2a3448;
+    border-radius: 2px;
+}
+
+/* ─── Responsivo ─────────────────────────────────────── */
+
+/* ─── Modal Overlay ──────────────────────────────────── */
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+}
+
+.modal-overlay.open {
+    opacity: 1;
+}
+
+.modal-dialog {
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, .6);
+    padding: 24px;
+    max-width: 380px;
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    transform: scale(0.92);
+    transition: transform 0.2s ease;
+}
+
+.modal-overlay.open .modal-dialog {
+    transform: scale(1);
+}
+
+.modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    flex-shrink: 0;
+}
+
+.modal-content {
+    text-align: center;
+    width: 100%;
+}
+
+.modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin: 0 0 6px;
+}
+
+.modal-message {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.modal-message strong {
+    color: #cbd5e1;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    margin-top: 6px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    outline: none;
+}
+
+.modal-btn--cancel {
+    background: #2a3448;
+    color: #94a3b8;
+}
+.modal-btn--cancel:hover {
+    background: #374151;
+    color: #e2e8f0;
+}
+
+.modal-btn--confirm {
+    /* background/color set inline by variant */
+}
+
+.modal-btn--primary {
+    background: #1d4ed8;
+    color: #fff;
+}
+.modal-btn--primary:hover {
+    background: #2563eb;
+}
+
+/* ─── Context Menu ───────────────────────────────────── */
+
+.ctx-menu {
+    position: absolute;
+    z-index: 500;
+    min-width: 190px;
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 10px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .5);
+    padding: 4px 0;
+    overflow: hidden;
+    opacity: 0;
+    transform: scale(0.92);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    pointer-events: none;
+}
+
+.ctx-menu.hidden {
+    display: none;
+}
+
+.ctx-menu.open {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.ctx-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px 4px;
+    border-bottom: 1px solid #2a3448;
+    margin-bottom: 2px;
+}
+
+.ctx-geom-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: #2d3a52;
+    color: #94a3b8;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.ctx-fid {
+    font-size: 0.68rem;
+    font-family: monospace;
+    color: #4b5563;
+}
+
+.ctx-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 12px;
+    border: none;
+    background: transparent;
+    color: #d1d5db;
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.1s;
+}
+
+.ctx-item:hover {
+    background: #202c42;
+}
+
+.ctx-item svg {
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.ctx-item--danger {
+    color: #f87171;
+}
+.ctx-item--danger:hover {
+    background: rgba(248, 113, 113, 0.1);
+}
+
+.ctx-sep {
+    height: 1px;
+    background: #2a3448;
+    margin: 3px 0;
+}
+
+.ctx-arrow {
+    margin-left: auto;
+    color: #4b5563;
+    font-size: 1rem;
+    line-height: 1;
+}
+
+/* Submenu de camadas */
+.ctx-submenu-trigger {
+    position: relative;
+}
+
+.ctx-submenu {
+    position: absolute;
+    left: 100%;
+    top: -4px;
+    min-width: 170px;
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .5);
+    padding: 4px 0;
+    z-index: 510;
+}
+
+.ctx-submenu.hidden {
+    display: none;
+}
+
+.ctx-submenu.open {
+    display: block;
+}
+
+.ctx-sub-header {
+    font-size: 0.7rem;
+    color: #6b7280;
+    padding: 5px 10px;
+    border-bottom: 1px solid #2a3448;
+}
+
+.ctx-sub-header strong {
+    color: #94a3b8;
+}
+
+.ctx-sub-item {
+    font-size: 0.78rem;
+}
+
+.ctx-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.ctx-disabled {
+    color: #4b5563;
+    cursor: default;
+    pointer-events: none;
+    font-size: 0.75rem;
+    font-style: italic;
+    padding: 5px 12px;
+}
+
+.ctx-author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 12px 5px;
+    font-size: 0.72rem;
+    color: #6b7280;
+    border-bottom: 1px solid #2a3448;
+    margin-bottom: 2px;
+}
+
+.ctx-author svg {
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+/* ─── Feature sub-items no LayerPanel ────────────────── */
+
+.layer-feature-list {
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.25s ease;
+}
+
+.layer-feature-list.open {
+    max-height: 2000px;
+}
+
+.layer-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px 3px 32px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    transition: background 0.1s, color 0.1s;
+    border-left: 3px solid transparent;
+}
+
+.layer-feature-item:hover {
+    background: #202c42;
+    color: #d1d5db;
+}
+
+.layer-feature-item.active {
+    background: #1d2e48;
+    border-left-color: #60a5fa;
+    color: #e2e8f0;
+}
+
+.layer-feature-icon {
+    display: flex;
+    align-items: center;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+.layer-feature-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.layer-feature-id {
+    font-family: monospace;
+    font-size: 0.65rem;
+    color: #4b5563;
+    flex-shrink: 0;
+}
+
+.layer-toggle-btn {
+    background: none;
+    border: none;
+    color: #4b5563;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: transform 0.2s, color 0.15s;
+}
+
+.layer-toggle-btn:hover {
+    color: #94a3b8;
+}
+
+.layer-toggle-btn.open {
+    transform: rotate(90deg);
+}
+
+/* ─── Export Dialog ───────────────────────────────────── */
+
+.export-dialog {
+    background: #1a2236;
+    border: 1px solid #2a3448;
+    border-radius: 14px;
+    width: 420px;
+    max-width: 90vw;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, .6);
+    overflow: hidden;
+}
+
+.export-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid #2a3448;
+}
+
+.export-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    margin: 0;
+}
+
+.export-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+}
+.export-close:hover {
+    color: #f1f5f9;
+    background: #2d3a52;
+}
+
+.export-body {
+    padding: 16px 18px 20px;
+}
+
+.export-desc {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 0 0 14px;
+}
+
+.export-formats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.export-format-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #151c2c;
+    border: 1px solid #2a3448;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    text-align: left;
+    color: #d1d5db;
+}
+
+.export-format-btn:hover {
+    background: #202c42;
+    border-color: #3b82f6;
+}
+
+.export-format-btn.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.export-format-icon {
+    display: flex;
+    align-items: center;
+    color: #3b82f6;
+    flex-shrink: 0;
+}
+
+.export-format-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.export-format-info strong {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+.export-format-info small {
+    font-size: 0.68rem;
+    color: #6b7280;
+}
+
+.export-footer {
+    padding: 10px 18px;
+    border-top: 1px solid #2a3448;
+    font-size: 0.68rem;
+    color: #4b5563;
+    text-align: center;
+}
+
+/* ─── Sync toast ─────────────────────────────────────── */
+
+#sync-toast {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 300;
+    background: #1e40af;
+    color: #e0e7ff;
+    padding: 6px 16px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .4);
+    transition: opacity 0.3s;
+}
+
+#sync-toast.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#sync-toast.show {
+    opacity: 1;
+}
+
+/* ─── Responsivo ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    #layer-panel {
+        display: none;
+    }
+    .qgis-badge {
+        display: none;
+    }
+    .statusbar-section:not(:first-child):not(.statusbar-section--right) {
+        display: none;
+    }
+    #property-panel {
+        right: 8px;
+        left: 8px;
+        width: auto;
+        top: auto;
+        bottom: 32px;
+        max-height: 50%;
+    }
+    .ctx-submenu {
+        left: auto;
+        right: 0;
+    }
+    .export-formats {
+        grid-template-columns: 1fr;
+    }
+}
