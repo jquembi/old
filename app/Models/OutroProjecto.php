@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\EnviaParaLixeira;
+use App\Models\Concerns\HasSyncMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class OutroProjecto extends Model
 {
-    use EnviaParaLixeira;
+    use EnviaParaLixeira, HasSyncMetadata;
 
     protected $table = 'outros_projectos';
 

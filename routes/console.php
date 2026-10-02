@@ -3,6 +3,7 @@
 use App\Services\WordToPdfService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
@@ -24,3 +25,11 @@ Artisan::command('inotu:check-libreoffice', function (WordToPdfService $service)
 
     return 0;
 })->purpose('Verifica se o LibreOffice esta disponivel para converter memorias descritivas Word em PDF.');
+
+Schedule::command('gterra:sync-outbox --quiet')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+Schedule::command('geoguard:prune --quiet')
+    ->dailyAt('02:30')
+    ->withoutOverlapping();

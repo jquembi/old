@@ -10,6 +10,12 @@ class RolesPermissoesSeeder extends Seeder
 {
     public function run(): void
     {
+        // ─── Role Super Admin Nacional (nível 0) ─────────────────
+        $superAdminNacional = Role::firstOrCreate(
+            ['nome' => Role::SUPER_ADMIN_NACIONAL],
+            ['descricao' => 'Super Administrador Nacional - Visão geral completa', 'grupo' => 'INOTU Nacional', 'nivel' => Role::NIVEL_NACIONAL]
+        );
+
         // ─── Roles INOTU (nível 1) ──────────────────────────
         $chefeSeccao = Role::firstOrCreate(
             ['nome' => Role::CHEFE_SECCAO_TECNICA],
@@ -122,6 +128,35 @@ class RolesPermissoesSeeder extends Seeder
             ['nome' => 'dashboard.ver', 'descricao' => 'Ver dashboard geral', 'grupo' => 'Dashboard'],
             ['nome' => 'dashboard.provincial', 'descricao' => 'Ver dashboard provincial', 'grupo' => 'Dashboard'],
             ['nome' => 'dashboard.municipal', 'descricao' => 'Ver dashboard municipal', 'grupo' => 'Dashboard'],
+
+            // ERP Financeiro
+            ['nome' => 'financeiro.ver', 'descricao' => 'Ver módulo financeiro', 'grupo' => 'ERP'],
+            ['nome' => 'financeiro.criar', 'descricao' => 'Criar registros financeiros', 'grupo' => 'ERP'],
+            ['nome' => 'financeiro.editar', 'descricao' => 'Editar registros financeiros', 'grupo' => 'ERP'],
+            ['nome' => 'financeiro.eliminar', 'descricao' => 'Eliminar registros financeiros', 'grupo' => 'ERP'],
+
+            // ERP Recursos Humanos
+            ['nome' => 'rh.ver', 'descricao' => 'Ver módulo de RH', 'grupo' => 'ERP'],
+            ['nome' => 'rh.criar', 'descricao' => 'Criar registros de RH', 'grupo' => 'ERP'],
+            ['nome' => 'rh.editar', 'descricao' => 'Editar registros de RH', 'grupo' => 'ERP'],
+            ['nome' => 'rh.eliminar', 'descricao' => 'Eliminar registros de RH', 'grupo' => 'ERP'],
+
+            // ERP Compras e Contratos
+            ['nome' => 'compras.ver', 'descricao' => 'Ver módulo de compras', 'grupo' => 'ERP'],
+            ['nome' => 'compras.criar', 'descricao' => 'Criar registros de compras', 'grupo' => 'ERP'],
+            ['nome' => 'compras.editar', 'descricao' => 'Editar registros de compras', 'grupo' => 'ERP'],
+            ['nome' => 'compras.eliminar', 'descricao' => 'Eliminar registros de compras', 'grupo' => 'ERP'],
+
+            // ERP Património
+            ['nome' => 'patrimonio.ver', 'descricao' => 'Ver módulo de património', 'grupo' => 'ERP'],
+            ['nome' => 'patrimonio.criar', 'descricao' => 'Criar registros de património', 'grupo' => 'ERP'],
+            ['nome' => 'patrimonio.editar', 'descricao' => 'Editar registros de património', 'grupo' => 'ERP'],
+            ['nome' => 'patrimonio.eliminar', 'descricao' => 'Eliminar registros de património', 'grupo' => 'ERP'],
+
+            // Gestão Nacional
+            ['nome' => 'nacional.ver', 'descricao' => 'Ver dashboard nacional', 'grupo' => 'Nacional'],
+            ['nome' => 'nacional.admin', 'descricao' => 'Administrar tenants nacionais', 'grupo' => 'Nacional'],
+            ['nome' => 'nacional.relatorios', 'descricao' => 'Ver relatórios nacionais', 'grupo' => 'Nacional'],
         ];
 
         $permissoesCriadas = [];
@@ -134,8 +169,11 @@ class RolesPermissoesSeeder extends Seeder
 
         // ─── Atribuir permissões às roles ────────────────────
 
-        // INOTU — acesso total a todos os módulos
+        // Super Admin Nacional — acesso total a todos os módulos e ERP
         $allPermIds = Permissao::pluck('id')->all();
+        $superAdminNacional->permissoes()->sync($allPermIds);
+
+        // INOTU — acesso total a todos os módulos
         $chefeSeccao->permissoes()->syncWithoutDetaching($allPermIds);
         $secretariaGabinete->permissoes()->syncWithoutDetaching($allPermIds);
         $directorInotu->permissoes()->syncWithoutDetaching($allPermIds);

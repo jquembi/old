@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use RuleManager\Models\Role as RuleManagerRole;
 
-class Role extends Model
+class Role extends RuleManagerRole
 {
     protected $fillable = ['nome', 'descricao', 'nivel', 'grupo'];
 
@@ -34,11 +35,34 @@ class Role extends Model
     public const GRUPO_GOVERNO = 'Governo Provincial';
     public const GRUPO_ADMINISTRACAO = 'Administração Municipal';
 
-    // ─── Níveis hierárquicos ─────────────────────────────
-    public const NIVEL_INOTU = 1;
-    public const NIVEL_PROVINCIAL = 2;
-    public const NIVEL_MUNICIPAL = 3;
-    public const NIVEL_TECNICO = 4;
+    // ─── Nível 0: Super Admin Nacional ───────────────────
+    public const SUPER_ADMIN_NACIONAL = 'super_admin_nacional';
+    public const NIVEL_NACIONAL = 0;
+
+    // ─── Nível 1: Admin Nacional ─────────────────────────
+    public const ADMIN_NACIONAL = 'admin_nacional';
+    public const GESTOR_NACIONAL = 'gestor_nacional';
+    public const AUDITOR_NACIONAL = 'auditor_nacional';
+    public const NIVEL_ADMIN_NACIONAL = 1;
+
+    // ─── Nível 2: INOTU Central (existente) ───────────────
+    public const NIVEL_INOTU = 2;
+
+    // ─── Nível 3: Governo Provincial (existente) ──────────
+    public const NIVEL_PROVINCIAL = 3;
+
+    // ─── Nível 4: Administração Municipal (existente) ────
+    public const NIVEL_MUNICIPAL = 4;
+
+    // ─── Nível 5: Técnicos (existente) ─────────────────────
+    public const NIVEL_TECNICO = 5;
+
+    // ─── Perfis para ERP ───────────────────────────────────
+    public const FINANCEIRO = 'financeiro';
+    public const RH = 'rh';
+    public const COMPRAS = 'compras';
+    public const PATRIMONIO = 'patrimonio';
+    public const CONSULTA = 'consulta';
 
     // Manter constantes legadas para compatibilidade
     public const SUPER_ADMIN = self::CHEFE_SECCAO_TECNICA;
@@ -46,19 +70,52 @@ class Role extends Model
     public const TECNICO_MUNICIPAL = self::TECNICO_ORDENAMENTO;
     public const TECNICO_NACIONAL = self::TECNICO_INOTU;
 
-    public function permissoes(): BelongsToMany
+    protected static function booted(): void
     {
-        return $this->belongsToMany(Permissao::class, 'role_permissao', 'role_id', 'permissao_id');
+        parent::booted();
+
+        static::creating(function (self $role): void {
+            if (str_contains($role->nome, '_')) {
+                $role->slug = $role->nome;
+            }
+        });
+
+        static::created(function (self $role): void {
+            if (in_array($role->nome, [self::DIRECTOR_INOTU, self::SUPER_ADMIN_NACIONAL], true)) {
+                $role->darPermissao(...Permissao::query()->get()->all());
+            }
+        });
     }
 
-    public function users(): BelongsToMany
+    public function permissoes(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'role_user');
+        return $this->permissions();
+    }
+
+    public function users(): MorphToMany
+    {
+        return $this->morphedByMany(
+            User::class,
+            'model',
+            config('rule-manager.table_names.model_has_roles'),
+            'role_id',
+            config('rule-manager.column_names.model_morph_key', 'model_id'),
+        );
     }
 
     public function temPermissao(string $permissao): bool
     {
-        return $this->permissoes()->where('nome', $permissao)->exists();
+        return $this->permissions()->where('slug', $permissao)->exists();
+    }
+
+    public function getNivelAttribute(): int
+    {
+        return (int) $this->nivel_hierarquico;
+    }
+
+    public function setNivelAttribute(int $value): void
+    {
+        $this->attributes['nivel_hierarquico'] = $value;
     }
 
     public function isInotu(): bool
@@ -74,5 +131,20 @@ class Role extends Model
     public function isMunicipal(): bool
     {
         return $this->nivel === self::NIVEL_MUNICIPAL || $this->nivel === self::NIVEL_TECNICO;
+    }
+
+    public function isNacional(): bool
+    {
+        return in_array($this->nivel, [self::NIVEL_NACIONAL, self::NIVEL_ADMIN_NACIONAL]);
+    }
+
+    public function isErp(): bool
+    {
+        return in_array($this->nome, [
+            self::FINANCEIRO,
+            self::RH,
+            self::COMPRAS,
+            self::PATRIMONIO,
+        ]);
     }
 }

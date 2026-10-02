@@ -9,43 +9,45 @@ class TerrenoOciosoPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('terreno_view');
+        return $user->activo && $user->temPermissao('operacoes.ver');
     }
 
     public function view(User $user, TerrenoOcioso $terreno): bool
     {
-        if ($user->canAccessAllMunicipios()) {
-            return true;
-        }
-        return $user->municipio_id === $terreno->municipio_id;
+        return $user->activo
+            && $user->temPermissao('operacoes.ver')
+            && $this->pertenceAoAmbito($user, $terreno);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('terreno_create');
+        return $user->activo && $user->temPermissao('operacoes.criar');
     }
 
     public function update(User $user, TerrenoOcioso $terreno): bool
     {
-        if (!$user->hasPermission('terreno_edit')) {
-            return false;
-        }
-        if ($user->canAccessAllMunicipios()) {
-            return true;
-        }
-        return $user->municipio_id === $terreno->municipio_id;
+        return $user->activo
+            && $user->temPermissao('operacoes.editar')
+            && $this->pertenceAoAmbito($user, $terreno);
     }
 
     public function delete(User $user, TerrenoOcioso $terreno): bool
     {
-        if (!$user->hasPermission('terreno_delete')) {
-            return false;
-        }
-        if ($user->isINOTU()) {
+        return $user->activo
+            && $user->temPermissao('operacoes.eliminar')
+            && $this->pertenceAoAmbito($user, $terreno);
+    }
+
+    private function pertenceAoAmbito(User $user, TerrenoOcioso $terreno): bool
+    {
+        if ($user->isNacional() || $user->isInotu()) {
             return true;
         }
+
+        if ($user->isProvincial()) {
+            return $terreno->municipio?->provincia_id === $user->provincia_id;
+        }
+
         return $user->municipio_id === $terreno->municipio_id;
     }
 }
-
-

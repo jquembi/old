@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\EnviaParaLixeira;
+use App\Models\Concerns\HasSyncMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Instrumento extends Model
 {
-    use EnviaParaLixeira;
+    use EnviaParaLixeira, HasSyncMetadata;
 
     protected $fillable = [
         'municipio_id', 'tipo_instrumento_id', 'titulo',

@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Shared\Traits\HasAuditFields;
 use App\Shared\Traits\HasSlug;
+use App\Models\Concerns\HasSyncMetadata;
 
 class Operacao extends Model
 {
-    use HasFactory, HasAuditFields, HasSlug;
+    use HasFactory, HasAuditFields, HasSlug, HasSyncMetadata;
 
     protected $table = 'operacoes';
 

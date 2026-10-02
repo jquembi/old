@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="shortcut icon" href="{{ asset('imagens/favicon/favicon.ico') }}" type="image/x-icon">
     <script>tailwind.config = { darkMode: 'class' }</script>
-    <style>body { background: #09090b; font-family: system-ui, sans-serif; }</style>
+    <style>body { background: #09090b; font-family: 'Merriweather', serif; }</style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-zinc-950 to-zinc-900 py-12 px-4">
 <div class="max-w-md mx-auto text-center">

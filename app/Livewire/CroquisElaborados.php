@@ -71,6 +71,11 @@ class CroquisElaborados extends Component
 
     public function publicarCroqui(int $croquiId)
     {
+        if (!$this->podePublicar) {
+            $this->addError('publicar', 'Não tem permissão para publicar croquis.');
+            return;
+        }
+
         $croqui = Croqui::findOrFail($croquiId);
         
         if (!$croqui->ficheiro_pdf_caminho || !$croqui->memoria_descritiva_caminho) {
@@ -96,6 +101,11 @@ class CroquisElaborados extends Component
 
     public function despublicarCroqui(int $croquiId)
     {
+        if (!$this->podePublicar) {
+            $this->addError('despublicar', 'Não tem permissão para despublicar croquis.');
+            return;
+        }
+
         $croqui = Croqui::findOrFail($croquiId);
         
         $croqui->update([
@@ -113,6 +123,11 @@ class CroquisElaborados extends Component
 
     public function homologarDownload(int $croquiId)
     {
+        if (!$this->podeHomologar) {
+            $this->addError('homologar', 'Não tem permissão para homologar downloads.');
+            return;
+        }
+
         $croqui = Croqui::findOrFail($croquiId);
         
         if (!$croqui->rup_pago) {
@@ -129,6 +144,11 @@ class CroquisElaborados extends Component
 
     public function revogarDownload(int $croquiId)
     {
+        if (!$this->podeHomologar) {
+            $this->addError('revogar', 'Não tem permissão para revogar downloads.');
+            return;
+        }
+
         $croqui = Croqui::findOrFail($croquiId);
         
         $croqui->update([
@@ -140,6 +160,11 @@ class CroquisElaborados extends Component
 
     public function eliminar(int $croquiId)
     {
+        if (!$this->podeEliminar) {
+            $this->addError('eliminar', 'Não tem permissão para eliminar croquis.');
+            return;
+        }
+
         $croqui = Croqui::findOrFail($croquiId);
         
         // Soft delete using trait

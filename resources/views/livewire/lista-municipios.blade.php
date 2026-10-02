@@ -65,34 +65,34 @@
 
                         {{-- Stats do município --}}
                         <div class="grid grid-cols-2 gap-2 flex-1">
-                            <div class="rounded-lg px-3 py-2 border border-white/20 bg-white/10 backdrop-blur-sm">
-                                <p class="text-[10px] font-medium text-red-100/85 uppercase tracking-wide">Instrumentos</p>
-                                <p class="text-base font-bold text-white mt-0.5">{{ $municipio->instrumentos_count }}</p>
+                            <div class="rounded-lg px-3 py-2 border border-zinc-200 bg-zinc-50">
+                                <p class="text-[10px] font-medium text-zinc-600 uppercase tracking-wide">Instrumentos</p>
+                                <p class="text-base font-bold text-zinc-900 mt-0.5">{{ $municipio->instrumentos_count }}</p>
                             </div>
-                            <div class="rounded-lg px-3 py-2 border border-white/20 bg-white/10 backdrop-blur-sm">
-                                <p class="text-[10px] font-medium text-red-100/85 uppercase tracking-wide">Loteamentos</p>
-                                <p class="text-base font-bold text-white mt-0.5">{{ $municipio->loteamentos_count }}</p>
+                            <div class="rounded-lg px-3 py-2 border border-zinc-200 bg-zinc-50">
+                                <p class="text-[10px] font-medium text-zinc-600 uppercase tracking-wide">Loteamentos</p>
+                                <p class="text-base font-bold text-zinc-900 mt-0.5">{{ $municipio->loteamentos_count }}</p>
                             </div>
-                            <div class="rounded-lg px-3 py-2 border border-white/20 bg-white/10 backdrop-blur-sm">
-                                <p class="text-[10px] font-medium text-red-100/85 uppercase tracking-wide">Operações</p>
-                                <p class="text-base font-bold text-white mt-0.5">{{ $municipio->operacoes_urbanisticas_count }}</p>
+                            <div class="rounded-lg px-3 py-2 border border-zinc-200 bg-zinc-50">
+                                <p class="text-[10px] font-medium text-zinc-600 uppercase tracking-wide">Operações</p>
+                                <p class="text-base font-bold text-zinc-900 mt-0.5">{{ $municipio->operacoes_urbanisticas_count }}</p>
                             </div>
-                            <div class="rounded-lg px-3 py-2 border border-white/20 bg-white/10 backdrop-blur-sm">
-                                <p class="text-[10px] font-medium text-red-100/85 uppercase tracking-wide">Proj. SONA</p>
-                                <p class="text-base font-bold text-white mt-0.5">{{ $municipio->projectos_sona_count }}</p>
+                            <div class="rounded-lg px-3 py-2 border border-zinc-200 bg-zinc-50">
+                                <p class="text-[10px] font-medium text-zinc-600 uppercase tracking-wide">Proj. SONA</p>
+                                <p class="text-base font-bold text-zinc-900 mt-0.5">{{ $municipio->projectos_sona_count }}</p>
                             </div>
                         </div>
 
                         {{-- Acção --}}
                         <div class="mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between">
-                            <span class="text-xs font-semibold text-red-200 group-hover:gap-2 flex items-center gap-1 transition-all">
+                            <span class="text-xs font-semibold text-angola-red group-hover:gap-2 flex items-center gap-1 transition-all">
                                 Aceder ao município
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                             </span>
                             @if($municipio->activo)
-                                <span class="badge text-[10px] bg-white/15 text-red-100 border border-white/25">Activo</span>
+                                <span class="badge badge-angola text-[10px]">Activo</span>
                             @else
-                                <span class="badge text-[10px] bg-black/20 text-zinc-200 border border-white/20">Inactivo</span>
+                                <span class="badge badge-zinc text-[10px]">Inactivo</span>
                             @endif
                         </div>
                     </div>

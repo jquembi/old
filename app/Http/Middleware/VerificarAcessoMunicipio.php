@@ -10,9 +10,10 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Middleware para verificar se o utilizador tem acesso ao município da rota.
  *
- * - INOTU (nível 1): acesso a todos os municípios
- * - Provincial (nível 2): apenas municípios da sua província
- * - Municipal/Técnico (nível 3-4): apenas o seu município
+ * - Nacional (nível 0-1): acesso a todos os municípios
+ * - INOTU (nível 2): acesso a todos os municípios
+ * - Provincial (nível 3): apenas municípios da sua província
+ * - Municipal/Técnico (nível 4-5): apenas o seu município
  */
 class VerificarAcessoMunicipio
 {
@@ -24,8 +25,8 @@ class VerificarAcessoMunicipio
             abort(403, 'Acesso negado.');
         }
 
-        // INOTU tem acesso a todos os municípios
-        if ($user->isInotu()) {
+        // Nacional e INOTU têm acesso a todos os municípios
+        if ($user->isNacional() || $user->isInotu()) {
             return $next($request);
         }
 
@@ -68,3 +69,4 @@ class VerificarAcessoMunicipio
         abort(403, 'Acesso negado.');
     }
 }
+

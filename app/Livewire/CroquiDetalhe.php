@@ -12,6 +12,8 @@ class CroquiDetalhe extends Component
 
     public function mount(Croqui $croqui)
     {
+        abort_unless(Auth::user()?->can('view', $croqui), 403, 'Não tem permissão para visualizar este croqui.');
+
         $this->croqui = $croqui->load(['proprietarios', 'criadoPor', 'operacao.municipio', 'operacao.municipio.provincia']);
     }
 

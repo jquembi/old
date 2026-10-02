@@ -3,6 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use App\Models\Role;
+use App\Models\Municipio;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,20 +13,91 @@ class GestaoUsuarios extends Component
     use WithPagination;
 
     public string $search = '';
+    public ?string $filtroRoleId = null;
+    public ?string $filtroMunicipioId = null;
+
+    public function mount()
+    {
+        // Verificar permissões no mount
+        $user = auth()->user();
+        if (!$user || !$user->temPermissao('usuarios.ver')) {
+            $this->bloqueado = true;
+            $this->motivo = 'Não tem permissão para ver utilizadores.';
+        }
+    }
 
     public function render()
     {
-        $query = User::with('roles')->latest();
+        $users = User::query()->where('id', 0)->paginate(25); // Empty pagination
+        $podeGerir = false;
+        $roles = collect();
+        $municipios = collect();
 
-        if ($this->search) {
-            $query->where('name', 'like', '%' . $this->search . '%')
-                  ->orWhere('email', 'like', '%' . $this->search . '%');
+        if (!($this->bloqueado ?? false)) {
+            $query = User::with('roles')->latest();
+
+            if ($this->search) {
+                $query->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('email', 'like', '%' . $this->search . '%');
+            }
+
+            if ($this->filtroRoleId) {
+                $roleTable = config('rule-manager.table_names.model_has_roles', 'rule_manager_model_has_roles');
+                $query->whereHas('roles', function ($q) use ($roleTable) {
+                    $q->where("{$roleTable}.role_id", $this->filtroRoleId);
+                });
+            }
+
+            if ($this->filtroMunicipioId) {
+                $query->where('municipio_id', $this->filtroMunicipioId);
+            }
+
+            $users = $query->paginate(25);
+            $podeGerir = auth()->user()?->temPermissao('usuarios.criar') ?? false;
+            $roles = Role::all();
+            $municipios = Municipio::all();
         }
-
-        $users = $query->paginate(25);
 
         return view('livewire.gestao-usuarios', [
             'users' => $users,
+            'usuarios' => $users,
+            'podeGerir' => $podeGerir,
+            'roles' => $roles,
+            'municipios' => $municipios,
         ]);
     }
+
+    public function toggleActivo($userId)
+    {
+        $actor = auth()->user();
+
+        // Verificar permissão
+        if (!$actor || !$actor->temPermissao('usuarios.editar')) {
+            session()->flash('error', 'Não tem permissão para alterar o estado de utilizadores.');
+            return;
+        }
+
+        $user = User::findOrFail($userId);
+
+        // Impedir que o utilizador se desative a si próprio
+        if ($actor->id === $user->id) {
+            session()->flash('error', 'Não pode desativar a sua própria conta.');
+            return;
+        }
+
+        // Verificar hierarquia: não pode alterar utilizadores do mesmo nível ou superior
+        $actorNivel = $actor->nivelMinimo();
+        $userNivel = $user->nivelMinimo();
+
+        if ($actorNivel !== null && $userNivel !== null && $actorNivel >= $userNivel && !$actor->isDiretorInotu() && !$actor->isSuperAdminNacional()) {
+            session()->flash('error', 'Não pode alterar utilizadores do mesmo nível ou superior.');
+            return;
+        }
+
+        $user->activo = !$user->activo;
+        $user->save();
+
+        session()->flash('message', $user->activo ? 'Utilizador ativado com sucesso.' : 'Utilizador desativado com sucesso.');
+    }
 }
+

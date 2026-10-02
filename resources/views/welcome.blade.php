@@ -16,9 +16,9 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            .gov-stripe { height: 4px; background: linear-gradient(90deg, #ce1126 0%, #ce1126 50%, #000000 50%, #000000 100%); }
+            .gov-stripe { height: 4px; background: linear-gradient(90deg, #C30E20 0%, #C30E20 50%, #000000 50%, #000000 100%); }
             .gov-hero-bg { background: linear-gradient(135deg, #0a0a0a 0%, #1a0005 40%, #0f0000 100%); }
-            .gov-section-accent { border-top: 3px solid #ce1126; }
+            .gov-section-accent { border-top: 3px solid #C30E20; }
             .gov-card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
             .gov-card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
             .stat-number { font-variant-numeric: tabular-nums; }
@@ -28,12 +28,12 @@
             .carousel-track { display: flex; transition: transform 0.7s cubic-bezier(.4,0,.2,1); will-change: transform; }
             .carousel-slide { min-width: 60%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; padding: 1.5rem 1rem; transition: opacity .5s ease, transform .5s ease; opacity: .35; transform: scale(.82); filter: blur(1px); }
             .carousel-slide.active { opacity: 1; transform: scale(1); filter: blur(0); }
-            .carousel-slide img { max-height: 300px; width: auto; max-width: 90%; object-fit: contain; border-radius: 1rem; background: white; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 0 60px rgba(206,17,38,.08); transition: transform .4s ease, box-shadow .4s ease; }
-            .carousel-slide.active img { box-shadow: 0 12px 48px rgba(0,0,0,.25), 0 0 80px rgba(206,17,38,.12); }
+            .carousel-slide img { max-height: 300px; width: auto; max-width: 90%; object-fit: contain; border-radius: 1rem; background: white; padding: 1.5rem; box-shadow: 0 8px 32px rgba(0,0,0,.18), 0 0 60px rgba(195,14,32,.08); transition: transform .4s ease, box-shadow .4s ease; }
+            .carousel-slide.active img { box-shadow: 0 12px 48px rgba(0,0,0,.25), 0 0 80px rgba(195,14,32,.12); }
             .carousel-slide.active img:hover { transform: scale(1.03); }
             .carousel-dots { display: flex; justify-content: center; gap: .625rem; margin-top: 1.25rem; }
             .carousel-dot { width: 11px; height: 11px; border-radius: 50%; background: rgba(255,255,255,.25); border: 2px solid rgba(255,255,255,.15); cursor: pointer; transition: all .3s ease; padding: 0; }
-            .carousel-dot.active { background: #ce1126; border-color: #ce1126; transform: scale(1.35); box-shadow: 0 0 8px rgba(206,17,38,.5); }
+            .carousel-dot.active { background: #C30E20; border-color: #C30E20; transform: scale(1.35); box-shadow: 0 0 8px rgba(195,14,32,.5); }
             .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.12); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.2); color: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .25s ease; z-index: 2; }
             .carousel-btn:hover { background: rgba(255,255,255,.25); transform: translateY(-50%) scale(1.1); box-shadow: 0 0 16px rgba(255,255,255,.1); }
             .carousel-btn.prev { left: .75rem; }
@@ -66,15 +66,15 @@
                     {{-- Navegação --}}
                     @if (Route::has('login'))
                         <nav class="flex items-center gap-2">
-                            <a href="{{ route('portal.home') }}" class="hidden px-4 py-2 text-sm font-semibold text-neutral-700 hover:text-[#ce1126] sm:inline-flex">
+                            <a href="{{ route('portal.home') }}" class="hidden px-4 py-2 text-sm font-semibold text-neutral-700 hover:text-[#C30E20] sm:inline-flex">
                                 Portal do Utente
                             </a>
                             @auth
-                                <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#ce1126] hover:bg-[#a50e1e] rounded-md transition-colors">
+                                <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#C30E20] hover:bg-[#a00c1a] rounded-md transition-colors">
                                     Painel de Controlo
                                 </a>
                             @else
-                                <a href="{{ route('login') }}" class="inline-flex items-center px-5 py-2 text-sm font-semibold text-white bg-[#ce1126] hover:bg-[#a50e1e] rounded-md transition-colors">
+                                <a href="{{ route('login') }}" class="inline-flex items-center px-5 py-2 text-sm font-semibold text-white bg-[#C30E20] hover:bg-[#a00c1a] rounded-md transition-colors">
                                     Iniciar Sessão
                                 </a>
                             @endauth
@@ -131,7 +131,7 @@
 
                     <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight tracking-tight mb-5">
                         Base de Dados Provincial de<br>
-                        <span class="text-red-400">Gestão de Terras</span>
+                        <span class="text-[#F2CB13]">Gestão de Terras</span>
                     </h1>
 
                     <p class="text-base sm:text-lg text-white/75 leading-relaxed mb-10 max-w-2xl mx-auto">
@@ -200,7 +200,7 @@
                     <h2 class="text-2xl sm:text-3xl font-bold text-neutral-900 mb-3">
                         Gestão Territorial Integrada
                     </h2>
-                    <div class="w-16 h-1 bg-[#ce1126] mx-auto rounded-full mb-4"></div>
+                    <div class="w-16 h-1 bg-[#C30E20] mx-auto rounded-full mb-4"></div>
                     <p class="text-base text-neutral-600 max-w-2xl mx-auto">
                         Uma plataforma completa para digitalizar e optimizar os processos de gestão de terras na Província da Huíla.
                     </p>
@@ -209,8 +209,8 @@
                 <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {{-- Feature 1 --}}
                     <div class="bg-white rounded-xl p-7 border border-neutral-200 gov-card-hover">
-                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#ce1126]/10 mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#ce1126]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#C30E20]/10 mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#C30E20]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
                             </svg>
                         </div>
@@ -222,8 +222,8 @@
 
                     {{-- Feature 2 --}}
                     <div class="bg-white rounded-xl p-7 border border-neutral-200 gov-card-hover">
-                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#ce1126]/10 mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#ce1126]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#C30E20]/10 mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#C30E20]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" />
                             </svg>
                         </div>
@@ -235,9 +235,9 @@
 
                     {{-- Feature 3 --}}
                     <div class="bg-white rounded-xl p-7 border border-neutral-200 gov-card-hover">
-                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#ce1126]/10 mb-5">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#ce1126]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
+                        <div class="flex items-center justify-center w-12 h-12 rounded-xl bg-[#C30E20]/10 mb-5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#C30E20]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 1 4.5 0Z" />
                             </svg>
                         </div>
                         <h3 class="text-lg font-semibold text-neutral-900 mb-2">Controlo de Acesso</h3>

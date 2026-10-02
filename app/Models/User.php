@@ -5,17 +5,21 @@ namespace App\Models;
 use App\Concerns\TemPermissoes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Sanctum\HasApiTokens;
+use RuleManager\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, TemPermissoes;
+    use HasApiTokens, HasFactory, Notifiable, TwoFactorAuthenticatable, HasRoles, TemPermissoes {
+        TemPermissoes::temPermissao insteadof HasRoles;
+        HasRoles::temPermissao as ruleManagerTemPermissao;
+    }
 
     protected $fillable = [
         'name',
@@ -46,9 +50,15 @@ class User extends Authenticatable
 
     // ─── Relacionamentos ─────────────────────────────────
 
-    public function roles(): BelongsToMany
+    public function roles(): MorphToMany
     {
-        return $this->belongsToMany(Role::class, 'role_user');
+        return $this->morphToMany(
+            Role::class,
+            'model',
+            config('rule-manager.table_names.model_has_roles'),
+            config('rule-manager.column_names.model_morph_key', 'model_id'),
+            'role_id',
+        );
     }
 
     public function provincia(): BelongsTo

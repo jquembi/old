@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\EnviaParaLixeira;
 use App\Models\Concerns\ComAutenticidadeQr;
+use App\Models\Concerns\HasSyncMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class Croqui extends Model
 {
-    use ComAutenticidadeQr, EnviaParaLixeira;
+    use ComAutenticidadeQr, EnviaParaLixeira, HasSyncMetadata;
 
     protected $fillable = [
         'operacao_id', 'tipo', 'titulo', 'slug', 'ano',

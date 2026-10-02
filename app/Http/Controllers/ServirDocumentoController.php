@@ -191,8 +191,9 @@ class ServirDocumentoController extends Controller
             $token = DocumentoAutenticidadeService::buscarTokenPorCaminho($caminho);
             if ($token) {
                 $croquiMemoria = Croqui::where('memoria_descritiva_caminho', $caminho)->first();
-                $idTerreno = $croquiMemoria?->codigo_territorial ?: ($croquiMemoria ? 'TERRENO-' . $croquiMemoria->id : null);
-                $textoAbaixoQr = $idTerreno ? 'ID: ' . $idTerreno : null;
+                // O QR continua a permitir validar o documento, mas o código
+                // territorial (por exemplo, CT-...) não é exibido no ficheiro.
+                $textoAbaixoQr = null;
                 $qrUrl = DocumentoAutenticidadeService::gerarUrlQrSimples(
                     $token,
                     $croquiMemoria ? 'memoria_descritiva' : null

@@ -21,7 +21,7 @@ class CheckApiPermission
             ], 401);
         }
 
-        if (!$user->hasPermission($permission)) {
+        if (!$user->activo || !$user->temPermissao($permission)) {
             return response()->json([
                 'success' => false,
                 'data' => null,

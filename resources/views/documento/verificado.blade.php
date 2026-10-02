@@ -8,7 +8,7 @@
     <link rel="shortcut icon" href="{{ asset('imagens/favicon/favicon.ico') }}" type="image/x-icon">
     <script>tailwind.config = { darkMode: 'class' }</script>
     <style>
-        body { background: #09090b; font-family: system-ui, sans-serif; }
+        body { background: #09090b; font-family: 'Merriweather', serif; }
         @media print { .no-print { display: none !important; } }
     </style>
 </head>

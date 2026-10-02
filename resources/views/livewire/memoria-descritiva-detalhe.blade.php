@@ -16,7 +16,6 @@
                     <flux:heading size="xl">Memoria Descritiva</flux:heading>
                     <flux:text class="mt-1">{{ $croqui->memoria_descritiva_nome ?? $croqui->titulo }}</flux:text>
                     <div class="mt-3 flex flex-wrap gap-2 text-xs">
-                        <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">{{ $croqui->codigo_territorial }}</span>
                         <span class="rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">QR de verificacao aplicado</span>
                     </div>
                 </div>

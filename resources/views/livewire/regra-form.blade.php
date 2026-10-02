@@ -45,10 +45,12 @@
             </label>
             <select wire:model="nivel"
                 class="w-full px-3 py-2 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-colors">
-                <option value="1">1 — INOTU (Acesso Total)</option>
-                <option value="2">2 — Governo Provincial</option>
-                <option value="3">3 — Administração Municipal</option>
-                <option value="4">4 — Técnico (Acesso Limitado)</option>
+                <option value="0">0 — Super Admin Nacional (Acesso Global)</option>
+                <option value="1">1 — Admin Nacional (Gestão Nacional)</option>
+                <option value="2">2 — INOTU Central (Supervisão Central)</option>
+                <option value="3">3 — Governo Provincial (Âmbito Provincial)</option>
+                <option value="4">4 — Administração Municipal (Âmbito Municipal)</option>
+                <option value="5">5 — Técnico (Operacional)</option>
             </select>
             @error('nivel') <p class="text-sm text-red-500 mt-1">{{ $message }}</p> @enderror
         </div>

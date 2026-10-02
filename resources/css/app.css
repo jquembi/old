@@ -10,7 +10,7 @@
 
 @theme {
     /* ── Tipografia ── */
-    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Merriweather', serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
     /* ── Paleta zinc (superfícies) ── */
     --color-zinc-50:  #f9fafb;
@@ -25,21 +25,35 @@
     --color-zinc-900: #111827;
     --color-zinc-950: #030712;
 
-    /* ── Accent / Marca (vermelho angolano) ── */
-    --color-accent:            #ce1126;
-    --color-accent-content:    #ce1126;
+    /* ── Accent / Marca (vermelho angolano oficial) ── */
+    --color-accent:            #C30E20;
+    --color-accent-content:    #C30E20;
     --color-accent-foreground: #ffffff;
+
+    /* ── Cores oficiais Governo Angola ── */
+    --color-angola-red:        #C30E20;
+    --color-angola-black:      #000000;
+    --color-angola-yellow:     #F2CB13;
 }
 
 @layer theme {
     .dark {
-        --color-accent:            #e8253b;
-        --color-accent-content:    #e8253b;
+        --color-accent:            #C30E20;
+        --color-accent-content:    #C30E20;
         --color-accent-foreground: #ffffff;
     }
 }
 
 @layer base {
+    html { background: #f8fafc; }
+
+    body {
+        color: #18181b;
+        font-feature-settings: 'kern' 1, 'liga' 1;
+    }
+
+    .dark body { color: #f4f4f5; }
+
     *, ::after, ::before, ::backdrop, ::file-selector-button {
         border-color: var(--color-zinc-200, currentColor);
     }
@@ -50,7 +64,7 @@
         left: -9999px;
         z-index: 9999;
         padding: 0.5rem 1rem;
-        background: #ce1126;
+        background: #C30E20;
         color: #fff;
         font-weight: 600;
         border-radius: 0 0 6px 0;
@@ -93,7 +107,7 @@
 input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
-    @apply outline-none ring-2 ring-red-500/40 ring-offset-0 border-red-500;
+    @apply outline-none ring-2 ring-[#C30E20]/40 ring-offset-0 border-[#C30E20];
 }
 
 /* ── Scrollbar global ── */
@@ -106,7 +120,7 @@ select:focus[data-flux-control] {
 
 /* ── Focus visível global ── */
 *:focus-visible {
-    outline: 2px solid #ce1126;
+    outline: 2px solid #C30E20;
     outline-offset: 2px;
 }
 
@@ -120,193 +134,172 @@ select:focus[data-flux-control] {
 .table-gov thead th { @apply px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-700; }
 .table-gov tbody td { @apply px-4 py-3 border-b border-zinc-100 dark:border-zinc-800; }
 .table-gov tbody tr:last-child td { @apply border-b-0; }
-.table-gov tbody tr { @apply transition-colors hover:bg-red-50/40 dark:hover:bg-red-950/10; }
+.table-gov tbody tr { @apply transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50; }
 
 /* ── Breadcrumb ── */
 .breadcrumb { @apply flex items-center gap-1.5 text-sm text-zinc-400 dark:text-zinc-500 flex-wrap; }
 .breadcrumb a { @apply hover:text-zinc-700 dark:hover:text-zinc-200 transition-colors; }
 .breadcrumb-sep { @apply text-zinc-300 dark:text-zinc-600 text-xs; }
 
-/* ── Card padrão (premium global) ── */
+/* ── Card padrão (simplificado) ── */
 .card {
-    @apply rounded-xl border shadow-sm;
+    @apply rounded-lg border shadow-sm;
     position: relative;
     overflow: hidden;
-    isolation: isolate;
-    color: #f8fafc;
-    background:
-        radial-gradient(120% 120% at 85% -10%, rgba(255, 255, 255, 0.14), transparent 48%),
-        linear-gradient(160deg, #121b2f 0%, #1f304a 58%, #263f62 100%);
-    border-color: rgba(148, 163, 184, 0.28);
-    box-shadow: 0 10px 28px -20px rgba(2, 6, 23, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #111827;
 }
 
-.card::before {
-    content: "";
-    position: absolute;
-    inset: auto -20% -55% -20%;
-    height: 70%;
-    background: radial-gradient(50% 60% at 50% 40%, rgba(255, 255, 255, 0.22), transparent 70%);
-    z-index: 0;
-    pointer-events: none;
+.dark .card {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
 }
 
-.card > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* Texto padrão em cards premium */
-.card:not(.card-surface) .text-zinc-900,
-.card:not(.card-surface) .text-zinc-800,
-.card:not(.card-surface) .text-zinc-700,
-.card:not(.card-surface) .dark\:text-zinc-50 {
-    color: #f8fafc !important;
-}
-
-.card:not(.card-surface) .text-zinc-600,
-.card:not(.card-surface) .text-zinc-500,
-.card:not(.card-surface) .text-zinc-400,
-.card:not(.card-surface) .dark\:text-zinc-400,
-.card:not(.card-surface) .dark\:text-zinc-500 {
-    color: rgba(226, 232, 240, 0.82) !important;
-}
-
-/* Fallback automático para cards estruturais (tabela/formulário) */
-.card-surface,
-.card:has(table),
-.card:has(form),
-.card:has(.table-gov),
-.card:has([data-card-surface]) {
+.card-surface {
     @apply bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700/60 shadow-sm;
     color: inherit;
-    box-shadow: var(--shadow-sm);
 }
 
-.card-surface::before,
-.card:has(table)::before,
-.card:has(form)::before,
-.card:has(.table-gov)::before,
-.card:has([data-card-surface])::before {
-    display: none;
+.card-hover {
+    @apply transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md hover:border-zinc-300 dark:hover:border-zinc-600;
 }
 
-.card-surface > *,
-.card:has(table) > *,
-.card:has(form) > *,
-.card:has(.table-gov) > *,
-.card:has([data-card-surface]) > * {
-    z-index: auto;
+.stat-card {
+    @apply min-h-36 p-5;
+    border-top: 2px solid #c30e20;
 }
 
-.card-surface .text-zinc-900,
-.card:has(table) .text-zinc-900,
-.card:has(form) .text-zinc-900,
-.card:has(.table-gov) .text-zinc-900,
-.card:has([data-card-surface]) .text-zinc-900 {
-    color: rgb(24 24 27) !important;
+.quick-link { @apply h-full p-5; }
+
+.section-heading {
+    @apply mb-4 text-sm font-bold text-zinc-800 dark:text-zinc-100;
 }
 
-.dark .card-surface .text-zinc-900,
-.dark .card:has(table) .text-zinc-900,
-.dark .card:has(form) .text-zinc-900,
-.dark .card:has(.table-gov) .text-zinc-900,
-.dark .card:has([data-card-surface]) .text-zinc-900 {
-    color: rgb(250 250 250) !important;
+.section-heading::after {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 2px;
+    margin-top: .6rem;
+    background: #c30e20;
 }
 
-.card-hover { @apply transition-all duration-200 hover:shadow-md hover:border-red-200 dark:hover:border-red-900/50 hover:-translate-y-0.5; }
+.mini-stat {
+    @apply rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-800/60;
+}
 
-/* ── Card visual premium por categoria ── */
+/* ── Card visual simplificado por categoria ── */
 .card-media {
+    @apply rounded-lg border shadow-sm;
     position: relative;
     overflow: hidden;
-    isolation: isolate;
-    background:
-        radial-gradient(120% 120% at 85% -10%, rgba(255, 255, 255, 0.14), transparent 48%),
-        linear-gradient(160deg, #121b2f 0%, #1f304a 58%, #263f62 100%);
-    border-color: rgba(148, 163, 184, 0.28);
-    box-shadow: 0 10px 28px -20px rgba(2, 6, 23, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    background: #ffffff;
+    border-color: #e5e7eb;
+    color: #111827;
 }
 
-.card-media::before {
-    content: "";
-    position: absolute;
-    inset: auto -20% -55% -20%;
-    height: 70%;
-    background: radial-gradient(50% 60% at 50% 40%, rgba(255, 255, 255, 0.22), transparent 70%);
-    z-index: 0;
-    pointer-events: none;
-}
-
-.card-media > * {
-    position: relative;
-    z-index: 1;
+.dark .card-media {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
 }
 
 .card-media .card-title,
 .card-media .card-value {
-    color: #f8fafc;
+    color: inherit;
 }
 
 .card-media .card-subtitle {
-    color: rgba(226, 232, 240, 0.82);
+    color: #6b7280;
 }
 
+.dark .card-media .card-subtitle {
+    color: #9ca3af;
+}
+
+/* ── Variações de cards com cores sutis ── */
 .card-media-red {
-    background:
-        radial-gradient(120% 120% at 88% -14%, rgba(255, 230, 234, 0.30), transparent 46%),
-        linear-gradient(160deg, #2a1220 0%, #4f1c2e 52%, #7c2539 100%);
+    background: #ffffff;
+    border-color: #e5e7eb;
 }
 
-.card-media-blue {
-    background:
-        radial-gradient(120% 120% at 86% -12%, rgba(219, 234, 254, 0.28), transparent 46%),
-        linear-gradient(160deg, #0f1e39 0%, #1f3a63 52%, #2d5c8f 100%);
+.dark .card-media-red {
+    background: #1f2937;
+    border-color: #374151;
 }
 
-.card-media-amber {
-    background:
-        radial-gradient(120% 120% at 86% -12%, rgba(254, 243, 199, 0.28), transparent 46%),
-        linear-gradient(160deg, #2f1c11 0%, #513222 52%, #7a5128 100%);
+.card-media-black {
+    background: #f9fafb;
+    border-color: #e5e7eb;
 }
 
-.card-media-purple {
-    background:
-        radial-gradient(120% 120% at 86% -12%, rgba(233, 213, 255, 0.28), transparent 46%),
-        linear-gradient(160deg, #221435 0%, #3f2866 52%, #5a3f8f 100%);
+.dark .card-media-black {
+    background: #111827;
+    border-color: #374151;
 }
 
-.card-media-teal {
-    background:
-        radial-gradient(120% 120% at 86% -12%, rgba(153, 246, 228, 0.24), transparent 46%),
-        linear-gradient(160deg, #11292a 0%, #1e4a4b 52%, #2b6e70 100%);
+.card-media-yellow {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+.dark .card-media-yellow {
+    background: #1f2937;
+    border-color: #374151;
 }
 
 .card-icon-badge {
-    @apply w-11 h-11 rounded-xl flex items-center justify-center shrink-0;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(2, 6, 23, 0.34);
-    backdrop-filter: blur(3px);
+    @apply w-10 h-10 rounded-lg flex items-center justify-center shrink-0;
+    border: 1px solid #e5e7eb;
+    background: #f9fafb;
 }
 
-.card-icon-red { color: #fda4af; }
-.card-icon-blue { color: #93c5fd; }
-.card-icon-amber { color: #fcd34d; }
-.card-icon-purple { color: #c4b5fd; }
-.card-icon-teal { color: #5eead4; }
+.dark .card-icon-badge {
+    border-color: #374151;
+    background: #1f2937;
+}
+
+.card-icon-red,
+.card-icon-black,
+.card-icon-yellow { color: #C30E20; }
 
 /* ── Badge de estado ── */
 .badge { @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold; }
 .badge-red    { @apply bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400; }
 .badge-zinc   { @apply bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400; }
-.badge-blue   { @apply bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400; }
-.badge-amber  { @apply bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400; }
-.badge-purple { @apply bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400; }
+.badge-angola { @apply bg-red-100 text-red-700 dark:bg-angola-red/30 dark:text-angola-red; }
+.badge-yellow { @apply bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300; }
+.badge-black  { @apply bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300; }
 
 /* ── Botão primário ── */
-.btn-primary { @apply inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-700 active:bg-red-800 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600; }
-.btn-ghost   { @apply inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors; }
+.btn-primary { @apply inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; background: #C30E20; }
+.btn-primary:hover { background: #a00c1a; }
+.btn-primary:active { background: #8d0a15; }
+.btn-primary:focus-visible { outline-color: #C30E20; }
+.btn-ghost   { @apply inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors; }
+
+/* Superfície administrativa consistente e sinalização institucional discreta. */
+[data-flux-sidebar] [data-flux-sidebar-item][data-current] {
+    background: rgba(195, 14, 32, .16);
+    color: #fff;
+    box-shadow: inset 3px 0 0 #c30e20;
+}
+
+[data-flux-sidebar] [data-flux-sidebar-item]:hover:not([data-current]) {
+    background: rgba(255, 255, 255, .06);
+}
+
+[data-flux-control] { border-radius: .375rem; }
+
+[data-flux-sidebar] [data-flux-sidebar-group] { border-radius: .375rem; }
+
+[data-flux-sidebar] [data-flux-sidebar-heading] {
+    color: #a1a1aa;
+    font-size: .69rem;
+    font-weight: 700;
+}
 
 /* ── Estado vazio ── */
 .empty-state { @apply flex flex-col items-center justify-center py-16 px-6 text-center; }
@@ -315,4 +308,41 @@ select:focus[data-flux-control] {
 /* ── Pulse de loading ── */
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
 .loading-pulse { animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+/* Design system institucional. Componentes Blade usam estas superfícies para
+   manter a mesma hierarquia visual em módulos Livewire, páginas e relatórios. */
+.ui-page-header { @apply flex flex-wrap items-end justify-between gap-5 border-b border-zinc-200 pb-6 dark:border-zinc-800; }
+.ui-eyebrow { @apply mb-2 text-xs font-bold uppercase tracking-[.16em] text-angola-red; }
+.ui-page-title { @apply text-2xl font-bold tracking-tight text-zinc-950 sm:text-3xl dark:text-white; }
+.ui-page-description { @apply mt-2 max-w-2xl text-sm leading-6 text-zinc-500 dark:text-zinc-400; }
+.ui-page-actions { @apply flex shrink-0 flex-wrap items-center gap-2; }
+
+.ui-card { @apply overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900; }
+.ui-card-header { @apply flex items-start justify-between gap-4 border-b border-zinc-100 px-5 py-4 sm:px-6 dark:border-zinc-800; }
+.ui-card-title { @apply text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-50; }
+.ui-card-description { @apply mt-1 text-sm text-zinc-500 dark:text-zinc-400; }
+
+.ui-stat-card { @apply relative overflow-hidden rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900; }
+.ui-stat-card::before { content: ''; @apply absolute inset-x-0 top-0 h-0.5 bg-angola-red; }
+.ui-stat-label { @apply text-xs font-bold uppercase tracking-[.12em] text-zinc-500 dark:text-zinc-400; }
+.ui-stat-value { @apply mt-2 text-3xl font-bold tracking-tight text-zinc-950 dark:text-white; }
+.ui-stat-detail { @apply mt-4 text-sm text-zinc-500 dark:text-zinc-400; }
+.ui-icon-tile { @apply flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border; }
+.ui-icon-tile svg { @apply h-5 w-5; }
+.ui-icon-tile-red { @apply border-red-100 bg-red-50 text-angola-red dark:border-red-900/40 dark:bg-red-950/30; }
+.ui-icon-tile-green { @apply border-emerald-100 bg-emerald-50 text-emerald-700 dark:border-emerald-900/40 dark:bg-emerald-950/30 dark:text-emerald-400; }
+.ui-icon-tile-violet { @apply border-violet-100 bg-violet-50 text-violet-700 dark:border-violet-900/40 dark:bg-violet-950/30 dark:text-violet-400; }
+.ui-icon-tile-yellow { @apply border-amber-100 bg-amber-50 text-amber-700 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-400; }
+
+.ui-status { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-xs font-semibold; }
+.ui-status-dot { @apply h-1.5 w-1.5 rounded-full bg-current; }
+.ui-status-success { @apply border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/50 dark:bg-emerald-950/30 dark:text-emerald-400; }
+.ui-status-warning { @apply border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-400; }
+.ui-status-danger { @apply border-red-200 bg-red-50 text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400; }
+.ui-status-brand { @apply border-red-200 bg-red-50 text-angola-red dark:border-red-900/50 dark:bg-red-950/30; }
+.ui-status-neutral { @apply border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300; }
+
+.ui-empty-state { @apply flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 bg-zinc-50/60 px-6 py-10 text-center dark:border-zinc-700 dark:bg-zinc-800/30; }
+.ui-empty-state-icon { @apply mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600; }
+.ui-empty-state-icon svg { @apply h-full w-full; }
 

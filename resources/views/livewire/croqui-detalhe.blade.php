@@ -64,7 +64,7 @@
         {{-- ╔══════════════════════════════════════════════════════════╗
              ║           DOCUMENTO INOTU — CROQUI DE LOCALIZAÇÃO        ║
              ╚══════════════════════════════════════════════════════════╝ --}}
-        <div class="croqui-document overflow-hidden rounded-xl bg-white text-zinc-900 shadow-lg ring-1 ring-zinc-200 dark:bg-zinc-900 dark:text-zinc-100 dark:ring-zinc-700 print:rounded-none print:bg-white print:text-black print:shadow-none print:ring-0" style="border: 2px solid #1a1a1a; font-family: Arial, sans-serif;">
+        <div class="croqui-document overflow-hidden rounded-xl bg-white text-zinc-900 shadow-lg ring-1 ring-zinc-200 dark:bg-zinc-900 dark:text-zinc-100 dark:ring-zinc-700 print:rounded-none print:bg-white print:text-black print:shadow-none print:ring-0" style="border: 2px solid #1a1a1a; font-family: 'Merriweather', serif;">
 
             {{-- ══ CABEÇALHO DO DOCUMENTO ══════════════════════════════ --}}
             <div style="display: flex; border-bottom: 2px solid #1a1a1a;">

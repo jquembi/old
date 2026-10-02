@@ -25,7 +25,7 @@
                 <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Utilizadores</h1>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Gerir utilizadores, funções e permissões de acesso</p>
             </div>
-            @if($podeGerir)
+            @if(auth()->user()?->temPermissao('usuarios.criar'))
                 <a href="{{ route('usuarios.criar') }}" wire:navigate>
                     <flux:button variant="primary" icon="plus">Novo Utilizador</flux:button>
                 </a>
@@ -68,7 +68,7 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden md:table-cell">Município</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Estado</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden lg:table-cell">Registado em</th>
-                        @if($podeGerir)
+                        @if(auth()->user()?->temPermissao('usuarios.criar'))
                         <th class="px-4 py-3 text-right text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Acções</th>
                         @endif
                     </tr>
@@ -105,7 +105,7 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-xs text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">{{ $usuario->created_at->format('d/m/Y') }}</td>
-                            @if($podeGerir)
+                            @if(auth()->user()?->temPermissao('usuarios.criar'))
                             <td class="px-4 py-3 text-right">
                                 <div class="flex justify-end gap-1">
                                     <a href="{{ route('usuarios.editar', $usuario) }}" wire:navigate>
@@ -120,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $podeGerir ? 6 : 5 }}" class="px-4 py-14 text-center">
+                            <td colspan="{{ auth()->user()?->temPermissao('usuarios.criar') ? 6 : 5 }}" class="px-4 py-14 text-center">
                                 <svg class="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                                 <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Nenhum utilizador encontrado</p>
                             </td>

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\ComAutenticidadeQr;
 use App\Models\Concerns\EnviaParaLixeira;
+use App\Models\Concerns\HasSyncMetadata;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Parecer extends Model
 {
-    use ComAutenticidadeQr, EnviaParaLixeira;
+    use ComAutenticidadeQr, EnviaParaLixeira, HasSyncMetadata;
 
     protected $table = 'pareceres';
 

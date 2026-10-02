@@ -25,11 +25,20 @@ trait TemPermissoes
      */
     public function temPermissao(string $permissao): bool
     {
-        if ($this->isDiretorInotu()) {
+        if (! $this->activo || ($this->isAdminSomenteInformacaoTecnica() && $this->bloqueadaParaAdminLimitado($permissao))) {
+            return false;
+        }
+
+        if ($this->ruleManagerTemPermissao($permissao)) {
             return true;
         }
 
-        return $this->getAuthService()->podeAcesso($permissao);
+        // Alterações de papel/permissão podem ocorrer no mesmo pedido. Só em
+        // caso de negação recarregamos as relações para evitar falso 403.
+        $this->unsetRelation('roles');
+        $this->unsetRelation('permissoesDiretas');
+
+        return $this->ruleManagerTemPermissao($permissao);
     }
 
     public function hasPermission(string $permission): bool
@@ -43,7 +52,9 @@ trait TemPermissoes
      */
     public function podeAcesso(string $permissao, ?PermissionContext $contexto = null): bool
     {
-        return $this->getAuthService()->podeAcesso($permissao, $contexto);
+        return $this->activo
+            && (! $contexto || $contexto->podeAcessarLocalizacao($this))
+            && $this->temPermissao($permissao);
     }
 
     /**
@@ -51,7 +62,7 @@ trait TemPermissoes
      */
     public function temAlgumaPermissao(array $permissoes): bool
     {
-        return $this->getAuthService()->temAlgumaPermissao($permissoes);
+        return collect($permissoes)->contains(fn (string $permissao): bool => $this->temPermissao($permissao));
     }
 
     /**
@@ -59,7 +70,7 @@ trait TemPermissoes
      */
     public function temTodasAsPermissoes(array $permissoes): bool
     {
-        return $this->getAuthService()->temTodasAsPermissoes($permissoes);
+        return collect($permissoes)->every(fn (string $permissao): bool => $this->temPermissao($permissao));
     }
 
     // ─── Permissões Dinâmicas ───────────────────────────
@@ -74,7 +85,14 @@ trait TemPermissoes
      */
     public function podeFazer(string $acao, ?string $contexto = null, ?PermissionContext $context = null): bool
     {
-        return $this->getAuthService()->podeAcessoDinamico($acao, $contexto, $context);
+        $candidatas = collect([
+            $contexto ? "{$acao}_{$contexto}" : null,
+            $context?->ehCriador ? "{$acao}_proprio" : null,
+            $context?->municipioId ? "{$acao}_municipio" : null,
+            $acao,
+        ])->filter()->unique();
+
+        return $candidatas->contains(fn (string $permissao): bool => $this->podeAcesso($permissao, $context));
     }
 
     // ─── Permissões Específicas (v1 compatível) ──────────
@@ -93,7 +111,8 @@ trait TemPermissoes
 
     public function isInotu(): bool
     {
-        return $this->isDiretorInotu()
+        return $this->isSuperAdminNacional()
+            || $this->isDiretorInotu()
             || ($this->roles->isNotEmpty() && $this->nivelMinimo() === Role::NIVEL_INOTU);
     }
 
@@ -183,6 +202,107 @@ trait TemPermissoes
         return $this->isAdminMunicipal() || $this->isTecnicoMunicipal();
     }
 
+    // ─── Métodos Nacionais (Multi-tenancy) ─────────────────
+
+    public function isSuperAdminNacional(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::SUPER_ADMIN_NACIONAL);
+    }
+
+    public function isAdminNacional(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::ADMIN_NACIONAL);
+    }
+
+    public function isGestorNacional(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::GESTOR_NACIONAL);
+    }
+
+    public function isAuditorNacional(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::AUDITOR_NACIONAL);
+    }
+
+    public function isNacional(): bool
+    {
+        return $this->isSuperAdminNacional()
+            || $this->isAdminNacional()
+            || $this->isGestorNacional()
+            || $this->isAuditorNacional()
+            || ($this->roles->isNotEmpty() && $this->nivelMinimo() <= Role::NIVEL_ADMIN_NACIONAL);
+    }
+
+    // ─── Escopo de Permissões ─────────────────────────────
+
+    public function temPermissaoComEscopo(string $permissao, ?string $escopo = null): bool
+    {
+        // Super Admin Nacional tem tudo
+        if ($this->isSuperAdminNacional()) {
+            return true;
+        }
+
+        // Verificar permissão no role
+        $hasPermission = $this->temPermissao($permissao);
+
+        if (!$hasPermission) {
+            return false;
+        }
+
+        // Verificar escopo se fornecido
+        if ($escopo) {
+            return $this->verificarEscopo($escopo);
+        }
+
+        return true;
+    }
+
+    private function verificarEscopo(string $escopo): bool
+    {
+        return match ($escopo) {
+            'nacional' => $this->isNacional(),
+            'provincial' => $this->isProvincial() || $this->isNacional(),
+            'municipal' => $this->isMunicipal() || $this->isProvincial() || $this->isNacional(),
+            'inotu' => $this->isInotu() || $this->isNacional(),
+            default => true,
+        };
+    }
+
+    // ─── Permissões ERP ───────────────────────────────────
+
+    public function isFinanceiro(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::FINANCEIRO);
+    }
+
+    public function isRh(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::RH);
+    }
+
+    public function isCompras(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::COMPRAS);
+    }
+
+    public function isPatrimonio(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::PATRIMONIO);
+    }
+
+    public function isConsulta(): bool
+    {
+        return $this->roles->contains(fn (Role $role) => $role->nome === Role::CONSULTA);
+    }
+
+    public function isErp(): bool
+    {
+        return $this->isFinanceiro()
+            || $this->isRh()
+            || $this->isCompras()
+            || $this->isPatrimonio();
+    }
+
     public function podeEditarDados(): bool
     {
         if ($this->isDiretorInotu()) {
@@ -262,7 +382,10 @@ trait TemPermissoes
      */
     public function permissoesEfetivas(): Collection
     {
-        return $this->getAuthService()->permissoesEfetivas();
+        return $this->todasAsPermissoes()
+            ->filter(fn ($permissao): bool => ! $this->isAdminSomenteInformacaoTecnica()
+                || ! $this->bloqueadaParaAdminLimitado($permissao->slug))
+            ->values();
     }
 
     /**
@@ -270,7 +393,7 @@ trait TemPermissoes
      */
     public function nomesPermissoes(): Collection
     {
-        return $this->getAuthService()->nomesPermissoes();
+        return $this->permissoesEfetivas()->pluck('slug')->sort()->values();
     }
 
     /**
@@ -286,7 +409,7 @@ trait TemPermissoes
      */
     public function invalidarCachePermissoes(): void
     {
-        $this->getAuthService()->invalidarCache();
+        app('rule-manager.registrar')->limparCache();
         $this->authService = null; // Forçar recriação na próxima chamada
     }
 
@@ -295,7 +418,10 @@ trait TemPermissoes
      */
     public function estatisticasAcesso(?\Carbon\Carbon $desde = null): array
     {
-        return $this->getAuthService()->estatisticasAcesso($desde);
+        return [
+            'desde' => $desde,
+            'permissoes_efetivas' => $this->nomesPermissoes()->count(),
+        ];
     }
 
     /**
@@ -385,5 +511,14 @@ trait TemPermissoes
         }
 
         return array_values(array_unique($candidates));
+    }
+
+    private function bloqueadaParaAdminLimitado(string $permissao): bool
+    {
+        $prefixos = ['usuarios.', 'permissoes.', 'lixeira.'];
+        $acoes = ['.criar', '.editar', '.editar_municipio', '.eliminar', '.eliminar_municipio', '.aprovar', '.gerir', '.restaurar', '.eliminar_definitivo'];
+
+        return collect($prefixos)->contains(fn (string $prefixo): bool => str_starts_with($permissao, $prefixo))
+            || collect($acoes)->contains(fn (string $acao): bool => str_ends_with($permissao, $acao));
     }
 }

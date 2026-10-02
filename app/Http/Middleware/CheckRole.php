@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Role;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -9,16 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 /**
  * Middleware de verificação de role para a API.
  *
- * Suporta roles nomeadas (inotu, provincial, municipal) e níveis numéricos.
+ * Suporta roles nomeadas (nacional, inotu, provincial, municipal, tecnico) e níveis numéricos.
  * Uso: ->middleware('check.role:inotu,provincial')
  */
 class CheckRole
 {
     private const ROLE_MAP = [
-        'inotu'      => 1,
-        'provincial' => 2,
-        'municipal'  => 3,
-        'tecnico'    => 4,
+        'nacional'   => Role::NIVEL_ADMIN_NACIONAL,
+        'inotu'      => Role::NIVEL_INOTU,
+        'provincial' => Role::NIVEL_PROVINCIAL,
+        'municipal'  => Role::NIVEL_MUNICIPAL,
+        'tecnico'    => Role::NIVEL_TECNICO,
     ];
 
     public function handle(Request $request, Closure $next, string ...$roles): Response
@@ -35,6 +37,12 @@ class CheckRole
         }
 
         $nivelUser = $user->nivelMinimo();
+
+        // Super Admin Nacional (nível 0) e Admin Nacional (nível 1) têm acesso a tudo
+        if ($nivelUser !== null && $nivelUser <= Role::NIVEL_ADMIN_NACIONAL) {
+            return $next($request);
+        }
+
         $niveisPermitidos = [];
 
         foreach ($roles as $role) {
@@ -43,11 +51,6 @@ class CheckRole
             } elseif (is_numeric($role)) {
                 $niveisPermitidos[] = (int) $role;
             }
-        }
-
-        // INOTU (nível 1) tem acesso a tudo
-        if ($nivelUser === 1) {
-            return $next($request);
         }
 
         if (! in_array($nivelUser, $niveisPermitidos)) {
@@ -62,3 +65,4 @@ class CheckRole
         return $next($request);
     }
 }
+

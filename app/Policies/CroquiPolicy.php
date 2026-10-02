@@ -43,7 +43,7 @@ class CroquiPolicy
 
     private function pertenceAoAmbito(User $user, Croqui $croqui): bool
     {
-        if ($user->isInotu()) {
+        if ($user->isNacional() || $user->isInotu()) {
             return true;
         }
 

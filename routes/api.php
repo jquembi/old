@@ -35,7 +35,7 @@ Route::get('v1/consulta', ConsultaPublicaController::class)
     ->name('api.consulta.publica');
 
 // ─── Rotas protegidas ───────────────────────────────────
-Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
+Route::middleware(['auth:sanctum', 'set.tenant:validate', 'geo.context', 'geo.angola'])->prefix('v1')->group(function () {
 
     // ─── Auth ────────────────────────────────────────────
     Route::post('auth/logout', [AuthController::class, 'logout']);

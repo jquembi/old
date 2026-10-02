@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Municipio;
+use App\Models\Permissao;
 use App\Models\Provincia;
 use App\Models\Role;
 use App\Models\User;
@@ -13,6 +14,16 @@ class UsuariosIniciaisSeeder extends Seeder
 {
     public function run(): void
     {
+        // ─── Criar role Super Admin Nacional se não existir ─────────────────
+        $superAdminNacional = Role::firstOrCreate(
+            ['nome' => Role::SUPER_ADMIN_NACIONAL],
+            [
+                'descricao' => 'Super Administrador Nacional - Visão geral completa do sistema',
+                'nivel' => Role::NIVEL_NACIONAL,
+                'grupo' => 'INOTU Nacional'
+            ]
+        );
+
         // ─── Obter roles ───────────────────────────────────────────────────
         $chefeSeccao    = Role::where('nome', Role::CHEFE_SECCAO_TECNICA)->first();
         $chefeAdmin     = Role::where('nome', Role::CHEFE_SECCAO_ADMINISTRATIVA)->first();
@@ -21,6 +32,33 @@ class UsuariosIniciaisSeeder extends Seeder
         $tecnicoInotu   = Role::where('nome', Role::TECNICO_INOTU)->first();
         $governador     = Role::where('nome', Role::GOVERNADOR)->first();
         $adminMunicipal = Role::where('nome', Role::ADMIN_MUNICIPAL)->first();
+
+        // O acesso a um node provincial por uma equipa central Ã© uma
+        // permissÃ£o institucional explÃ­cita. NÃ£o Ã© herdada por todos os
+        // papÃ©is INOTU nem por utilizadores provinciais/municipais.
+        $acessoNodes = Permissao::firstOrCreate(
+            ['nome' => 'nodes.acessar'],
+            [
+                'descricao' => 'Acessar nodes provinciais',
+                'grupo' => 'Tenancy',
+            ],
+        );
+
+        foreach ([$superAdminNacional, $directorInotu, $chefeSeccao] as $role) {
+            $this->atribuirPermissao($role, $acessoNodes);
+        }
+
+        // ─── Criar Super Admin Nacional ─────────────────────────────────────
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@inotu.ao'],
+            [
+                'name'               => 'Super Administrador Nacional',
+                'password'           => Hash::make('admin2024'),
+                'email_verified_at'  => now(),
+                'activo'             => true,
+            ]
+        );
+        $this->atribuirRole($superAdmin, $superAdminNacional);
 
         // ─── Província Huíla ───────────────────────────────────────────────
         $huila = Provincia::firstOrCreate(
@@ -205,6 +243,13 @@ class UsuariosIniciaisSeeder extends Seeder
     {
         if ($role && ! $user->roles->contains('id', $role->id)) {
             $user->roles()->attach($role->id);
+        }
+    }
+
+    private function atribuirPermissao(?Role $role, Permissao $permissao): void
+    {
+        if ($role) {
+            $role->darPermissao($permissao);
         }
     }
 }

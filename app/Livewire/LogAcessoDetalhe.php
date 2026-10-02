@@ -11,7 +11,12 @@ class LogAcessoDetalhe extends Component
 
     public function mount(LogAcesso $log)
     {
-        $this->log = $log;
+        $user = auth()->user();
+        if (!$user || (!$user->temPermissao('auditoria.ver') && !$user->isNacional() && !$user->isInotu())) {
+            abort(403, 'Não tem permissão para aceder aos detalhes de auditoria.');
+        }
+
+        $this->log = $log->load(['user.roles']);
     }
 
     public function render()

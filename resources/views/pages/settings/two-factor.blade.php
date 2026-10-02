@@ -9,9 +9,9 @@ use Livewire\Component;
 use Symfony\Component\HttpFoundation\Response;
 
 new #[Title('Two-factor authentication')] class extends Component {
-    public bool $twoFactorEnabled;
+    public bool $twoFactorEnabled = false;
 
-    public bool $requiresConfirmation;
+    public bool $requiresConfirmation = false;
 
     /**
      * Mount the component.

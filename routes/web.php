@@ -49,6 +49,18 @@ use App\Livewire\RegraForm;
 use App\Livewire\CroquiDetalhe;
 use App\Livewire\GerirPagamentos;
 use App\Livewire\PagamentoDetalhe;
+use App\Http\Livewire\Erp\Financeiro\ContasGerais;
+use App\Http\Livewire\Erp\Financeiro\Lancamentos;
+use App\Http\Livewire\Erp\Financeiro\Pagamentos;
+use App\Http\Livewire\Erp\RecursosHumanos\Funcionarios;
+use App\Http\Livewire\Erp\RecursosHumanos\Departamentos;
+use App\Http\Livewire\Erp\RecursosHumanos\Cargos;
+use App\Http\Livewire\Erp\ComprasContratos\Fornecedores;
+use App\Http\Livewire\Erp\ComprasContratos\RequisicoesCompra;
+use App\Http\Livewire\Erp\ComprasContratos\Contratos;
+use App\Http\Livewire\Erp\Patrimonio\Patrimonios;
+use App\Http\Livewire\Erp\Patrimonio\CategoriasPatrimonio;
+use App\Http\Livewire\Erp\Patrimonio\Localizacoes;
 use App\Services\DocumentoAutenticidadeService;
 use Illuminate\Support\Facades\Route;
 
@@ -160,7 +172,7 @@ Route::get('documentos/baixar/{token}', [DocumentoAutenticidadeController::class
 // ─── Painel do Sistema (acesso restrito INOTU) ───────────
 Route::get('sistema', PainelSistema::class)->middleware(['auth', 'verified', 'nivel:1'])->name('painel.sistema');
 
-Route::middleware(['auth', 'verified', 'log.acesso'])->group(function () {
+Route::middleware(['auth', 'verified', 'set.tenant:validate', 'geo.context', 'geo.angola', 'tenant.type:provincial', 'log.acesso'])->group(function () {
     Route::get('dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('notificacoes', Notificacoes::class)
@@ -250,34 +262,34 @@ Route::middleware(['auth', 'verified', 'log.acesso'])->group(function () {
 
     // Croquis Elaborados
     Route::get('municipio/{municipio}/operacoes/croquis-elaborados/criar', CroquiForm::class)
-        ->middleware(['municipio.acesso', 'permissao:operacoes.ver'])
+        ->middleware(['municipio.acesso', 'permissao:operacoes.criar'])
         ->name('municipio.operacoes.croqui.criar');
     Route::get('municipio/{municipio}/operacoes/croquis-elaborados/{croqui}/editar', CroquiForm::class)
-        ->middleware(['municipio.acesso', 'permissao:operacoes.ver'])
+        ->middleware(['municipio.acesso', 'permissao:operacoes.editar'])
         ->name('municipio.operacoes.croqui.editar');
 
     // Terrenos Ociosos
     Route::get('municipio/{municipio}/operacoes/terrenos-ociosos/criar', TerrenoForm::class)
-        ->middleware(['municipio.acesso', 'permissao:operacoes.ver'])
+        ->middleware(['municipio.acesso', 'permissao:operacoes.criar'])
         ->name('municipio.operacoes.terreno.criar');
     Route::get('municipio/{municipio}/operacoes/terrenos-ociosos/{croqui}/editar', TerrenoForm::class)
-        ->middleware(['municipio.acesso', 'permissao:operacoes.ver'])
+        ->middleware(['municipio.acesso', 'permissao:operacoes.editar'])
         ->name('municipio.operacoes.terreno.editar');
 
     // Pareceres INOTU
     Route::get('municipio/{municipio}/operacoes/pareceres/criar', ParecerForm::class)
-        ->middleware(['municipio.acesso', 'permissao:pareceres.ver'])
+        ->middleware(['municipio.acesso', 'permissao:pareceres.criar'])
         ->name('municipio.operacoes.parecer.criar');
     Route::get('municipio/{municipio}/operacoes/pareceres/{parecer}/editar', ParecerForm::class)
-        ->middleware(['municipio.acesso', 'permissao:pareceres.ver'])
+        ->middleware(['municipio.acesso', 'permissao:pareceres.editar'])
         ->name('municipio.operacoes.parecer.editar');
 
     // Loteamentos
     Route::get('municipio/{municipio}/loteamentos/criar', LoteamentoForm::class)
-        ->middleware(['municipio.acesso', 'permissao:loteamentos.ver'])
+        ->middleware(['municipio.acesso', 'permissao:loteamentos.criar'])
         ->name('municipio.loteamento.criar');
     Route::get('municipio/{municipio}/loteamentos/{loteamento}/editar', LoteamentoForm::class)
-        ->middleware(['municipio.acesso', 'permissao:loteamentos.ver'])
+        ->middleware(['municipio.acesso', 'permissao:loteamentos.editar'])
         ->name('municipio.loteamento.editar');
 
     // Projectos SONA
@@ -306,7 +318,7 @@ Route::middleware(['auth', 'verified', 'log.acesso'])->group(function () {
 
     // Ambiente de Trabalho (apenas criação)
     Route::get('municipio/{municipio}/operacoes/ambiente-trabalho/enviar', AmbienteTrabalhoForm::class)
-        ->middleware(['municipio.acesso', 'permissao:operacoes.ver'])
+        ->middleware(['municipio.acesso', 'permissao:operacoes.criar'])
         ->name('municipio.operacoes.ambiente-trabalho.enviar');
 
     // Instrumentos (tipo genérico)
@@ -388,9 +400,11 @@ Route::middleware(['auth', 'verified', 'log.acesso'])->group(function () {
     // ─── Gestão de Pagamentos RUPE ──────────────────────────────
 
     Route::get('pagamentos', GerirPagamentos::class)
+        ->middleware('permissao:pagamentos.ver')
         ->name('pagamentos.gerir');
 
     Route::get('pagamento/{pagamento}', PagamentoDetalhe::class)
+        ->middleware('permissao:pagamentos.ver')
         ->name('pagamento.detalhe');
 
     Route::get('pagamento/{pagamento}/rupe', function (\App\Models\Pagamento $pagamento) {
@@ -409,6 +423,59 @@ Route::middleware(['auth', 'verified', 'log.acesso'])->group(function () {
 
     Route::get('fatura-projecto/pdf', [InvoiceController::class, 'gerarFaturaProjeto'])
         ->name('invoice.project.pdf');
+
+    // ─── Módulos ERP ───────────────────────────────────────
+    // Módulo Financeiro
+    Route::get('erp/financeiro/contas-gerais', ContasGerais::class)
+        ->middleware(['nivel:1,2,3', 'permissao:financeiro.ver'])
+        ->name('erp.financeiro.contas-gerais');
+
+    Route::get('erp/financeiro/lancamentos', Lancamentos::class)
+        ->middleware(['nivel:1,2,3', 'permissao:financeiro.ver'])
+        ->name('erp.financeiro.lancamentos');
+
+    Route::get('erp/financeiro/pagamentos', Pagamentos::class)
+        ->middleware(['nivel:1,2,3', 'permissao:financeiro.ver'])
+        ->name('erp.financeiro.pagamentos');
+
+    // Módulo de Recursos Humanos
+    Route::get('erp/rh/funcionarios', Funcionarios::class)
+        ->middleware(['nivel:1,2,3', 'permissao:rh.ver'])
+        ->name('erp.rh.funcionarios');
+
+    Route::get('erp/rh/departamentos', Departamentos::class)
+        ->middleware(['nivel:1,2,3', 'permissao:rh.ver'])
+        ->name('erp.rh.departamentos');
+
+    Route::get('erp/rh/cargos', Cargos::class)
+        ->middleware(['nivel:1,2,3', 'permissao:rh.ver'])
+        ->name('erp.rh.cargos');
+
+    // Módulo de Compras e Contratos
+    Route::get('erp/compras/fornecedores', Fornecedores::class)
+        ->middleware(['nivel:1,2,3', 'permissao:compras.ver'])
+        ->name('erp.compras.fornecedores');
+
+    Route::get('erp/compras/requisicoes', RequisicoesCompra::class)
+        ->middleware(['nivel:1,2,3', 'permissao:compras.ver'])
+        ->name('erp.compras.requisicoes');
+
+    Route::get('erp/compras/contratos', Contratos::class)
+        ->middleware(['nivel:1,2,3', 'permissao:compras.ver'])
+        ->name('erp.compras.contratos');
+
+    // Módulo de Património
+    Route::get('erp/patrimonio/bens', Patrimonios::class)
+        ->middleware(['nivel:1,2,3', 'permissao:patrimonio.ver'])
+        ->name('erp.patrimonio.bens');
+
+    Route::get('erp/patrimonio/categorias', CategoriasPatrimonio::class)
+        ->middleware(['nivel:1,2,3', 'permissao:patrimonio.ver'])
+        ->name('erp.patrimonio.categorias');
+
+    Route::get('erp/patrimonio/localizacoes', Localizacoes::class)
+        ->middleware(['nivel:1,2,3', 'permissao:patrimonio.ver'])
+        ->name('erp.patrimonio.localizacoes');
 });
 
 require __DIR__.'/settings.php';

@@ -11,7 +11,9 @@ class ParecerDetalhe extends Component
 
     public function mount(Parecer $parecer)
     {
-        $this->parecer = $parecer;
+        abort_unless(auth()->user()?->can('view', $parecer), 403, 'Não tem permissão para visualizar este parecer.');
+
+        $this->parecer = $parecer->load(['municipio', 'criadoPor', 'recurso']);
     }
 
     public function render()

@@ -9,40 +9,45 @@ class CartaMunicipalPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('carta_view');
+        return $user->activo && $user->temPermissao('cartas_municipais.ver');
     }
 
     public function view(User $user, CartaMunicipal $carta): bool
     {
-        if ($user->canAccessAllMunicipios()) {
-            return true;
-        }
-        return $user->municipio_id === $carta->municipio_id;
+        return $user->activo
+            && $user->temPermissao('cartas_municipais.ver')
+            && $this->pertenceAoAmbito($user, $carta);
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('carta_create');
+        return $user->activo && $user->temPermissao('cartas_municipais.criar');
     }
 
     public function update(User $user, CartaMunicipal $carta): bool
     {
-        if (!$user->hasPermission('carta_edit')) {
-            return false;
-        }
-        if ($user->canAccessAllMunicipios()) {
-            return true;
-        }
-        return $user->municipio_id === $carta->municipio_id;
+        return $user->activo
+            && $user->temPermissao('cartas_municipais.editar')
+            && $this->pertenceAoAmbito($user, $carta);
     }
 
     public function delete(User $user, CartaMunicipal $carta): bool
     {
-        if (!$user->hasPermission('carta_delete')) {
-            return false;
+        return $user->activo
+            && $user->temPermissao('cartas_municipais.eliminar')
+            && $this->pertenceAoAmbito($user, $carta);
+    }
+
+    private function pertenceAoAmbito(User $user, CartaMunicipal $carta): bool
+    {
+        if ($user->isNacional() || $user->isInotu()) {
+            return true;
         }
-        return $user->isINOTU();
+
+        if ($user->isProvincial()) {
+            return $carta->municipio?->provincia_id === $user->provincia_id;
+        }
+
+        return $user->municipio_id === $carta->municipio_id;
     }
 }
-
-

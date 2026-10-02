@@ -40,7 +40,7 @@ class ParecerPolicy
 
     private function pertenceAoAmbito(User $user, Parecer $parecer): bool
     {
-        if ($user->isInotu()) {
+        if ($user->isNacional() || $user->isInotu()) {
             return true;
         }
 

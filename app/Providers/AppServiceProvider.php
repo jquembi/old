@@ -7,10 +7,15 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
 use Livewire\Volt\Volt;
+use App\Listeners\RecordGeoAccessDecision;
+use JoseQuembi\AngolaGeoGuard\Events\GeoAccessAllowed;
+use JoseQuembi\AngolaGeoGuard\Events\GeoAccessDenied;
+use JoseQuembi\AngolaGeoGuard\Events\GeoAccessRequiresVerification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureRateLimiting();
+        Event::listen(GeoAccessAllowed::class, RecordGeoAccessDecision::class);
+        Event::listen(GeoAccessDenied::class, RecordGeoAccessDecision::class);
+        Event::listen(GeoAccessRequiresVerification::class, RecordGeoAccessDecision::class);
 
         Volt::mount([
             resource_path('views/pages'),
