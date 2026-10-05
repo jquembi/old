@@ -38,6 +38,25 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(GeoAccessDenied::class, RecordGeoAccessDecision::class);
         Event::listen(GeoAccessRequiresVerification::class, RecordGeoAccessDecision::class);
 
+        \Illuminate\Support\Facades\View::addNamespace('pages', resource_path('views/pages'));
+        \Illuminate\Support\Facades\Blade::anonymousComponentPath(resource_path('views/pages'), 'pages');
+
+        \Livewire\Livewire::resolveMissingComponent(function (string $name) {
+            if (str_starts_with($name, 'pages::')) {
+                $alias = substr($name, 7);
+                $class = app(\Livewire\Volt\ComponentResolver::class)->resolve(
+                    $alias,
+                    [resource_path('views/pages')]
+                );
+                if ($class) {
+                    \Livewire\Livewire::component($alias, $class);
+                    \Livewire\Livewire::component($name, $class);
+                    return $class;
+                }
+            }
+            return null;
+        });
+
         Volt::mount([
             resource_path('views/pages'),
         ]);

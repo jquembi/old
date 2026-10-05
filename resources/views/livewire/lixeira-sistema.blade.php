@@ -1,9 +1,6 @@
-<div class="space-y-6">
-    <div class="flex items-start justify-between gap-4">
-        <div>
-            <flux:heading size="xl">Lixeira</flux:heading>
-            <flux:text class="mt-1">Itens enviados para a lixeira e o utilizador que efectuou a eliminação.</flux:text>
-        </div>
+<div class="px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6">
+    <x-ui.page-header eyebrow="Gestão" title="Lixeira" description="Itens enviados para a lixeira e o utilizador que efectuou a eliminação.">
+        <x-slot:actions>
 
         <flux:select wire:model.live="tipo" class="w-56">
             <option value="todos">Todos os tipos</option>
@@ -11,9 +8,10 @@
                 <option value="{{ $valor }}">{{ $label }}</option>
             @endforeach
         </flux:select>
-    </div>
+        </x-slot:actions>
+    </x-ui.page-header>
 
-    <div class="overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    <div class="overflow-x-auto rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
         <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
             <thead class="bg-zinc-50 dark:bg-zinc-800">
                 <tr>

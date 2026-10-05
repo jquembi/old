@@ -11,12 +11,19 @@ class CategoriasPatrimonio extends Component
     use WithPagination;
 
     public $search = '';
+
     public $modalOpen = false;
+
     public $categoriaId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $categoria_pai_id = null;
+
     public $activo = true;
 
     protected $rules = [
@@ -26,14 +33,21 @@ class CategoriasPatrimonio extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = CategoriaPatrimonio::with(['categoriaPai', 'categoriasFilhas']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -79,23 +93,24 @@ class CategoriasPatrimonio extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Categoria salva com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Categoria salva com sucesso!', type: 'success');
     }
 
     public function delete(CategoriaPatrimonio $categoria)
     {
         if ($categoria->categoriasFilhas()->exists() || $categoria->patrimonios()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar categoria com subcategorias ou patrimónios!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar categoria com subcategorias ou patrimónios!', type: 'error');
+
             return;
         }
 
         $categoria->delete();
-        $this->dispatch('notify', message: 'Categoria eliminada!', type: 'success');
+        $this->dispatch('toast', message: 'Categoria eliminada!', type: 'success');
     }
 
     public function toggleActive(CategoriaPatrimonio $categoria)
     {
-        $categoria->update(['activo' => !$categoria->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $categoria->update(['activo' => ! $categoria->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

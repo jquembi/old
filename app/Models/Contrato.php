@@ -10,6 +10,8 @@ class Contrato extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'contratos';
+
     protected $fillable = [
         'numero',
         'fornecedor_id',
@@ -38,16 +40,24 @@ class Contrato extends Model
 
     // Tipos de contrato
     public const TIPO_COMPRA_BENS = 'compra_bens';
+
     public const TIPO_PRESTACAO_SERVICOS = 'prestacao_servicos';
+
     public const TIPO_OBRA = 'obra';
+
     public const TIPO_CONSULTORIA = 'consultoria';
 
     // Status
     public const STATUS_RASCUNHO = 'rascunho';
+
     public const STATUS_PENDENTE_ASSINATURA = 'pendente_assinatura';
+
     public const STATUS_ATIVO = 'ativo';
+
     public const STATUS_SUSPENSO = 'suspenso';
+
     public const STATUS_CONCLUIDO = 'concluido';
+
     public const STATUS_CANCELADO = 'cancelado';
 
     public function fornecedor(): BelongsTo
@@ -160,6 +170,7 @@ class Contrato extends Model
         if ($this->isConcluido() || $this->isCancelado()) {
             return 0;
         }
+
         return now()->diffInDays($this->data_fim, false);
     }
 
@@ -168,10 +179,10 @@ class Contrato extends Model
         if ($this->isConcluido() || $this->isCancelado()) {
             return 100;
         }
-        
+
         $total = $this->duracao_dias;
         $passados = $this->data_inicio->diffInDays(now());
-        
+
         return min(100, max(0, ($passados / $total) * 100));
     }
 

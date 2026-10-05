@@ -1,22 +1,11 @@
-<div class="w-full">
-    <div class="mb-6 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-            <div class="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                <a href="{{ route('dashboard') }}" wire:navigate class="hover:text-zinc-700 dark:hover:text-zinc-200">Dashboard</a>
-                <span>/</span>
-                <span>Erros do Sistema</span>
-            </div>
-            <flux:heading size="xl">Erros do Sistema</flux:heading>
-            <flux:text class="mt-1">Central de acompanhamento de falhas, recorrência e resolução técnica.</flux:text>
-        </div>
-
-        <div class="text-sm text-zinc-500 dark:text-zinc-400">
-            Última falha registada:
-            <span class="font-medium text-zinc-800 dark:text-zinc-100">
-                {{ $ultimaFalha ? \Illuminate\Support\Carbon::parse($ultimaFalha)->format('d/m/Y H:i:s') : 'Sem registos' }}
-            </span>
-        </div>
-    </div>
+<div class="px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6">
+    <x-ui.page-header eyebrow="Gestão" title="Erros do Sistema" description="Central de acompanhamento de falhas, recorrência e resolução técnica.">
+        <x-slot:actions>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">Última falha registada:
+                <span class="font-medium text-zinc-800 dark:text-zinc-100">{{ $ultimaFalha ? \Illuminate\Support\Carbon::parse($ultimaFalha)->format('d/m/Y H:i:s') : 'Sem registos' }}</span>
+            </p>
+        </x-slot:actions>
+    </x-ui.page-header>
 
     <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900">

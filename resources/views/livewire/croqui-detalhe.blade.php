@@ -18,6 +18,22 @@
                 Voltar
             </a>
             <div class="flex items-center gap-2">
+                @if($croqui->temFicheiroPdfValido() && !$croqui->podeBaixar(auth()->user()))
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-xs font-medium text-amber-700 dark:text-amber-400">
+                        <svg class="h-4 w-4 shrink-0 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-3.5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>
+                            @if(!$croqui->publicado)
+                                Submissão INOTU pendente
+                            @elseif(!$croqui->rup_pago)
+                                Liquidação RUPE pendente
+                            @elseif(!$croqui->download_liberado)
+                                Homologação técnica pendente
+                            @else
+                                Acesso restrito ao município
+                            @endif
+                        </span>
+                    </div>
+                @endif
                 @if($croqui->temFicheiroPdfValido() && $croqui->podeBaixar(auth()->user()) && auth()->user()->temPermissao('documentos.ver'))
                     <a href="{{ route('storage.serve', ['path' => $croqui->ficheiro_pdf_caminho]) }}" target="_blank"
                        class="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">

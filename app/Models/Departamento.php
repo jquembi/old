@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Departamento extends Model
 {
+    protected $table = 'departamentos';
+
     protected $fillable = [
         'codigo',
         'nome',

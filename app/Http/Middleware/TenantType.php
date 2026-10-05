@@ -12,16 +12,21 @@ class TenantType
     {
         $tenant = $request->attributes->get('tenant') ?? app('current.tenant');
 
-        if (!$tenant) {
+        if (! $tenant) {
             abort(404, 'Tenant não encontrado');
         }
 
+        if ($type === 'central') {
+            $user = $request->user();
+            abort_unless($user && $user->activo && $user->isNacional(), 403, 'Acesso restrito aos perfis nacionais');
+        }
+
         // Verificar se o tenant é do tipo especificado
-        if ($type === 'central' && !$tenant->isCentral()) {
+        if ($type === 'central' && ! $tenant->isCentral()) {
             abort(403, 'Acesso restrito ao Núcleo Central Nacional');
         }
 
-        if ($type === 'provincial' && !$tenant->isProvincial()) {
+        if ($type === 'provincial' && ! $tenant->isProvincial()) {
             abort(403, 'Acesso restrito aos Nodes Provinciais');
         }
 

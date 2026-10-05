@@ -1,17 +1,14 @@
 ﻿<div>
-        <div class="mb-6">
-            <flux:heading size="xl">Auditoria & Logs</flux:heading>
-            <flux:text class="mt-1">Monitorizar actividades do sistema e acções dos utilizadores</flux:text>
-        </div>
+        <x-ui.page-header eyebrow="Gestão" title="Auditoria &amp; Logs" description="Monitorizar actividades do sistema e acções dos utilizadores" />
 
         {{-- Tabs --}}
         <div class="mb-6 flex gap-2 border-b border-zinc-200 dark:border-zinc-700">
-            <a href="{{ route('auditoria.index', ['tab' => 'logs']) }}"
-                class="px-4 py-2 text-sm font-medium border-b-2 transition {{ $tab === 'logs' ? 'border-blue-500 text-blue-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200' }}">
+            <a wire:navigate href="{{ route('auditoria.index', ['tab' => 'logs']) }}"
+                class="px-4 py-2 text-sm font-medium border-b-2 transition {{ $tab === 'logs' ? 'border-angola-red text-angola-red' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200' }}">
                 Logs de Acesso
             </a>
-            <a href="{{ route('auditoria.index', ['tab' => 'auditoria']) }}"
-                class="px-4 py-2 text-sm font-medium border-b-2 transition {{ $tab === 'auditoria' ? 'border-blue-500 text-blue-600' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200' }}">
+            <a wire:navigate href="{{ route('auditoria.index', ['tab' => 'auditoria']) }}"
+                class="px-4 py-2 text-sm font-medium border-b-2 transition {{ $tab === 'auditoria' ? 'border-angola-red text-angola-red' : 'border-transparent text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-200' }}">
                 Auditoria de Dados
             </a>
         </div>

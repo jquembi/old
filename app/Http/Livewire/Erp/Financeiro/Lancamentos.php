@@ -2,8 +2,8 @@
 
 namespace App\Http\Livewire\Erp\Financeiro;
 
-use App\Models\Lancamento;
 use App\Models\ContaGeral;
+use App\Models\Lancamento;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,17 +12,29 @@ class Lancamentos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $tipo = '';
+
     public $status = '';
+
     public $modalOpen = false;
+
     public $lancamentoId = null;
+
     public $numero = '';
+
     public $data;
+
     public $conta_debito_id;
+
     public $conta_credito_id;
+
     public $valor;
+
     public $descricao = '';
+
     public $tipo_lancamento = '';
+
     public $observacoes = '';
 
     protected $rules = [
@@ -35,14 +47,21 @@ class Lancamentos extends Component
         'tipo_lancamento' => 'required|in:receita,despesa,transferencia',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Lancamento::with(['contaDebito', 'contaCredito', 'createdBy']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('numero', 'like', '%' . $this->search . '%')
-                  ->orWhere('descricao', 'like', '%' . $this->search . '%');
+                $q->where('numero', 'like', '%'.$this->search.'%')
+                    ->orWhere('descricao', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -104,24 +123,24 @@ class Lancamentos extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Lançamento salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Lançamento salvo com sucesso!', type: 'success');
     }
 
     public function aprovar(Lancamento $lancamento)
     {
         $lancamento->aprovar(auth()->user());
-        $this->dispatch('notify', message: 'Lançamento aprovado!', type: 'success');
+        $this->dispatch('toast', message: 'Lançamento aprovado!', type: 'success');
     }
 
     public function cancelar(Lancamento $lancamento)
     {
         $lancamento->cancelar();
-        $this->dispatch('notify', message: 'Lançamento cancelado!', type: 'success');
+        $this->dispatch('toast', message: 'Lançamento cancelado!', type: 'success');
     }
 
     public function delete(Lancamento $lancamento)
     {
         $lancamento->delete();
-        $this->dispatch('notify', message: 'Lançamento eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Lançamento eliminado!', type: 'success');
     }
 }

@@ -16,6 +16,9 @@ class GestaoUsuarios extends Component
     public ?string $filtroRoleId = null;
     public ?string $filtroMunicipioId = null;
 
+    public bool $bloqueado = false;
+    public ?string $motivo = null;
+
     public function mount()
     {
         // Verificar permissões no mount
@@ -33,12 +36,14 @@ class GestaoUsuarios extends Component
         $roles = collect();
         $municipios = collect();
 
-        if (!($this->bloqueado ?? false)) {
+        if (!$this->bloqueado) {
             $query = User::with('roles')->latest();
 
             if ($this->search) {
-                $query->where('name', 'like', '%' . $this->search . '%')
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
                       ->orWhere('email', 'like', '%' . $this->search . '%');
+                });
             }
 
             if ($this->filtroRoleId) {
@@ -53,7 +58,7 @@ class GestaoUsuarios extends Component
             }
 
             $users = $query->paginate(25);
-            $podeGerir = auth()->user()?->temPermissao('usuarios.criar') ?? false;
+            $podeGerir = auth()->user()?->temPermissao('usuarios.criar') || auth()->user()?->temPermissao('usuarios.editar');
             $roles = Role::all();
             $municipios = Municipio::all();
         }
@@ -73,7 +78,9 @@ class GestaoUsuarios extends Component
 
         // Verificar permissão
         if (!$actor || !$actor->temPermissao('usuarios.editar')) {
-            session()->flash('error', 'Não tem permissão para alterar o estado de utilizadores.');
+            $msg = 'Não tem permissão para alterar o estado de utilizadores.';
+            session()->flash('error', $msg);
+            $this->dispatch('toast', type: 'error', message: $msg);
             return;
         }
 
@@ -81,7 +88,9 @@ class GestaoUsuarios extends Component
 
         // Impedir que o utilizador se desative a si próprio
         if ($actor->id === $user->id) {
-            session()->flash('error', 'Não pode desativar a sua própria conta.');
+            $msg = 'Não pode desativar a sua própria conta.';
+            session()->flash('error', $msg);
+            $this->dispatch('toast', type: 'error', message: $msg);
             return;
         }
 
@@ -90,14 +99,17 @@ class GestaoUsuarios extends Component
         $userNivel = $user->nivelMinimo();
 
         if ($actorNivel !== null && $userNivel !== null && $actorNivel >= $userNivel && !$actor->isDiretorInotu() && !$actor->isSuperAdminNacional()) {
-            session()->flash('error', 'Não pode alterar utilizadores do mesmo nível ou superior.');
+            $msg = 'Não pode alterar utilizadores do mesmo nível ou superior.';
+            session()->flash('error', $msg);
+            $this->dispatch('toast', type: 'error', message: $msg);
             return;
         }
 
         $user->activo = !$user->activo;
         $user->save();
 
-        session()->flash('message', $user->activo ? 'Utilizador ativado com sucesso.' : 'Utilizador desativado com sucesso.');
+        $msg = $user->activo ? 'Utilizador ativado com sucesso.' : 'Utilizador desativado com sucesso.';
+        session()->flash('message', $msg);
+        $this->dispatch('toast', type: 'success', message: $msg);
     }
 }
-

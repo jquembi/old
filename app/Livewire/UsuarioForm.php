@@ -24,15 +24,31 @@ class UsuarioForm extends Component
     public function mount(mixed $usuario = null): void
     {
         $user = auth()->user();
-        if (!$user || !$user->temPermissao('usuarios.gerir')) {
-            abort(403, 'Não tem permissão para gerir utilizadores.');
+        if (!$user) {
+            abort(403, 'Não autenticado.');
         }
 
         if ($usuario instanceof User) {
-            $this->preencherUsuario($usuario);
+            $userModel = $usuario;
         } elseif (is_numeric($usuario)) {
             $userModel = User::findOrFail((int) $usuario);
+        } else {
+            $userModel = null;
+        }
+
+        if ($userModel) {
+            if (!$user->temPermissao('usuarios.editar') && !$user->temPermissao('usuarios.gerir')) {
+                abort(403, 'Não tem permissão para editar utilizadores.');
+            }
+            // Não permitir que utilizador de menor hierarquia edite utilizador de hierarquia superior
+            if ($userModel->roleLevel() < $user->roleLevel() && !$user->isNacional()) {
+                abort(403, 'Não tem permissão para editar um utilizador de nível hierárquico superior.');
+            }
             $this->preencherUsuario($userModel);
+        } else {
+            if (!$user->temPermissao('usuarios.criar') && !$user->temPermissao('usuarios.gerir')) {
+                abort(403, 'Não tem permissão para criar utilizadores.');
+            }
         }
     }
 
@@ -87,11 +103,32 @@ class UsuarioForm extends Component
     public function guardar()
     {
         $user = auth()->user();
-        if (!$user || !$user->temPermissao('usuarios.gerir')) {
-            abort(403, 'Não tem permissão para gerir utilizadores.');
+        if (!$user) {
+            abort(403, 'Não autenticado.');
+        }
+
+        if ($this->registoId) {
+            if (!$user->temPermissao('usuarios.editar') && !$user->temPermissao('usuarios.gerir')) {
+                abort(403, 'Não tem permissão para editar utilizadores.');
+            }
+        } else {
+            if (!$user->temPermissao('usuarios.criar') && !$user->temPermissao('usuarios.gerir')) {
+                abort(403, 'Não tem permissão para criar utilizadores.');
+            }
         }
 
         $validated = $this->validate();
+
+        // Proteger contra escalada de privilégios: não atribuir funções de nível superior ao seu
+        $selectedRoles = Role::whereIn('id', $validated['role_ids'])->get();
+        if (!$user->isNacional()) {
+            foreach ($selectedRoles as $role) {
+                if ($role->nivel < $user->roleLevel()) {
+                    $this->addError('role_ids', "Não tem permissão para atribuir a função '{$role->nome}' de nível hierárquico superior ao seu.");
+                    return;
+                }
+            }
+        }
 
         $userData = [
             'name' => $validated['name'],
@@ -106,6 +143,9 @@ class UsuarioForm extends Component
 
         if ($this->registoId) {
             $targetUser = User::findOrFail($this->registoId);
+            if ($targetUser->roleLevel() < $user->roleLevel() && !$user->isNacional()) {
+                abort(403, 'Não tem permissão para atualizar utilizadores de nível superior.');
+            }
             $targetUser->update($userData);
             $targetUser->roles()->sync($validated['role_ids']);
             session()->flash('status', "Utilizador '{$targetUser->name}' actualizado com sucesso.");
@@ -120,9 +160,12 @@ class UsuarioForm extends Component
 
     public function render()
     {
+        $currentUser = auth()->user();
         return view('livewire.usuario-form', [
             'roles' => Role::all(),
             'municipios' => Municipio::orderBy('nome')->get(),
+            'userRoleLevel' => $currentUser ? $currentUser->roleLevel() : 99,
+            'isNacional' => $currentUser ? $currentUser->isNacional() : false,
         ]);
     }
 }

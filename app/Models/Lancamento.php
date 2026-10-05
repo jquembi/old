@@ -10,6 +10,8 @@ class Lancamento extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'lancamentos';
+
     protected $fillable = [
         'numero',
         'data',
@@ -34,12 +36,16 @@ class Lancamento extends Model
 
     // Tipos de lançamento
     public const TIPO_RECEITA = 'receita';
+
     public const TIPO_DESPESA = 'despesa';
+
     public const TIPO_TRANSFERENCIA = 'transferencia';
 
     // Status
     public const STATUS_PENDENTE = 'pendente';
+
     public const STATUS_CONFIRMADO = 'confirmado';
+
     public const STATUS_CANCELADO = 'cancelado';
 
     public function contaDebito(): BelongsTo

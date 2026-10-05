@@ -1,215 +1,317 @@
-﻿<div>
-        <div class="mb-6">
-            <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-2">
-                <a href="{{ route('dashboard') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>Dashboard</a>
-                <span>/</span>
-                <a href="{{ route('municipio.show', $municipio) }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>{{ $municipio->nome }}</a>
-                <span>/</span>
-                <a href="{{ route('municipio.requalificacao', $municipio) }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>Requalificação</a>
-                <span>/</span>
-                <span>Projecto SONA</span>
-            </div>
-            <div class="flex items-center justify-between">
-                <div>
-                    <flux:heading size="xl">Projecto SONA</flux:heading>
-                    <flux:text class="mt-1">Planos de requalificação urbana e avanços de obras — {{ $municipio->nome }}</flux:text>
+<div class="space-y-6">
+    {{-- Cabeçalho e Navegação --}}
+    <div>
+        <div class="mb-2 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
+            <a href="{{ route('dashboard') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>Dashboard</a>
+            <span>/</span>
+            <a href="{{ route('municipio.show', $municipio) }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>{{ $municipio->nome }}</a>
+            <span>/</span>
+            <a href="{{ route('municipio.requalificacao', $municipio) }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>Requalificação</a>
+            <span>/</span>
+            <span class="font-medium text-zinc-800 dark:text-zinc-200">Projectos SONA</span>
+        </div>
+
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div>
+                <div class="flex items-center gap-3">
+                    <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400">
+                        <flux:icon.building-office class="h-6 w-6" />
+                    </div>
+                    <div>
+                        <flux:heading size="xl" class="font-bold text-zinc-900 dark:text-zinc-100">Projectos SONA</flux:heading>
+                        <flux:text class="mt-0.5 text-zinc-600 dark:text-zinc-400">
+                            Planos de requalificação urbana e acompanhamento de avanços de obras — {{ $municipio->nome }}
+                        </flux:text>
+                    </div>
                 </div>
-                @if($podeEditar)
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('municipio.requalificacao', $municipio) }}" wire:navigate>
+                    <flux:button variant="ghost" icon="arrow-left" size="sm">Voltar ao Hub</flux:button>
+                </a>
+                @if($podeCriar)
                     <a href="{{ route('municipio.requalificacao.sona.criar', $municipio) }}" wire:navigate>
-                        <flux:button variant="primary" icon="plus">Novo Projecto</flux:button>
+                        <flux:button variant="primary" icon="plus" size="sm">Novo Projecto SONA</flux:button>
                     </a>
                 @endif
             </div>
         </div>
+    </div>
 
-        <div class="mb-4 flex flex-wrap gap-3">
-            <div class="flex-1 min-w-[200px]">
-                <flux:input wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." icon="magnifying-glass" />
+    {{-- Feedback de Mensagem / Status --}}
+    @if(session('status'))
+        <div class="flex items-center gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
+            <flux:icon.check-circle class="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{{ session('status') }}</span>
+        </div>
+    @endif
+
+    {{-- Indicadores KPI --}}
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Projectos</span>
+            <div class="mt-1 flex items-baseline gap-2">
+                <span class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $kpis['total'] }}</span>
+                <span class="text-xs text-zinc-500">registados</span>
             </div>
-            <flux:select wire:model.live="filtroTipo" class="w-48">
-                <flux:select.option value="">Todos os tipos</flux:select.option>
-                <flux:select.option value="requalificacao">Requalificação Urbana</flux:select.option>
-                <flux:select.option value="avancos_obras">Avanços de Obras</flux:select.option>
-            </flux:select>
         </div>
 
-        <div class="space-y-4">
-            @forelse($projectos as $proj)
-                <div class="rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-700 dark:bg-zinc-900">
-                    <div class="flex items-start justify-between">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-2">
-                                <flux:heading size="sm">{{ $proj->titulo }}</flux:heading>
-                                <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium
-                                    {{ $proj->estado === 'em_curso' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' : '' }}
-                                    {{ $proj->estado === 'concluido' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' : '' }}
-                                    {{ $proj->estado === 'suspenso' ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400' : '' }}
-                                ">
-                                    {{ str_replace('_', ' ', ucfirst($proj->estado)) }}
-                                </span>
-                                <span class="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300">
-                                    {{ $proj->tipo === 'requalificacao' ? 'Requalificação' : 'Avanços de Obras' }}
-                                </span>
-                            </div>
-                            <flux:text class="mt-1 text-xs">
-                                {{ $proj->municipio?->nome }}
-                                @if($proj->fase) &middot; Fase: {{ $proj->fase }} @endif
-                                &middot; {{ $proj->created_at->format('d/m/Y') }}
-                            </flux:text>
-                            @if($proj->descricao)
-                                <flux:text class="mt-2 text-sm">{{ Str::limit($proj->descricao, 200) }}</flux:text>
-                            @endif
-
-                            {{-- Ficheiros/Imagens --}}
-                            @if($proj->ficheiros->count())
-                                <div class="mt-3">
-                                    @if($proj->tipo === 'avancos_obras')
-                                        {{-- Galeria de imagens --}}
-                                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                                            @foreach($proj->ficheiros as $f)
-                                                @if(Str::startsWith($f->mime_type, 'image/'))
-                                                    <div class="relative group">
-                                                        <img src="{{ route('storage.serve', $f->caminho) }}" alt="{{ $f->legenda ?? $f->nome_original }}"
-                                                             class="w-full h-24 object-cover rounded-lg border dark:border-zinc-700" />
-                                                        @if($f->legenda)
-                                                            <div class="absolute inset-x-0 bottom-0 bg-black/60 text-white text-xs p-1 rounded-b-lg">
-                                                                {{ $f->legenda }}
-                                                            </div>
-                                                        @endif
-                                                        @if($f->fase)
-                                                            <div class="absolute top-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
-                                                                {{ $f->fase }}
-                                                            </div>
-                                                        @endif
-                                                    </div>
-                                                @else
-                                                    <a href="{{ route('storage.serve', $f->caminho) }}" target="_blank"
-                                                       class="inline-flex items-center gap-1 rounded bg-zinc-100 px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300">
-                                                        {{ $f->nome_original }}
-                                                    </a>
-                                                @endif
-                                            @endforeach
-                                        </div>
-                                    @else
-                                        <div class="flex flex-wrap gap-2">
-                                            @foreach($proj->ficheiros as $f)
-                                                <a href="{{ route('storage.serve', $f->caminho) }}" target="_blank"
-                                                   class="inline-flex items-center gap-1 rounded bg-zinc-100 px-2 py-1 text-xs text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300">
-                                                    {{ $f->nome_original }} ({{ strtoupper($f->tipo_ficheiro) }})
-                                                </a>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                </div>
-                            @endif
-                        </div>
-
-                        @if($podeEditar)
-                            <div class="flex gap-1">
-                                <a href="{{ route('municipio.requalificacao.sona.editar', [$municipio, $proj->id]) }}" wire:navigate><flux:button size="sm" variant="ghost" icon="pencil" /></a>
-                                @if($podeEliminar)
-                                    <flux:button x-on:click.prevent="$dispatch('confirmar', { title: 'Confirmacao', message: 'Enviar este projecto para a lixeira?', action: 'eliminar', component: $wire.$id, params: [{{ $proj->id }}], variant: 'danger' })" size="sm" variant="ghost" icon="trash" class="text-red-500" />
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            @empty
-                <div class="rounded-xl border border-dashed border-zinc-300 p-8 text-center dark:border-zinc-700">
-                    <flux:text class="text-zinc-500">Nenhum projecto SONA encontrado.</flux:text>
-                </div>
-            @endforelse
+        <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Requalificação</span>
+            <div class="mt-1 flex items-baseline gap-2">
+                <span class="text-2xl font-bold text-teal-600 dark:text-teal-400">{{ $kpis['requalificacao'] }}</span>
+                <span class="text-xs text-zinc-500">planos urbanos</span>
+            </div>
         </div>
 
-        <div class="mt-4">{{ $projectos->links() }}</div>
+        <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Avanços de Obras</span>
+            <div class="mt-1 flex items-baseline gap-2">
+                <span class="text-2xl font-bold text-cyan-600 dark:text-cyan-400">{{ $kpis['avancos'] }}</span>
+                <span class="text-xs text-zinc-500">relatórios / fotos</span>
+            </div>
+        </div>
 
-        @if($showForm)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div class="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900 max-h-[90vh] overflow-y-auto">
-                <flux:heading size="lg" class="mb-4">{{ $editingId ? 'Editar' : 'Novo' }} Projecto SONA</flux:heading>
-                <div class="space-y-4">
-                    <flux:input wire:model="titulo" label="Título" required />
-                    <flux:textarea wire:model="descricao" label="Descrição" rows="3" />
+        <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <span class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Em Execução</span>
+            <div class="mt-1 flex items-baseline gap-2">
+                <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ $kpis['em_curso'] }}</span>
+                <span class="text-xs text-zinc-500">de {{ $kpis['total'] }} totais</span>
+            </div>
+        </div>
+    </div>
 
-                    <flux:select wire:model="tipo" label="Tipo">
+    {{-- Barra de Filtros e Pesquisa --}}
+    <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex flex-1 flex-wrap items-center gap-3">
+                <div class="w-full sm:w-72">
+                    <flux:input wire:model.live.debounce.300ms="search" placeholder="Pesquisar por título, descrição..." icon="magnifying-glass" clearable />
+                </div>
+
+                <div class="w-full sm:w-48">
+                    <flux:select wire:model.live="filtroTipo">
+                        <flux:select.option value="">Todos os tipos</flux:select.option>
                         <flux:select.option value="requalificacao">Requalificação Urbana</flux:select.option>
                         <flux:select.option value="avancos_obras">Avanços de Obras</flux:select.option>
                     </flux:select>
+                </div>
 
-                    <flux:input wire:model="fase" label="Fase" placeholder="Ex: Fase 1, Fase 2" />
-
-                    <flux:select wire:model="estado" label="Estado">
+                <div class="w-full sm:w-44">
+                    <flux:select wire:model.live="filtroEstado">
+                        <flux:select.option value="">Todos os estados</flux:select.option>
                         <flux:select.option value="em_curso">Em Curso</flux:select.option>
                         <flux:select.option value="concluido">Concluído</flux:select.option>
                         <flux:select.option value="suspenso">Suspenso</flux:select.option>
                     </flux:select>
-
-                    <div>
-                        <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Ficheiros / Imagens</label>
-                        <input type="file" wire:model="ficheiros" multiple class="block w-full text-sm text-zinc-500 file:mr-4 file:rounded file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-semibold hover:file:bg-zinc-200 dark:file:bg-zinc-800 dark:file:text-zinc-300" />
-
-                        <!-- Loading indicator with progress -->
-                        <div wire:loading wire:target="ficheiros" class="mt-3 space-y-2">
-                            <div class="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-400">
-                                <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                                </svg>
-                                A carregar ficheiros...
-                            </div>
-                            <!-- Progress bar -->
-                            <div class="w-full bg-zinc-200 rounded-full h-2 dark:bg-zinc-700">
-                                <div class="bg-zinc-600 h-2 rounded-full transition-all duration-300"
-                                     style="width: {{ $this->uploadProgress }}%">
-                                </div>
-                            </div>
-                            <div class="text-xs text-zinc-500 dark:text-zinc-400 text-right">
-                                {{ $this->uploadProgress }}%
-                            </div>
-                        </div>
-
-                        <!-- Upload complete indicator -->
-                        <div wire:loading.remove wire:target="ficheiros">
-                            @if(count($ficheiros) > 0)
-                                <div class="mt-3 flex items-center gap-2 p-3 rounded bg-red-50 dark:bg-red-900/20">
-                                    <svg class="h-5 w-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    <span class="text-sm font-medium text-red-700 dark:text-red-300">
-                                        {{ count($ficheiros) }} ficheiro(s) carregado(s) com sucesso
-                                    </span>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <flux:input wire:model="faseFicheiro" label="Fase do Ficheiro" placeholder="Indicar a fase dos ficheiros" />
-                    <flux:input wire:model="legenda" label="Legenda" placeholder="Legenda das imagens" />
                 </div>
 
-                @if($errors->any())
-                    <div class="mt-4 rounded bg-red-50 p-3 dark:bg-red-900/20">
-                        @foreach($errors->all() as $error)
-                            <p class="text-sm text-red-600 dark:text-red-400">{{ $error }}</p>
-                        @endforeach
+                @if($fasesDisponiveis->isNotEmpty())
+                    <div class="w-full sm:w-40">
+                        <flux:select wire:model.live="filtroFase">
+                            <flux:select.option value="">Todas as fases</flux:select.option>
+                            @foreach($fasesDisponiveis as $faseItem)
+                                <flux:select.option value="{{ $faseItem }}">{{ $faseItem }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
                     </div>
                 @endif
 
-                <div class="mt-6 flex justify-end gap-3">
-                    <flux:button wire:click="$set('showForm', false)" variant="ghost" wire:loading.attr="disabled" wire:target="ficheiros">
-                        Cancelar
+                @if($search || $filtroTipo || $filtroEstado || $filtroFase)
+                    <flux:button wire:click="limparFiltros" variant="ghost" size="sm" icon="x-mark">
+                        Limpar Filtros
                     </flux:button>
-                    <flux:button
-                        wire:click="guardar"
-                        variant="primary"
-                        wire:loading.attr="disabled"
-                        wire:target="guardar,ficheiros"
-                        :disabled="$isUploading || (count($ficheiros) === 0 && !$editingId)"
-                    >
-                        {{ $editingId ? 'Actualizar' : 'Guardar' }}
-                    </flux:button>
-                </div>
+                @endif
+            </div>
+
+            <div class="text-xs text-zinc-500 dark:text-zinc-400">
+                A exibir <span class="font-semibold text-zinc-800 dark:text-zinc-200">{{ $projectos->total() }}</span> {{ $projectos->total() === 1 ? 'projecto' : 'projectos' }}
             </div>
         </div>
-        @endif
+    </div>
+
+    {{-- Lista de Projectos SONA --}}
+    <div class="space-y-4">
+        @forelse($projectos as $proj)
+            <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div class="flex-1 space-y-3">
+                        {{-- Badges e Título --}}
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h3 class="text-base font-bold text-zinc-900 dark:text-zinc-100">
+                                {{ $proj->titulo }}
+                            </h3>
+
+                            {{-- Badge Tipo --}}
+                            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold
+                                {{ $proj->tipo === 'requalificacao' ? 'bg-teal-50 text-teal-800 dark:bg-teal-950/50 dark:text-teal-300 border border-teal-200 dark:border-teal-800' : 'bg-cyan-50 text-cyan-800 dark:bg-cyan-950/50 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800' }}">
+                                @if($proj->tipo === 'requalificacao')
+                                    <flux:icon.building-office class="h-3 w-3" /> Requalificação Urbana
+                                @else
+                                    <flux:icon.camera class="h-3 w-3" /> Avanços de Obras
+                                @endif
+                            </span>
+
+                            {{-- Badge Estado com acentuação --}}
+                            @php
+                                $estadoClasses = match($proj->estado) {
+                                    'em_curso' => 'bg-blue-50 text-blue-800 border-blue-200 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800',
+                                    'concluido' => 'bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-800',
+                                    'suspenso' => 'bg-red-50 text-red-800 border-red-200 dark:bg-red-950/50 dark:text-red-300 dark:border-red-800',
+                                    default => 'bg-zinc-100 text-zinc-800 border-zinc-200',
+                                };
+                                $estadoLabel = match($proj->estado) {
+                                    'em_curso' => 'Em Curso',
+                                    'concluido' => 'Concluído',
+                                    'suspenso' => 'Suspenso',
+                                    default => ucfirst($proj->estado),
+                                };
+                            @endphp
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border {{ $estadoClasses }}">
+                                {{ $estadoLabel }}
+                            </span>
+
+                            {{-- Badge Fase --}}
+                            @if($proj->fase)
+                                <span class="inline-flex items-center rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                                    {{ $proj->fase }}
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Metadados técnicos --}}
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            <span class="flex items-center gap-1">
+                                <flux:icon.map-pin class="h-3.5 w-3.5 text-zinc-400" />
+                                {{ $proj->municipio?->nome ?? $municipio->nome }}
+                            </span>
+                            <span class="flex items-center gap-1">
+                                <flux:icon.calendar class="h-3.5 w-3.5 text-zinc-400" />
+                                Registado a {{ $proj->created_at->format('d/m/Y') }}
+                            </span>
+                            @if($proj->criadoPor)
+                                <span class="flex items-center gap-1">
+                                    <flux:icon.user class="h-3.5 w-3.5 text-zinc-400" />
+                                    {{ $proj->criadoPor->name }}
+                                </span>
+                            @endif
+                        </div>
+
+                        {{-- Descrição --}}
+                        @if($proj->descricao)
+                            <p class="text-sm text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                                {{ $proj->descricao }}
+                            </p>
+                        @endif
+
+                        {{-- Ficheiros / Galeria de Fotos ou Documentos Anexos --}}
+                        @if($proj->ficheiros->isNotEmpty())
+                            <div class="mt-3 rounded-xl border border-zinc-100 bg-zinc-50/70 p-3 dark:border-zinc-800 dark:bg-zinc-800/40">
+                                <div class="mb-2 flex items-center justify-between text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                                    <span class="flex items-center gap-1">
+                                        <flux:icon.paper-clip class="h-3.5 w-3.5" />
+                                        Anexos e Documentos ({{ $proj->ficheiros->count() }})
+                                    </span>
+                                </div>
+
+                                @if($proj->tipo === 'avancos_obras')
+                                    {{-- Galeria de Imagens com Legenda e Fase --}}
+                                    <div class="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                                        @foreach($proj->ficheiros as $f)
+                                            @if(Str::startsWith($f->mime_type, 'image/'))
+                                                <div class="group relative overflow-hidden rounded-lg border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800">
+                                                    <a href="{{ route('storage.serve', $f->caminho) }}" target="_blank" class="block aspect-square overflow-hidden">
+                                                        <img src="{{ route('storage.serve', $f->caminho) }}" alt="{{ $f->legenda ?? $f->nome_original }}"
+                                                             class="h-full w-full object-cover transition duration-300 group-hover:scale-105" loading="lazy" />
+                                                    </a>
+                                                    @if($f->fase)
+                                                        <span class="absolute top-1 left-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm">
+                                                            {{ $f->fase }}
+                                                        </span>
+                                                    @endif
+                                                    @if($f->legenda)
+                                                        <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-1.5 text-[11px] text-white">
+                                                            <p class="truncate">{{ $f->legenda }}</p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @else
+                                                <a href="{{ route('storage.serve', $f->caminho) }}" target="_blank"
+                                                   class="flex flex-col items-center justify-center rounded-lg border border-zinc-200 bg-white p-2 text-center text-xs text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                                                    <flux:icon.document-text class="h-6 w-6 text-teal-600 mb-1" />
+                                                    <span class="truncate w-full font-medium">{{ $f->nome_original }}</span>
+                                                    <span class="text-[10px] text-zinc-400 uppercase">{{ $f->tipo_ficheiro }}</span>
+                                                </a>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                @else
+                                    {{-- Lista de Ficheiros Requalificação --}}
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($proj->ficheiros as $f)
+                                            <a href="{{ route('storage.serve', $f->caminho) }}" target="_blank"
+                                               class="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700">
+                                                @if(Str::startsWith($f->mime_type, 'image/'))
+                                                    <flux:icon.photo class="h-4 w-4 text-cyan-600" />
+                                                @else
+                                                    <flux:icon.document-text class="h-4 w-4 text-teal-600" />
+                                                @endif
+                                                <span class="truncate max-w-xs">{{ $f->nome_original }}</span>
+                                                <span class="text-[10px] text-zinc-400">({{ strtoupper($f->tipo_ficheiro) }})</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+
+                    {{-- Acções --}}
+                    @if($podeEditar || $podeEliminar)
+                        <div class="flex items-center gap-2 self-end lg:self-start shrink-0">
+                            @if($podeEditar)
+                                <a href="{{ route('municipio.requalificacao.sona.editar', [$municipio, $proj->id]) }}" wire:navigate>
+                                    <flux:button size="sm" variant="ghost" icon="pencil">Editar</flux:button>
+                                </a>
+                            @endif
+                            @if($podeEliminar)
+                                <flux:button x-on:click.prevent="$dispatch('confirmar', { title: 'Confirmar Eliminação', message: 'Tem a certeza que deseja enviar este projecto para a lixeira?', action: 'eliminar', component: $wire.$id, params: [{{ $proj->id }}], variant: 'danger' })"
+                                             size="sm" variant="ghost" icon="trash" class="text-red-500 hover:text-red-700">
+                                    Eliminar
+                                </flux:button>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+        @empty
+            <div class="rounded-2xl border border-dashed border-zinc-300 p-12 text-center dark:border-zinc-700">
+                <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                    <flux:icon.building-office class="h-6 w-6 text-zinc-400" />
+                </div>
+                <h3 class="mt-3 text-sm font-semibold text-zinc-900 dark:text-white">Nenhum projecto SONA encontrado</h3>
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    @if($search || $filtroTipo || $filtroEstado || $filtroFase)
+                        Tente ajustar os filtros de pesquisa para encontrar os registos desejados.
+                    @else
+                        Ainda não existem projectos SONA registados para o município de {{ $municipio->nome }}.
+                    @endif
+                </p>
+                @if($podeCriar)
+                    <div class="mt-4">
+                        <a href="{{ route('municipio.requalificacao.sona.criar', $municipio) }}" wire:navigate>
+                            <flux:button variant="primary" size="sm" icon="plus">Criar Novo Projecto</flux:button>
+                        </a>
+                    </div>
+                @endif
+            </div>
+        @endforelse
+    </div>
+
+    {{-- Paginação --}}
+    @if($projectos->hasPages())
+        <div class="mt-6">
+            {{ $projectos->links() }}
+        </div>
+    @endif
 </div>

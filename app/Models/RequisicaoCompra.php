@@ -10,6 +10,8 @@ class RequisicaoCompra extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'requisicoes_compra';
+
     protected $fillable = [
         'numero',
         'data',
@@ -35,17 +37,26 @@ class RequisicaoCompra extends Model
 
     // Prioridades
     public const PRIORIDADE_BAIXA = 'baixa';
+
     public const PRIORIDADE_NORMAL = 'normal';
+
     public const PRIORIDADE_ALTA = 'alta';
+
     public const PRIORIDADE_URGENTE = 'urgente';
 
     // Status
     public const STATUS_RASCUNHO = 'rascunho';
+
     public const STATUS_PENDENTE_APROVACAO = 'pendente_aprovacao';
+
     public const STATUS_APROVADO = 'aprovado';
+
     public const STATUS_REJEITADO = 'rejeitado';
+
     public const STATUS_EM_PROCESSAMENTO = 'em_processamento';
+
     public const STATUS_CONCLUIDO = 'concluido';
+
     public const STATUS_CANCELADO = 'cancelado';
 
     public function tenant(): BelongsTo

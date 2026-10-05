@@ -11,6 +11,8 @@ class Fornecedor extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'fornecedores';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -31,7 +33,9 @@ class Fornecedor extends Model
 
     // Tipos de fornecedor
     public const TIPO_BENS = 'bens';
+
     public const TIPO_SERVICOS = 'servicos';
+
     public const TIPO_AMBOS = 'ambos';
 
     public function municipio(): BelongsTo

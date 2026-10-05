@@ -39,9 +39,18 @@ class Profile extends Component
         ]);
 
         $user = Auth::user();
-        $user->name = $this->name;
-        $user->email = $this->email;
+        $user->fill([
+            'name' => $this->name,
+            'email' => $this->email,
+        ]);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
         $user->save();
+
+        $this->hasUnverifiedEmail = ! $user->hasVerifiedEmail();
 
         $this->dispatch('profile-updated');
     }

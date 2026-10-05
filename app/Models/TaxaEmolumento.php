@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TaxaEmolumento extends Model
 {
+    protected $table = 'taxas_emolumentos';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -32,12 +34,16 @@ class TaxaEmolumento extends Model
 
     // Tipos
     public const TIPO_TAXA = 'taxa';
+
     public const TIPO_EMOLUMENTO = 'emolumento';
+
     public const TIPO_MULTA = 'multa';
 
     // Tipos de valor
     public const TIPO_VALOR_FIXO = 'fixo';
+
     public const TIPO_VALOR_PERCENTUAL = 'percentual';
+
     public const TIPO_VALOR_VARIAVEL = 'variavel';
 
     public function conta(): BelongsTo
@@ -64,10 +70,10 @@ class TaxaEmolumento extends Model
     {
         return $query->where(function ($q) use ($data) {
             $q->whereNull('valido_de')
-              ->orWhere('valido_de', '<=', $data);
+                ->orWhere('valido_de', '<=', $data);
         })->where(function ($q) use ($data) {
             $q->whereNull('valido_ate')
-              ->orWhere('valido_ate', '>=', $data);
+                ->orWhere('valido_ate', '>=', $data);
         });
     }
 
@@ -80,11 +86,11 @@ class TaxaEmolumento extends Model
     {
         $inicio = $this->valido_de ?? '1900-01-01';
         $fim = $this->valido_ate ?? '2099-12-31';
-        
+
         return $data >= $inicio && $data <= $fim;
     }
 
-    public function calcularValor(float $base = null): float
+    public function calcularValor(?float $base = null): float
     {
         return match ($this->tipo_valor) {
             self::TIPO_VALOR_FIXO => $this->valor,

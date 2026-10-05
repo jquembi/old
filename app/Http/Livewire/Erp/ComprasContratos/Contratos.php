@@ -13,19 +13,33 @@ class Contratos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $status = '';
+
     public $tipo = '';
+
     public $modalOpen = false;
+
     public $contratoId = null;
+
     public $numero = '';
+
     public $data_inicio;
+
     public $data_fim;
+
     public $descricao = '';
+
     public $valor_total;
+
     public $tipo_contrato = '';
+
     public $fornecedor_id = null;
+
     public $requisicao_compra_id = null;
+
     public $condicoes = '';
+
     public $arquivo_path = '';
 
     protected $rules = [
@@ -38,14 +52,21 @@ class Contratos extends Component
         'fornecedor_id' => 'required|exists:fornecedores,id',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Contrato::with(['fornecedor', 'requisicaoCompra']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('numero', 'like', '%' . $this->search . '%')
-                  ->orWhere('descricao', 'like', '%' . $this->search . '%');
+                $q->where('numero', 'like', '%'.$this->search.'%')
+                    ->orWhere('descricao', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -59,7 +80,7 @@ class Contratos extends Component
 
         $contratos = $query->orderBy('data_inicio', 'desc')->paginate(15);
         $fornecedores = Fornecedor::activo()->get();
-        $requisicoes = RequisicaoCompra::aprovado()->get();
+        $requisicoes = RequisicaoCompra::porStatus(RequisicaoCompra::STATUS_APROVADO)->get();
 
         return view('livewire.erp.compras-contratos.contratos', [
             'contratos' => $contratos,
@@ -115,30 +136,30 @@ class Contratos extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Contrato salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Contrato salvo com sucesso!', type: 'success');
     }
 
     public function ativar(Contrato $contrato)
     {
         $contrato->update(['status' => 'ativo']);
-        $this->dispatch('notify', message: 'Contrato ativado!', type: 'success');
+        $this->dispatch('toast', message: 'Contrato ativado!', type: 'success');
     }
 
     public function suspender(Contrato $contrato)
     {
         $contrato->update(['status' => 'suspenso']);
-        $this->dispatch('notify', message: 'Contrato suspenso!', type: 'success');
+        $this->dispatch('toast', message: 'Contrato suspenso!', type: 'success');
     }
 
     public function concluir(Contrato $contrato)
     {
         $contrato->update(['status' => 'concluido']);
-        $this->dispatch('notify', message: 'Contrato concluído!', type: 'success');
+        $this->dispatch('toast', message: 'Contrato concluído!', type: 'success');
     }
 
     public function delete(Contrato $contrato)
     {
         $contrato->delete();
-        $this->dispatch('notify', message: 'Contrato eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Contrato eliminado!', type: 'success');
     }
 }

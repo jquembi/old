@@ -5,7 +5,7 @@ use Laravel\Fortify\Features;
 use Laravel\Fortify\Fortify;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
-use Livewire\Component;
+use Livewire\Volt\Component;
 use Symfony\Component\HttpFoundation\Response;
 
 new #[Title('Two-factor authentication')] class extends Component {
@@ -46,7 +46,7 @@ new #[Title('Two-factor authentication')] class extends Component {
 
         $this->twoFactorEnabled = false;
     }
-} ?>
+}; ?>
 
 <section class="w-full">
     @include('partials.settings-heading')
@@ -68,7 +68,7 @@ new #[Title('Two-factor authentication')] class extends Component {
                         {{ __('With two-factor authentication enabled, you will be prompted for a secure, random pin during login, which you can retrieve from the TOTP-supported application on your phone.') }}
                     </flux:text>
 
-                    <livewire:pages::settings.two-factor.recovery-codes :$requiresConfirmation />
+                    <livewire:settings.two-factor.recovery-codes :$requiresConfirmation />
 
                     <div class="flex justify-start">
                         <flux:button
@@ -102,7 +102,7 @@ new #[Title('Two-factor authentication')] class extends Component {
                         </flux:button>
                     </flux:modal.trigger>
 
-                    <livewire:pages::settings.two-factor-setup-modal :requires-confirmation="$requiresConfirmation" />
+                    <livewire:settings.two-factor-setup-modal :requires-confirmation="$requiresConfirmation" />
                 </div>
             @endif
         </div>

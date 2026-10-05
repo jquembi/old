@@ -19,6 +19,10 @@
         'sky'    => 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-300',
         'zinc'   => 'bg-zinc-100 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-300',
     ];
+
+    $currentUser = auth()->user();
+    $canGerarRupe = $currentUser && ($currentUser->isInotu() || $currentUser->isNacional() || $currentUser->temPermissao('pagamentos.gerir'));
+    $canConfirmarRejeitar = $currentUser && ($currentUser->isInotu() || $currentUser->isNacional() || $currentUser->temPermissao('croquis.aprovar'));
 @endphp
 
 <div class="space-y-6">
@@ -171,13 +175,20 @@
                             Ver
                         </a>
 
-                        {{-- Gerar RUPE (só INOTU, quando aguardando) --}}
+                        {{-- Gerar RUPE (só INOTU / Nacional / pagamentos.gerir, quando aguardando) --}}
                         @if($pag->podeGerarRupe())
-                            <button wire:click="abrirGerarRupe({{ $pag->id }})"
-                                    class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs text-white hover:bg-blue-700 transition-colors font-medium">
-                                <x-heroicon-o-document-text class="h-3.5 w-3.5" />
-                                Gerar RUPE
-                            </button>
+                            @if($canGerarRupe)
+                                <button wire:click="abrirGerarRupe({{ $pag->id }})"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1.5 text-xs text-white hover:bg-blue-700 transition-colors font-medium">
+                                    <x-heroicon-o-document-text class="h-3.5 w-3.5" />
+                                    Gerar RUPE
+                                </button>
+                            @else
+                                <span class="inline-flex items-center gap-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 px-2 py-1 text-xs text-amber-700 dark:text-amber-400">
+                                    <x-heroicon-o-clock class="h-3.5 w-3.5" />
+                                    Aguarda emissão INOTU
+                                </span>
+                            @endif
                         @endif
 
                         {{-- Comprovativo submetido → Confirmar / Rejeitar --}}
@@ -187,16 +198,23 @@
                                 <x-heroicon-o-paper-clip class="h-3.5 w-3.5" />
                                 Ver comprovativo
                             </button>
-                            <button wire:click="abrirConfirmar({{ $pag->id }})"
-                                    class="inline-flex items-center gap-1 rounded-lg bg-green-600 px-2.5 py-1.5 text-xs text-white hover:bg-green-700 transition-colors font-medium">
-                                <x-heroicon-o-check-circle class="h-3.5 w-3.5" />
-                                Confirmar
-                            </button>
-                            <button wire:click="abrirRejeitar({{ $pag->id }})"
-                                    class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1.5 text-xs text-white hover:bg-red-700 transition-colors font-medium">
-                                <x-heroicon-o-x-circle class="h-3.5 w-3.5" />
-                                Rejeitar
-                            </button>
+                            @if($canConfirmarRejeitar)
+                                <button wire:click="abrirConfirmar({{ $pag->id }})"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-green-600 px-2.5 py-1.5 text-xs text-white hover:bg-green-700 transition-colors font-medium">
+                                    <x-heroicon-o-check-circle class="h-3.5 w-3.5" />
+                                    Confirmar
+                                </button>
+                                <button wire:click="abrirRejeitar({{ $pag->id }})"
+                                        class="inline-flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1.5 text-xs text-white hover:bg-red-700 transition-colors font-medium">
+                                    <x-heroicon-o-x-circle class="h-3.5 w-3.5" />
+                                    Rejeitar
+                                </button>
+                            @else
+                                <span class="inline-flex items-center gap-1 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/40 px-2 py-1 text-xs text-violet-700 dark:text-violet-400">
+                                    <x-heroicon-o-shield-check class="h-3.5 w-3.5" />
+                                    Em validação INOTU
+                                </span>
+                            @endif
                         @endif
 
                         {{-- Imprimir RUPE --}}

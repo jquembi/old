@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Localizacao extends Model
 {
+    protected $table = 'localizacoes';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -25,9 +27,13 @@ class Localizacao extends Model
 
     // Tipos de localização
     public const TIPO_EDIFICIO = 'edificio';
+
     public const TIPO_SALA = 'sala';
+
     public const TIPO_ARMAZEM = 'armazem';
+
     public const TIPO_GARAGEM = 'garagem';
+
     public const TIPO_OUTRO = 'outro';
 
     public function tenant(): BelongsTo

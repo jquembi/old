@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire\Erp\ComprasContratos;
 
-use App\Models\RequisicaoCompra;
 use App\Models\Departamento;
 use App\Models\Funcionario;
+use App\Models\RequisicaoCompra;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,17 +13,29 @@ class RequisicoesCompra extends Component
     use WithPagination;
 
     public $search = '';
+
     public $status = '';
+
     public $prioridade = '';
+
     public $modalOpen = false;
+
     public $requisicaoId = null;
+
     public $numero = '';
+
     public $data;
+
     public $descricao = '';
+
     public $prioridade_req = '';
+
     public $valor_estimado;
+
     public $departamento_id = null;
+
     public $solicitante_id = null;
+
     public $observacoes = '';
 
     protected $rules = [
@@ -34,14 +46,21 @@ class RequisicoesCompra extends Component
         'valor_estimado' => 'nullable|numeric|min:0',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = RequisicaoCompra::with(['departamento', 'solicitante', 'aprovador']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('numero', 'like', '%' . $this->search . '%')
-                  ->orWhere('descricao', 'like', '%' . $this->search . '%');
+                $q->where('numero', 'like', '%'.$this->search.'%')
+                    ->orWhere('descricao', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -105,30 +124,30 @@ class RequisicoesCompra extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Requisição salva com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Requisição salva com sucesso!', type: 'success');
     }
 
     public function submeterParaAprovacao(RequisicaoCompra $requisicao)
     {
         $requisicao->submeterParaAprovacao();
-        $this->dispatch('notify', message: 'Requisição submetida para aprovação!', type: 'success');
+        $this->dispatch('toast', message: 'Requisição submetida para aprovação!', type: 'success');
     }
 
     public function aprovar(RequisicaoCompra $requisicao)
     {
         $requisicao->aprovar(auth()->user()->funcionario);
-        $this->dispatch('notify', message: 'Requisição aprovada!', type: 'success');
+        $this->dispatch('toast', message: 'Requisição aprovada!', type: 'success');
     }
 
     public function rejeitar(RequisicaoCompra $requisicao)
     {
         $requisicao->rejeitar(auth()->user()->funcionario);
-        $this->dispatch('notify', message: 'Requisição rejeitada!', type: 'success');
+        $this->dispatch('toast', message: 'Requisição rejeitada!', type: 'success');
     }
 
     public function delete(RequisicaoCompra $requisicao)
     {
         $requisicao->delete();
-        $this->dispatch('notify', message: 'Requisição eliminada!', type: 'success');
+        $this->dispatch('toast', message: 'Requisição eliminada!', type: 'success');
     }
 }

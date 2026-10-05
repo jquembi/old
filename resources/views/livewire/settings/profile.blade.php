@@ -1,4 +1,4 @@
-﻿<div>
+<div>
     @include('partials.settings-heading')
 
     <x-pages::settings.layout
@@ -248,7 +248,7 @@
 
         {{-- ── Eliminar Conta ──────────────────────────────── --}}
         @unless(auth()->user()->isProvincial())
-            <livewire:pages::settings.delete-user-form />
+            <livewire:settings.delete-user-form />
         @endunless
     </x-pages::settings.layout>
 </div>

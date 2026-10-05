@@ -1,4 +1,4 @@
-<div class="space-y-6 px-4 py-8 md:px-6 lg:px-8">
+<div class="space-y-6 px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
     <div>
         <nav class="mb-3 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400" aria-label="Caminho de navegacao">
             <a href="{{ route('dashboard') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>Dashboard</a>
@@ -8,7 +8,7 @@
             <span class="font-medium text-zinc-700 dark:text-zinc-200">{{ $municipio->nome }}</span>
         </nav>
 
-        <div class="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
             <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div class="flex items-center gap-4">
                     <div class="flex h-12 w-12 items-center justify-center rounded-lg bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300">
@@ -19,7 +19,7 @@
                         <flux:text class="mt-1">Centro de gestao territorial, instrumentos, operacoes e projectos.</flux:text>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-2 sm:grid-cols-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 w-full lg:w-auto">
                     @php
                         $statsItems = [
                             ['label' => 'Instrumentos', 'value' => $stats['instrumentos']],
@@ -100,7 +100,7 @@
             @foreach($modules as $module)
                 <a href="{{ $module['route'] }}" class="group block" wire:navigate>
                     <div class="h-full rounded-xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-700 dark:bg-zinc-900 {{ $module['card'] }}">
-                        <div class="flex items-start justify-between gap-4">
+                        <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                             <div class="flex gap-4">
                                 <div class="flex h-12 w-12 items-center justify-center rounded-lg {{ $module['iconClass'] }}">
                                     <flux:icon :name="$module['icon']" class="h-6 w-6" />

@@ -1,7 +1,7 @@
-﻿<?php
+<?php
 
 use Livewire\Attributes\Title;
-use Livewire\Component;
+use Livewire\Volt\Component;
 
 new #[Title('Aparência')] class extends Component {
     //

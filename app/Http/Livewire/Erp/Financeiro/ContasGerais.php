@@ -11,16 +11,27 @@ class ContasGerais extends Component
     use WithPagination;
 
     public $search = '';
+
     public $tipo = '';
+
     public $nivel = '';
+
     public $modalOpen = false;
+
     public $contaId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $tipo_conta = '';
+
     public $nivel_conta = 1;
+
     public $conta_pai_id = null;
+
     public $activo = true;
 
     protected $rules = [
@@ -33,14 +44,21 @@ class ContasGerais extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = ContaGeral::query();
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -98,23 +116,24 @@ class ContasGerais extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Conta salva com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Conta salva com sucesso!', type: 'success');
     }
 
     public function delete(ContaGeral $conta)
     {
         if ($conta->contasFilhas()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar conta com subcontas!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar conta com subcontas!', type: 'error');
+
             return;
         }
 
         $conta->delete();
-        $this->dispatch('notify', message: 'Conta eliminada com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Conta eliminada com sucesso!', type: 'success');
     }
 
     public function toggleActive(ContaGeral $conta)
     {
-        $conta->update(['activo' => !$conta->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $conta->update(['activo' => ! $conta->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

@@ -11,15 +11,25 @@ class Pagamentos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $status = '';
+
     public $metodo = '';
+
     public $modalOpen = false;
+
     public $pagamentoId = null;
+
     public $numero = '';
+
     public $data_pagamento;
+
     public $valor;
+
     public $metodo_pagamento = '';
+
     public $referencia = '';
+
     public $observacoes = '';
 
     protected $rules = [
@@ -29,14 +39,21 @@ class Pagamentos extends Component
         'metodo_pagamento' => 'required|in:dinheiro,transferencia,multicaixa,cheque,cartao',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = PagamentoErp::with(['lancamento', 'taxaEmolumento', 'user']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('numero', 'like', '%' . $this->search . '%')
-                  ->orWhere('referencia', 'like', '%' . $this->search . '%');
+                $q->where('numero', 'like', '%'.$this->search.'%')
+                    ->orWhere('referencia', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -93,24 +110,24 @@ class Pagamentos extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Pagamento salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Pagamento salvo com sucesso!', type: 'success');
     }
 
     public function confirmar(PagamentoErp $pagamento)
     {
         $pagamento->confirmar();
-        $this->dispatch('notify', message: 'Pagamento confirmado!', type: 'success');
+        $this->dispatch('toast', message: 'Pagamento confirmado!', type: 'success');
     }
 
     public function cancelar(PagamentoErp $pagamento)
     {
         $pagamento->cancelar();
-        $this->dispatch('notify', message: 'Pagamento cancelado!', type: 'success');
+        $this->dispatch('toast', message: 'Pagamento cancelado!', type: 'success');
     }
 
     public function delete(PagamentoErp $pagamento)
     {
         $pagamento->delete();
-        $this->dispatch('notify', message: 'Pagamento eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Pagamento eliminado!', type: 'success');
     }
 }

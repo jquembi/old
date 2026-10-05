@@ -15,19 +15,19 @@ class SetTenant
         $this->useDeploymentConnection();
 
         $tenant = $this->resolveTenant($request);
-        
-        if (!$tenant) {
+
+        if (! $tenant) {
             $tenant = $this->isNodeDeployment()
                 ? $this->localNodeTenant()
                 : Tenant::central()->first();
-            
-            if (!$tenant) {
+
+            if (! $tenant) {
                 abort(404, 'Tenant não encontrado');
             }
         }
 
         // Verificar se o tenant está ativo
-        if (!$tenant->is_active) {
+        if (! $tenant->is_active) {
             abort(403, 'Tenant inativo');
         }
 
@@ -37,13 +37,13 @@ class SetTenant
 
         // Set tenant connection
         $this->setTenantConnection($tenant);
-        
+
         // Store tenant in context
         app()->instance('current.tenant', $tenant);
-        
+
         // Store tenant ID in request for easy access
         $request->attributes->set('tenant', $tenant);
-        
+
         try {
             return $next($request);
         } finally {
@@ -55,6 +55,15 @@ class SetTenant
 
     private function resolveTenant(Request $request): ?Tenant
     {
+        // No ambiente local, a mesma instalação serve as áreas provincial e
+        // nacional. Em produção, um node continua limitado à sua província.
+        if ($request->is('nacional', 'nacional/*')
+            && auth()->user()?->activo
+            && auth()->user()?->isNacional()
+            && (! $this->isNodeDeployment() || app()->environment('local'))) {
+            return Tenant::central()->first();
+        }
+
         if ($this->isNodeDeployment()) {
             return $this->resolveLocalNode($request);
         }
@@ -90,22 +99,37 @@ class SetTenant
         // 4. Verificar utilizador autenticado
         if (in_array('user', $methods, true) && auth()->check()) {
             $user = auth()->user();
-            
+            if ($user->isSuperAdminNacional()) {
+                $perspetiva = app(\App\Services\PerspetivaService::class);
+                if ($perspetiva->isProvincial() && $provId = $perspetiva->getProvinciaId()) {
+                    $provincia = \App\Models\Provincia::find($provId);
+                    if ($provincia) {
+                        $tenant = Tenant::where('type', 'provincial')
+                            ->where('code', $provincia->codigo ?? null)
+                            ->first();
+                        if ($tenant) {
+                            return $tenant;
+                        }
+                    }
+                }
+                return Tenant::central()->first();
+            }
+
+            if ($user->isNacional()) {
+                return Tenant::central()->first();
+            }
+
             // Se o utilizador tem provincia_id, usar o tenant provincial correspondente
             if ($user->provincia_id) {
                 $tenant = Tenant::where('type', 'provincial')
                     ->where('code', $user->provincia->codigo ?? null)
                     ->first();
-                
+
                 if ($tenant) {
                     return $tenant;
                 }
             }
-            
-            // Se o utilizador é nível nacional, usar tenant central
-            if ($user->isNacional()) {
-                return Tenant::central()->first();
-            }
+
         }
 
         // 5. Verificar configuração padrão
@@ -132,7 +156,7 @@ class SetTenant
                 return $subdomain;
             }
         }
-        
+
         return null;
     }
 
@@ -205,6 +229,7 @@ class SetTenant
         // provincial em processos persistentes (queue workers/Octane).
         if ($tenant->isCentral()) {
             Config::set('database.default', config('tenancy.database.central_connection'));
+
             return;
         }
 
@@ -212,12 +237,13 @@ class SetTenant
         // abre uma conexão com um node, mesmo durante sincronização.
         if (! $this->isNodeDeployment()) {
             Config::set('database.default', config('tenancy.database.central_connection'));
+
             return;
         }
 
         // Configurar conexão específica para o tenant
         $connection = $tenant->getDatabaseConnection();
-        
+
         Config::set('database.connections.tenant', $connection);
         DB::purge('tenant');
         Config::set('database.default', 'tenant');

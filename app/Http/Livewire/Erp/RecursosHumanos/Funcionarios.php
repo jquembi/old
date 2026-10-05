@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire\Erp\RecursosHumanos;
 
-use App\Models\Funcionario;
-use App\Models\Departamento;
 use App\Models\Cargo;
+use App\Models\Departamento;
+use App\Models\Funcionario;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,25 +13,45 @@ class Funcionarios extends Component
     use WithPagination;
 
     public $search = '';
+
     public $departamento_id = '';
+
     public $cargo_id = '';
+
     public $status = '';
+
     public $modalOpen = false;
+
     public $funcionarioId = null;
+
     public $numero_funcionario = '';
+
     public $nome_completo = '';
+
     public $nome_curto = '';
+
     public $bi = '';
+
     public $data_nascimento;
+
     public $genero = '';
+
     public $telefone = '';
+
     public $email = '';
+
     public $endereco = '';
+
     public $departamento_id_form = '';
+
     public $cargo_id_form = '';
+
     public $data_admissao;
+
     public $salario_base;
+
     public $tipo_contrato = '';
+
     public $observacoes = '';
 
     protected $rules = [
@@ -50,15 +70,22 @@ class Funcionarios extends Component
         'tipo_contrato' => 'required|in:efetivo,contrato,estagio,temporario',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Funcionario::with(['departamento', 'cargo']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('nome_completo', 'like', '%' . $this->search . '%')
-                  ->orWhere('numero_funcionario', 'like', '%' . $this->search . '%')
-                  ->orWhere('bi', 'like', '%' . $this->search . '%');
+                $q->where('nome_completo', 'like', '%'.$this->search.'%')
+                    ->orWhere('numero_funcionario', 'like', '%'.$this->search.'%')
+                    ->orWhere('bi', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -116,7 +143,7 @@ class Funcionarios extends Component
 
     public function save()
     {
-        $this->rules['numero_funcionario'] = 'required|string|max:20|unique:funcionarios,numero_funcionario,' . $this->funcionarioId;
+        $this->rules['numero_funcionario'] = 'required|string|max:20|unique:funcionarios,numero_funcionario,'.$this->funcionarioId;
         $this->validate();
 
         Funcionario::updateOrCreate(
@@ -142,18 +169,18 @@ class Funcionarios extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Funcionário salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Funcionário salvo com sucesso!', type: 'success');
     }
 
     public function demitir(Funcionario $funcionario)
     {
         $funcionario->demitir();
-        $this->dispatch('notify', message: 'Funcionário demitido!', type: 'success');
+        $this->dispatch('toast', message: 'Funcionário demitido!', type: 'success');
     }
 
     public function delete(Funcionario $funcionario)
     {
         $funcionario->delete();
-        $this->dispatch('notify', message: 'Funcionário eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Funcionário eliminado!', type: 'success');
     }
 }

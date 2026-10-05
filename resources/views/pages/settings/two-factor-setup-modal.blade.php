@@ -5,7 +5,7 @@ use Laravel\Fortify\Actions\EnableTwoFactorAuthentication;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Validate;
-use Livewire\Component;
+use Livewire\Volt\Component;
 
 new class extends Component {
     #[Locked]

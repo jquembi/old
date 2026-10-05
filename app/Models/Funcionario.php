@@ -10,6 +10,8 @@ class Funcionario extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'funcionarios';
+
     protected $fillable = [
         'user_id',
         'numero_funcionario',
@@ -42,15 +44,22 @@ class Funcionario extends Model
 
     // Tipos de contrato
     public const CONTRATO_EFETIVO = 'efetivo';
+
     public const CONTRATO_CONTRATO = 'contrato';
+
     public const CONTRATO_ESTAGIO = 'estagio';
+
     public const CONTRATO_TEMPORARIO = 'temporario';
 
     // Status
     public const STATUS_ATIVO = 'ativo';
+
     public const STATUS_FERIAS = 'ferias';
+
     public const STATUS_LICENCA = 'licenca';
+
     public const STATUS_SUSPENSO = 'suspenso';
+
     public const STATUS_DEMITIDO = 'demitido';
 
     public function user(): BelongsTo

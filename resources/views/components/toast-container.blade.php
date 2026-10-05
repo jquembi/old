@@ -36,6 +36,27 @@
                     }
                 })
             })
+
+            @if (session('success'))
+                this.addToast({ type: 'success', message: @js(session('success')) });
+            @endif
+            @if (session('error'))
+                this.addToast({ type: 'error', message: @js(session('error')) });
+            @endif
+            @if (session('warning'))
+                this.addToast({ type: 'warning', message: @js(session('warning')) });
+            @endif
+            @if (session('info'))
+                this.addToast({ type: 'info', message: @js(session('info')) });
+            @endif
+            @if (session('status'))
+                this.addToast({ type: 'info', message: @js(session('status')) });
+            @endif
+            @if ($errors->any())
+                @foreach ($errors->all() as $erroMsg)
+                    this.addToast({ type: 'error', message: @js($erroMsg) });
+                @endforeach
+            @endif
         },
 
         addToast(detail) {

@@ -1,4 +1,4 @@
-﻿<div class="space-y-6">
+<div class="space-y-6">
 
     {{-- ── Breadcrumbs ───────────────────────────────────────────── --}}
     <nav class="flex items-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400">
@@ -19,7 +19,7 @@
                 Gestão e acompanhamento do workflow de publicação — <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ $municipio->nome }}</span>
             </p>
         </div>
-        @if($podeEditar)
+        @if($podeCriar)
             <a href="{{ route('municipio.operacoes.croqui.criar', $municipio) }}" wire:navigate>
                 <flux:button variant="primary" icon="plus">Novo Croqui</flux:button>
             </a>
@@ -123,10 +123,16 @@
                                 @if($podePublicar && ! $publicado && $hasPdf && $hasMemoria)
                                     <flux:button
                                         wire:click="publicarCroqui({{ $croqui->id }})"
+                                        wire:loading.attr="disabled"
+                                        wire:target="publicarCroqui({{ $croqui->id }})"
                                         size="sm" variant="ghost" icon="paper-airplane"
                                         class="text-violet-500 hover:text-violet-700 hover:bg-violet-50 dark:hover:bg-violet-900/20"
                                         title="Submeter ao INOTU"
                                     />
+                                @elseif($podePublicar && ! $publicado && (! $hasPdf || ! $hasMemoria))
+                                    <span class="inline-flex items-center text-xs text-zinc-400 dark:text-zinc-600 p-1.5 cursor-not-allowed opacity-50" title="Requer PDF e Memória Descritiva anexados para submeter ao INOTU">
+                                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-3.5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </span>
                                 @endif
 
                                 @if(($podePublicar || $podeHomologar) && $publicado)

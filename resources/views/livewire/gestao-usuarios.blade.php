@@ -1,7 +1,7 @@
-﻿<div>
+<div>
     {{-- SECTION: Bloqueio de segurança --}}
     @if($bloqueado ?? false)
-        <div class="px-4 md:px-6 lg:px-8 py-8">
+        <div class="px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
             <div class="card p-6">
                 <div class="flex items-start gap-4">
                     <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center shrink-0">
@@ -17,19 +17,26 @@
             </div>
         </div>
     @else
-    <div class="px-4 md:px-6 lg:px-8 py-8 space-y-6">
+    <div class="px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6">
 
         {{-- SECTION: Cabeçalho --}}
         <div class="flex items-start justify-between gap-4 flex-wrap">
             <div>
                 <h1 class="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">Utilizadores</h1>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Gerir utilizadores, funções e permissões de acesso</p>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Gerir utilizadores, funções e permissões de acesso ao sistema</p>
             </div>
-            @if(auth()->user()?->temPermissao('usuarios.criar'))
-                <a href="{{ route('usuarios.criar') }}" wire:navigate>
-                    <flux:button variant="primary" icon="plus">Novo Utilizador</flux:button>
-                </a>
-            @endif
+            <div class="flex items-center gap-2">
+                @if(auth()->user()?->temPermissao('usuarios.criar'))
+                    <a href="{{ route('usuarios.criar') }}" wire:navigate>
+                        <flux:button variant="primary" icon="plus">Novo Utilizador</flux:button>
+                    </a>
+                @else
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-xs font-medium text-zinc-500 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m0 0v2m0-2h2m-2 0H10m11-3.5a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        Modo Leitura
+                    </span>
+                @endif
+            </div>
         </div>
 
         {{-- SECTION: Filtros --}}
@@ -68,7 +75,7 @@
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden md:table-cell">Município</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Estado</th>
                         <th class="px-4 py-3 text-left text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden lg:table-cell">Registado em</th>
-                        @if(auth()->user()?->temPermissao('usuarios.criar'))
+                        @if($podeGerir)
                         <th class="px-4 py-3 text-right text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Acções</th>
                         @endif
                     </tr>
@@ -105,22 +112,28 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 text-xs text-zinc-500 dark:text-zinc-400 hidden lg:table-cell">{{ $usuario->created_at->format('d/m/Y') }}</td>
-                            @if(auth()->user()?->temPermissao('usuarios.criar'))
+                            @if($podeGerir)
                             <td class="px-4 py-3 text-right">
-                                <div class="flex justify-end gap-1">
-                                    <a href="{{ route('usuarios.editar', $usuario) }}" wire:navigate>
-                                        <flux:button size="sm" variant="ghost" icon="pencil" />
-                                    </a>
-                                    <flux:button wire:click="toggleActivo({{ $usuario->id }})" size="sm" variant="ghost"
-                                        icon="{{ $usuario->activo ? 'x-circle' : 'check-circle' }}"
-                                        class="{{ $usuario->activo ? 'text-red-500' : 'text-red-500' }}" />
+                                <div class="flex justify-end gap-1 items-center">
+                                    @if(auth()->user()?->temPermissao('usuarios.editar'))
+                                        <a href="{{ route('usuarios.editar', $usuario) }}" wire:navigate title="Editar utilizador">
+                                            <flux:button size="sm" variant="ghost" icon="pencil" />
+                                        </a>
+                                        <flux:button wire:click="toggleActivo({{ $usuario->id }})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="toggleActivo({{ $usuario->id }})"
+                                            size="sm" variant="ghost"
+                                            icon="{{ $usuario->activo ? 'x-circle' : 'check-circle' }}"
+                                            class="{{ $usuario->activo ? 'text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20' : 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/20' }}"
+                                            title="{{ $usuario->activo ? 'Desativar conta' : 'Ativar conta' }}" />
+                                    @endif
                                 </div>
                             </td>
                             @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ auth()->user()?->temPermissao('usuarios.criar') ? 6 : 5 }}" class="px-4 py-14 text-center">
+                            <td colspan="{{ $podeGerir ? 6 : 5 }}" class="px-4 py-14 text-center">
                                 <svg class="w-10 h-10 text-zinc-300 dark:text-zinc-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                                 <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Nenhum utilizador encontrado</p>
                             </td>

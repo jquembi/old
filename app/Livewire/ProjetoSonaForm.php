@@ -5,7 +5,9 @@ namespace App\Livewire;
 use App\Models\Municipio;
 use App\Models\ProjectoSona;
 use App\Models\ProjectoSonaFicheiro;
+use App\Services\InstrumentoDocumentoExtractorService;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -26,13 +28,21 @@ class ProjetoSonaForm extends Component
     public ?string $faseFicheiro = null;
     public ?string $legenda = null;
 
+    // Ficheiros já associados ao projecto (quando em edição)
+    public array $ficheirosExistentes = [];
+
+    // Documento auxiliar para leitura OCR / extração automática de metadados
+    public mixed $documentoAnalise = null;
+    public ?array $dadosExtraidos = null;
+    public bool $emExtracao = false;
+
     public function mount(Municipio $municipio, mixed $projecto = null): void
     {
         $this->municipio = $municipio;
 
         $user = Auth::user();
         $permissaoNecessaria = $projecto ? 'sona.editar' : 'sona.criar';
-        if (!$user || (!$user->temPermissao($permissaoNecessaria) && !$user->temPermissao('sona.ver'))) {
+        if (!$user || (!$user->temPermissao($permissaoNecessaria) && !$user->temPermissao('sona.editar_municipio') && !$user->temPermissao('sona.ver') && !$user->temPermissao('instrumentos.criar'))) {
             abort(403, 'Não tem permissão para aceder ao formulário de projectos SONA.');
         }
 
@@ -53,6 +63,135 @@ class ProjetoSonaForm extends Component
         $this->tipo = $projecto->tipo ?? 'requalificacao';
         $this->fase = $projecto->fase ?? 'Fase 1';
         $this->estado = $projecto->estado ?? 'em_curso';
+
+        $this->carregarFicheirosExistentes();
+    }
+
+    protected function carregarFicheirosExistentes(): void
+    {
+        if ($this->projecto) {
+            $this->ficheirosExistentes = $this->projecto->ficheiros()->get()->toArray();
+        }
+    }
+
+    public function updatedDocumentoAnalise(): void
+    {
+        $this->validate([
+            'documentoAnalise' => 'file|mimes:pdf,docx,jpg,jpeg,png|max:51200',
+        ], [
+            'documentoAnalise.mimes' => 'O ficheiro para análise deve ser um PDF, DOCX ou imagem (JPG, PNG).',
+            'documentoAnalise.max' => 'O ficheiro para análise não pode exceder 50MB.',
+        ]);
+
+        $this->analisarDocumento();
+    }
+
+    public function analisarDocumento(): void
+    {
+        if (!$this->documentoAnalise) {
+            return;
+        }
+
+        $this->emExtracao = true;
+
+        try {
+            $caminhoTemp = $this->documentoAnalise->getRealPath();
+            $nomeOriginal = $this->documentoAnalise->getClientOriginalName();
+            $mimeType = $this->documentoAnalise->getMimeType();
+
+            $service = app(InstrumentoDocumentoExtractorService::class);
+            $resultado = $service->extrairMetadados($caminhoTemp, $nomeOriginal, $mimeType);
+
+            $this->dadosExtraidos = $resultado;
+
+            // Se o título estiver vazio, preenche automaticamente
+            if (empty($this->titulo) && !empty($resultado['titulo_sugerido'])) {
+                $this->titulo = $resultado['titulo_sugerido'];
+            }
+
+            // Se a descrição estiver vazia, preenche com o resumo extraído
+            if (empty($this->descricao) && !empty($resultado['resumo_extraido'])) {
+                $this->descricao = $resultado['resumo_extraido'];
+            }
+
+            // Se detectou estado
+            if (!empty($resultado['estado_sugerido'])) {
+                $this->estado = $resultado['estado_sugerido'];
+            }
+
+            $this->dispatch('notificar', [
+                'tipo' => 'success',
+                'mensagem' => 'Leitura OCR / Análise do documento concluída com sucesso.',
+            ]);
+        } catch (\Throwable $e) {
+            $this->dadosExtraidos = [
+                'erro' => 'Não foi possível extrair os dados automaticamente: ' . $e->getMessage(),
+            ];
+        } finally {
+            $this->emExtracao = false;
+        }
+    }
+
+    public function aplicarSugestao(string $campo, mixed $valor): void
+    {
+        if (property_exists($this, $campo)) {
+            $this->{$campo} = $valor;
+        }
+    }
+
+    public function aplicarTodasSugestoes(): void
+    {
+        if (!$this->dadosExtraidos) {
+            return;
+        }
+
+        if (!empty($this->dadosExtraidos['titulo_sugerido'])) {
+            $this->titulo = $this->dadosExtraidos['titulo_sugerido'];
+        }
+        if (!empty($this->dadosExtraidos['resumo_extraido'])) {
+            $this->descricao = $this->dadosExtraidos['resumo_extraido'];
+        }
+        if (!empty($this->dadosExtraidos['estado_sugerido'])) {
+            $this->estado = $this->dadosExtraidos['estado_sugerido'];
+        }
+    }
+
+    public function definirFase(string $novaFase): void
+    {
+        $this->fase = $novaFase;
+    }
+
+    public function removerFicheiroNovo(int $index): void
+    {
+        if (isset($this->ficheiros[$index])) {
+            unset($this->ficheiros[$index]);
+            $this->ficheiros = array_values($this->ficheiros);
+        }
+    }
+
+    public function eliminarFicheiroExistente(int $ficheiroId): void
+    {
+        $user = Auth::user();
+        if (!$user || (!$user->temPermissao('sona.editar') && !$user->temPermissao('sona.editar_municipio') && !$user->temPermissao('sona.eliminar') && !$user->temPermissao('instrumentos.editar'))) {
+            $this->dispatch('notificar', [
+                'tipo' => 'error',
+                'mensagem' => 'Não tem permissão para remover ficheiros.',
+            ]);
+            return;
+        }
+
+        $ficheiro = ProjectoSonaFicheiro::findOrFail($ficheiroId);
+        if ($ficheiro->caminho && Storage::disk('public')->exists($ficheiro->caminho)) {
+            Storage::disk('public')->delete($ficheiro->caminho);
+        }
+        $ficheiro->delete();
+
+        $this->carregarFicheirosExistentes();
+
+        $this->dispatch('notificar', [
+            'tipo' => 'success',
+            'mensagem' => 'Ficheiro removido com sucesso.',
+        ]);
     }
 
     public function getUploadProgressProperty(): int
@@ -78,7 +217,7 @@ class ProjetoSonaForm extends Component
     {
         return [
             'titulo.required' => 'O título do projecto é obrigatório.',
-            'tipo.required' => 'O tipo do projecto é obrigatório.',
+            'tipo.required' => 'O tipo de projecto é obrigatório.',
             'estado.required' => 'O estado do projecto é obrigatório.',
             'ficheiros.*.max' => 'Cada ficheiro não pode exceder 50MB.',
         ];
@@ -88,7 +227,7 @@ class ProjetoSonaForm extends Component
     {
         $user = Auth::user();
         $permissaoNecessaria = $this->registoId ? 'sona.editar' : 'sona.criar';
-        if (!$user || (!$user->temPermissao($permissaoNecessaria) && !$user->temPermissao('sona.ver'))) {
+        if (!$user || (!$user->temPermissao($permissaoNecessaria) && !$user->temPermissao('sona.editar_municipio') && !$user->temPermissao('sona.ver') && !$user->temPermissao('instrumentos.criar'))) {
             abort(403, 'Não tem permissão para gravar este projecto SONA.');
         }
 

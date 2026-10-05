@@ -10,6 +10,8 @@ class Patrimonio extends Model
 {
     use SoftDeletes;
 
+    protected $table = 'patrimonios';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -37,17 +39,26 @@ class Patrimonio extends Model
 
     // Estados
     public const ESTADO_NOVO = 'novo';
+
     public const ESTADO_BOM = 'bom';
+
     public const ESTADO_RAZOAVEL = 'razoavel';
+
     public const ESTADO_MAU = 'mau';
+
     public const ESTADO_DANIFICADO = 'danificado';
+
     public const ESTADO_OBSOLETO = 'obsoleto';
 
     // Status
     public const STATUS_ATIVO = 'ativo';
+
     public const STATUS_INATIVO = 'inativo';
+
     public const STATUS_MANUTENCAO = 'manutencao';
+
     public const STATUS_BAIXA = 'baixa';
+
     public const STATUS_ALIENADO = 'alienado';
 
     public function categoriaPatrimonio(): BelongsTo
@@ -145,6 +156,7 @@ class Patrimonio extends Model
     {
         $anos = $this->idade_patrimonio;
         $depreciacaoTotal = $this->depreciacao_anual * $anos;
+
         return max(0, $this->valor_aquisicao - $depreciacaoTotal);
     }
 

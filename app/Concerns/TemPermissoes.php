@@ -29,6 +29,10 @@ trait TemPermissoes
             return false;
         }
 
+        if ($this->isSuperAdminNacional()) {
+            return true;
+        }
+
         if ($this->ruleManagerTemPermissao($permissao)) {
             return true;
         }
@@ -207,6 +211,55 @@ trait TemPermissoes
     public function isSuperAdminNacional(): bool
     {
         return $this->roles->contains(fn (Role $role) => $role->nome === Role::SUPER_ADMIN_NACIONAL);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->isSuperAdminNacional();
+    }
+
+    /**
+     * Retorna o modo de perspetiva atual do utilizador.
+     */
+    public function perspetivaModo(): string
+    {
+        if ($this->isSuperAdminNacional()) {
+            return app(\App\Services\PerspetivaService::class)->getModo();
+        }
+
+        if ($this->isNacional()) {
+            return 'nacional';
+        }
+
+        if ($this->isProvincial()) {
+            return 'provincial';
+        }
+
+        return 'municipal';
+    }
+
+    /**
+     * Retorna a província ativa conforme a perspetiva.
+     */
+    public function perspetivaProvincia(): ?\App\Models\Provincia
+    {
+        if ($this->isSuperAdminNacional()) {
+            return app(\App\Services\PerspetivaService::class)->getProvincia();
+        }
+
+        return $this->provincia;
+    }
+
+    /**
+     * Retorna o ID da província ativa conforme a perspetiva.
+     */
+    public function perspetivaProvinciaId(): ?int
+    {
+        if ($this->isSuperAdminNacional()) {
+            return app(\App\Services\PerspetivaService::class)->getProvinciaId();
+        }
+
+        return $this->provincia_id;
     }
 
     public function isAdminNacional(): bool

@@ -11,12 +11,19 @@ class Departamentos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $modalOpen = false;
+
     public $departamentoId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $responsavel_id = null;
+
     public $activo = true;
 
     protected $rules = [
@@ -26,14 +33,21 @@ class Departamentos extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Departamento::with(['responsavel', 'funcionarios']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -77,23 +91,24 @@ class Departamentos extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Departamento salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Departamento salvo com sucesso!', type: 'success');
     }
 
     public function delete(Departamento $departamento)
     {
         if ($departamento->funcionarios()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar departamento com funcionários!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar departamento com funcionários!', type: 'error');
+
             return;
         }
 
         $departamento->delete();
-        $this->dispatch('notify', message: 'Departamento eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Departamento eliminado!', type: 'success');
     }
 
     public function toggleActive(Departamento $departamento)
     {
-        $departamento->update(['activo' => !$departamento->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $departamento->update(['activo' => ! $departamento->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

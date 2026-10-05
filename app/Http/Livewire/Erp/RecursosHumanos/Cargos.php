@@ -12,15 +12,25 @@ class Cargos extends Component
     use WithPagination;
 
     public $search = '';
+
     public $departamento_id = '';
+
     public $modalOpen = false;
+
     public $cargoId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $salario_minimo;
+
     public $salario_maximo;
+
     public $departamento_id_form = null;
+
     public $activo = true;
 
     protected $rules = [
@@ -32,14 +42,21 @@ class Cargos extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Cargo::with(['departamento', 'funcionarios']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -93,23 +110,24 @@ class Cargos extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Cargo salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Cargo salvo com sucesso!', type: 'success');
     }
 
     public function delete(Cargo $cargo)
     {
         if ($cargo->funcionarios()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar cargo com funcionários!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar cargo com funcionários!', type: 'error');
+
             return;
         }
 
         $cargo->delete();
-        $this->dispatch('notify', message: 'Cargo eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Cargo eliminado!', type: 'success');
     }
 
     public function toggleActive(Cargo $cargo)
     {
-        $cargo->update(['activo' => !$cargo->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $cargo->update(['activo' => ! $cargo->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

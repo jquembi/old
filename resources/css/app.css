@@ -346,3 +346,12 @@ select:focus[data-flux-control] {
 .ui-empty-state-icon { @apply mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600; }
 .ui-empty-state-icon svg { @apply h-full w-full; }
 
+
+/* Native ERP controls share the municipal forms and respect the global theme. */
+.ui-module input:not([type="checkbox"]):not([type="radio"]),
+.ui-module select,
+.ui-module textarea {
+    @apply rounded-md border border-zinc-300 bg-white text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100;
+}
+.ui-module label { @apply text-sm font-medium text-zinc-700 dark:text-zinc-300; }
+.ui-module button:disabled { @apply cursor-wait opacity-60; }

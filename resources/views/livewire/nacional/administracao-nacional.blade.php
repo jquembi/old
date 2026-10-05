@@ -3,7 +3,7 @@
     <p class="text-sm text-gray-600">Gestão de tenants e configurações da plataforma</p>
 </x-slot>
 
-<div class="space-y-6">
+<div class="space-y-6 px-3 sm:px-6 lg:px-8 py-4 sm:py-8">
     <!-- Filtros -->
     <div class="bg-white rounded-lg shadow p-6">
         <div class="flex flex-col md:flex-row gap-4">
@@ -105,7 +105,6 @@
             {{ $tenants->links() }}
         </div>
     </div>
-</div>
 
 <!-- Modal de Criação/Edição -->
 <x-modal wire:model="showModal">
@@ -193,3 +192,4 @@
         </form>
     </div>
 </x-modal>
+</div>

@@ -2,9 +2,9 @@
 
 namespace App\Http\Livewire\Erp\Patrimonio;
 
-use App\Models\Patrimonio;
 use App\Models\CategoriaPatrimonio;
 use App\Models\Localizacao;
+use App\Models\Patrimonio;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -13,23 +13,41 @@ class Patrimonios extends Component
     use WithPagination;
 
     public $search = '';
+
     public $categoria_id = '';
+
     public $localizacao_id = '';
+
     public $estado = '';
+
     public $status = '';
+
     public $modalOpen = false;
+
     public $patrimonioId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $categoria_patrimonio_id = null;
+
     public $localizacao_id_form = null;
+
     public $data_aquisicao;
+
     public $valor_aquisicao;
+
     public $valor_atual;
+
     public $estado_patrimonio = '';
+
     public $numero_serie = '';
+
     public $fornecedor = '';
+
     public $observacoes = '';
 
     protected $rules = [
@@ -44,15 +62,22 @@ class Patrimonios extends Component
         'estado_patrimonio' => 'required|in:novo,bom,razoavel,mau,danificado,obsoleto',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Patrimonio::with(['categoriaPatrimonio', 'localizacao']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%')
-                  ->orWhere('numero_serie', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%')
+                    ->orWhere('numero_serie', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -133,12 +158,12 @@ class Patrimonios extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Património salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Património salvo com sucesso!', type: 'success');
     }
 
     public function delete(Patrimonio $patrimonio)
     {
         $patrimonio->delete();
-        $this->dispatch('notify', message: 'Património eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Património eliminado!', type: 'success');
     }
 }

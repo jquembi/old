@@ -40,15 +40,44 @@
             <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                 Funções <span class="text-red-500">*</span>
             </label>
-            <div class="max-h-52 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700 p-2 space-y-1 bg-white dark:bg-zinc-900">
+            <div class="max-h-64 overflow-y-auto rounded-lg border border-zinc-200 dark:border-zinc-700 p-2 space-y-2 bg-white dark:bg-zinc-900">
                 @foreach($roles->groupBy('grupo') as $grupo => $grupoRoles)
-                    <div class="mb-2">
-                        <div class="text-[11px] font-semibold uppercase text-zinc-400 dark:text-zinc-500 px-1 mb-1">{{ $grupo }}</div>
+                    <div class="mb-3">
+                        <div class="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500 px-1 mb-1.5 flex items-center justify-between">
+                            <span>{{ $grupo ?: 'Geral' }}</span>
+                            <span class="text-[10px] font-normal text-zinc-400">({{ $grupoRoles->count() }} funções)</span>
+                        </div>
                         @foreach($grupoRoles as $role)
-                            <label class="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-zinc-50 dark:hover:bg-zinc-800 cursor-pointer">
-                                <input type="checkbox" wire:model.live="role_ids" value="{{ $role->id }}"
-                                    class="rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-600">
-                                <span class="text-sm text-zinc-700 dark:text-zinc-300">{{ $role->descricao }}</span>
+                            @php
+                                $bloqueadoPorNivel = !$isNacional && ($role->nivel < $userRoleLevel);
+                                $nivelColor = match((int) $role->nivel) {
+                                    0 => 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800',
+                                    1 => 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+                                    2 => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800',
+                                    3 => 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+                                    default => 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700',
+                                };
+                            @endphp
+                            <label class="flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg transition-colors {{ $bloqueadoPorNivel ? 'opacity-50 cursor-not-allowed bg-zinc-50 dark:bg-zinc-800/30' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/60 cursor-pointer' }}">
+                                <div class="flex items-center gap-2.5 min-w-0">
+                                    <input type="checkbox" wire:model.live="role_ids" value="{{ $role->id }}"
+                                        @if($bloqueadoPorNivel) disabled @endif
+                                        class="rounded border-zinc-300 text-red-600 focus:ring-red-500 dark:border-zinc-600 disabled:opacity-50">
+                                    <div class="truncate">
+                                        <span class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ $role->descricao ?: $role->nome }}</span>
+                                        <span class="text-xs text-zinc-400 block truncate">{{ $role->nome }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full border {{ $nivelColor }}">
+                                        Nível {{ $role->nivel }}
+                                    </span>
+                                    @if($bloqueadoPorNivel)
+                                        <span title="Função de nível hierárquico superior ao seu perfil" class="text-zinc-400">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                        </span>
+                                    @endif
+                                </div>
                             </label>
                         @endforeach
                     </div>
@@ -63,7 +92,7 @@
         {{-- Município --}}
         @if($municipios->isNotEmpty())
             <flux:select wire:model="municipio_id" label="Município">
-                <flux:select.option value="">Nenhum (Nível provincial)</flux:select.option>
+                <flux:select.option value="">Nenhum (Nível provincial / Nacional)</flux:select.option>
                 @foreach($municipios as $mun)
                     <flux:select.option value="{{ $mun->id }}">{{ $mun->nome }}</flux:select.option>
                 @endforeach
@@ -95,8 +124,13 @@
             <a href="{{ route('usuarios.index') }}" wire:navigate>
                 <flux:button variant="ghost">Cancelar</flux:button>
             </a>
-            <flux:button wire:click="guardar" variant="primary">
-                {{ $registoId ? 'Guardar Alterações' : 'Criar Utilizador' }}
+            <flux:button wire:click="guardar" variant="primary" wire:loading.attr="disabled" class="inline-flex items-center gap-2">
+                <svg wire:loading wire:target="guardar" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span wire:loading.remove wire:target="guardar">{{ $registoId ? 'Guardar Alterações' : 'Criar Utilizador' }}</span>
+                <span wire:loading wire:target="guardar">A processar...</span>
             </flux:button>
         </div>
     </div>

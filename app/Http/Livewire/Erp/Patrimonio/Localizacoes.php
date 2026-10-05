@@ -2,8 +2,8 @@
 
 namespace App\Http\Livewire\Erp\Patrimonio;
 
-use App\Models\Localizacao;
 use App\Models\Departamento;
+use App\Models\Localizacao;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,14 +12,23 @@ class Localizacoes extends Component
     use WithPagination;
 
     public $search = '';
+
     public $tipo = '';
+
     public $modalOpen = false;
+
     public $localizacaoId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $descricao = '';
+
     public $departamento_id = null;
+
     public $tipo_localizacao = '';
+
     public $activo = true;
 
     protected $rules = [
@@ -30,14 +39,21 @@ class Localizacoes extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Localizacao::with(['departamento', 'patrimonios']);
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -90,23 +106,24 @@ class Localizacoes extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Localização salva com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Localização salva com sucesso!', type: 'success');
     }
 
     public function delete(Localizacao $localizacao)
     {
         if ($localizacao->patrimonios()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar localização com patrimónios!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar localização com patrimónios!', type: 'error');
+
             return;
         }
 
         $localizacao->delete();
-        $this->dispatch('notify', message: 'Localização eliminada!', type: 'success');
+        $this->dispatch('toast', message: 'Localização eliminada!', type: 'success');
     }
 
     public function toggleActive(Localizacao $localizacao)
     {
-        $localizacao->update(['activo' => !$localizacao->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $localizacao->update(['activo' => ! $localizacao->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

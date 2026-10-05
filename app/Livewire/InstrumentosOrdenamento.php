@@ -18,25 +18,50 @@ class InstrumentosOrdenamento extends Component
 
     public function render()
     {
-        $tipos = CategoriaInstrumento::query()
+        $categoria = CategoriaInstrumento::query()
             ->where('slug', 'ordenamento-territorio')
             ->with(['tipoInstrumentos' => fn ($query) => $query->orderBy('ordem')->orderBy('nome')])
-            ->first()
-            ?->tipoInstrumentos
-            ?? collect();
+            ->first();
 
-        $contagens = Instrumento::query()
-            ->where('municipio_id', $this->municipio->id)
-            ->whereIn('tipo_instrumento_id', $tipos->pluck('id'))
-            ->selectRaw('tipo_instrumento_id, count(*) as total')
-            ->groupBy('tipo_instrumento_id')
-            ->pluck('total', 'tipo_instrumento_id')
-            ->all();
+        $tipos = $categoria?->tipoInstrumentos ?? collect();
+
+        // Contagens e métricas detalhadas por tipo
+        $estatisticas = [];
+        $totalGeral = 0;
+        $totalAprovados = 0;
+        $totalSubmetidos = 0;
+
+        foreach ($tipos as $tipo) {
+            $queryTipo = Instrumento::query()
+                ->where('municipio_id', $this->municipio->id)
+                ->where('tipo_instrumento_id', $tipo->id);
+
+            $total = (clone $queryTipo)->count();
+            $aprovados = (clone $queryTipo)->where('estado', 'aprovado')->count();
+            $submetidos = (clone $queryTipo)->where('estado', 'submetido')->count();
+            $ultimoAno = (clone $queryTipo)->whereNotNull('ano')->orderBy('ano', 'desc')->value('ano');
+
+            $estatisticas[$tipo->id] = [
+                'total' => $total,
+                'aprovados' => $aprovados,
+                'submetidos' => $submetidos,
+                'rascunhos' => $total - $aprovados - $submetidos,
+                'ultimo_ano' => $ultimoAno,
+            ];
+
+            $totalGeral += $total;
+            $totalAprovados += $aprovados;
+            $totalSubmetidos += $submetidos;
+        }
 
         return view('livewire.instrumentos-ordenamento', [
             'municipio' => $this->municipio,
+            'categoria' => $categoria,
             'tipos' => $tipos,
-            'contagens' => $contagens,
+            'estatisticas' => $estatisticas,
+            'totalGeral' => $totalGeral,
+            'totalAprovados' => $totalAprovados,
+            'totalSubmetidos' => $totalSubmetidos,
         ]);
     }
 }

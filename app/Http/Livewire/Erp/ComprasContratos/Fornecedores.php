@@ -11,16 +11,27 @@ class Fornecedores extends Component
     use WithPagination;
 
     public $search = '';
+
     public $tipo = '';
+
     public $modalOpen = false;
+
     public $fornecedorId = null;
+
     public $codigo = '';
+
     public $nome = '';
+
     public $nif = '';
+
     public $telefone = '';
+
     public $email = '';
+
     public $endereco = '';
+
     public $tipo_fornecedor = '';
+
     public $activo = true;
 
     protected $rules = [
@@ -33,15 +44,22 @@ class Fornecedores extends Component
         'activo' => 'boolean',
     ];
 
+    public function updated($property): void
+    {
+        if (! $this->modalOpen) {
+            $this->resetPage();
+        }
+    }
+
     public function render()
     {
         $query = Fornecedor::query();
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('codigo', 'like', '%' . $this->search . '%')
-                  ->orWhere('nome', 'like', '%' . $this->search . '%')
-                  ->orWhere('nif', 'like', '%' . $this->search . '%');
+                $q->where('codigo', 'like', '%'.$this->search.'%')
+                    ->orWhere('nome', 'like', '%'.$this->search.'%')
+                    ->orWhere('nif', 'like', '%'.$this->search.'%');
             });
         }
 
@@ -95,23 +113,24 @@ class Fornecedores extends Component
         );
 
         $this->modalOpen = false;
-        $this->dispatch('notify', message: 'Fornecedor salvo com sucesso!', type: 'success');
+        $this->dispatch('toast', message: 'Fornecedor salvo com sucesso!', type: 'success');
     }
 
     public function delete(Fornecedor $fornecedor)
     {
         if ($fornecedor->contratos()->exists()) {
-            $this->dispatch('notify', message: 'Não é possível eliminar fornecedor com contratos!', type: 'error');
+            $this->dispatch('toast', message: 'Não é possível eliminar fornecedor com contratos!', type: 'error');
+
             return;
         }
 
         $fornecedor->delete();
-        $this->dispatch('notify', message: 'Fornecedor eliminado!', type: 'success');
+        $this->dispatch('toast', message: 'Fornecedor eliminado!', type: 'success');
     }
 
     public function toggleActive(Fornecedor $fornecedor)
     {
-        $fornecedor->update(['activo' => !$fornecedor->activo]);
-        $this->dispatch('notify', message: 'Status atualizado!', type: 'success');
+        $fornecedor->update(['activo' => ! $fornecedor->activo]);
+        $this->dispatch('toast', message: 'Status atualizado!', type: 'success');
     }
 }

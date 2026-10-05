@@ -35,7 +35,12 @@
                         ->where('activo', true)
                         ->with(['municipios' => fn ($query) => $query->where('activo', true)->orderBy('nome')]);
 
-                    if ($user->isMunicipal()) {
+                    if ($user->isSuperAdminNacional()) {
+                        $perspetiva = app(\App\Services\PerspetivaService::class);
+                        if ($perspetiva->isProvincial() && $perspetiva->getProvinciaId()) {
+                            $provinciasQuery->whereKey($perspetiva->getProvinciaId());
+                        }
+                    } elseif ($user->isMunicipal()) {
                         $provinciasQuery->whereKey($user->provincia_id);
                         $provinciasQuery->with(['municipios' => fn ($query) => $query
                             ->where('activo', true)
@@ -213,14 +218,14 @@
                         icon="cog-6-tooth"
                         heading="Gestão"
                         expandable
-                        :expanded="request()->routeIs('usuarios.*') || request()->routeIs('auditoria.*') || request()->routeIs('permissoes.*') || request()->routeIs('erros-sistema.*')"
+                        :expanded="request()->routeIs('nacional.*') || request()->routeIs('usuarios.*') || request()->routeIs('auditoria.*') || request()->routeIs('permissoes.*') || request()->routeIs('erros-sistema.*')"
                     >
                         {{-- Dashboard Nacional (apenas para usuários nacionais) --}}
                         @if(auth()->user()->isNacional())
                             <flux:sidebar.item
                                 icon="home"
                                 :href="route('nacional.dashboard')"
-                                :current="request()->routeIs('nacional.dashboard')"
+                                :current="request()->routeIs('nacional.*')"
                                 wire:navigate
                             >
                                 Dashboard Nacional
@@ -325,7 +330,13 @@
                 <span class="text-xs font-semibold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">G.TERRAS</span>
                 <span class="w-px h-4 bg-zinc-200 dark:bg-zinc-700"></span>
                 <span class="text-xs text-zinc-400 dark:text-zinc-500">Gestão Territorial</span>
-                @if(auth()->user()->isNacional())
+                @if(auth()->user()->isSuperAdminNacional())
+                    @php $perspetiva = app(\App\Services\PerspetivaService::class); @endphp
+                    <span class="w-px h-4 bg-zinc-200 dark:bg-zinc-700"></span>
+                    <span class="text-xs font-semibold px-2 py-0.5 rounded-full {{ $perspetiva->isGlobal() ? 'bg-sky-100 text-sky-800 dark:bg-sky-900/50 dark:text-sky-300' : ($perspetiva->isNacional() ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300') }}">
+                        {{ $perspetiva->label() }}
+                    </span>
+                @elseif(auth()->user()->isNacional())
                     <span class="w-px h-4 bg-zinc-200 dark:bg-zinc-700"></span>
                     <span class="text-xs text-angola-red font-semibold">Nacional</span>
                 @elseif(auth()->user()->isProvincial() && auth()->user()->provincia)
@@ -339,6 +350,11 @@
 
             <div class="flex-1"></div>
 
+            {{-- Seletor de Perspetiva (Superadmin) --}}
+            @if(auth()->user()->isSuperAdminNacional())
+                <livewire:seletor-perspetiva key="perspetiva-header-desktop" />
+            @endif
+
             {{-- Pesquisa --}}
             <livewire:live-search key="search-header" />
 
@@ -348,13 +364,11 @@
             {{-- Toggle dark mode --}}
             <flux:button icon="moon" size="sm" variant="ghost" x-on:click="$flux.dark ? $flux.dark = false : $flux.dark = true" title="Alternar modo escuro" />
 
-            {{-- Perfil --}}
+            {{-- Perfil (Apenas Avatar/Iniciais no Header) --}}
             <flux:dropdown position="bottom" align="end">
                 <flux:profile
-                    :name="auth()->user()->name"
                     :initials="auth()->user()->initials()"
-                    icon-trailing="chevron-down"
-                    class="!text-sm"
+                    class="cursor-pointer"
                 />
 
                 <flux:menu>
@@ -413,11 +427,14 @@
         <flux:header class="lg:hidden border-b border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
             <flux:spacer />
+            @if(auth()->user()->isSuperAdminNacional())
+                <livewire:seletor-perspetiva key="perspetiva-header-mobile" />
+            @endif
             <livewire:live-search key="search-mobile" />
             <livewire:notificacao-centro key="notif-mobile" />
 
             <flux:dropdown position="top" align="end">
-                <flux:profile :initials="auth()->user()->initials()" icon-trailing="chevron-down" />
+                <flux:profile :initials="auth()->user()->initials()" class="cursor-pointer" />
 
                 <flux:menu>
                     <flux:menu.radio.group>

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CategoriaPatrimonio extends Model
 {
+    protected $table = 'categorias_patrimonio';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -69,8 +71,9 @@ class CategoriaPatrimonio extends Model
     public function getCodigoCompletoAttribute(): string
     {
         if ($this->categoriaPai) {
-            return $this->categoriaPai->codigo_completo . '.' . $this->codigo;
+            return $this->categoriaPai->codigo_completo.'.'.$this->codigo;
         }
+
         return $this->codigo;
     }
 

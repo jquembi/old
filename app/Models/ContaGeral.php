@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ContaGeral extends Model
 {
+    protected $table = 'contas_gerais';
+
     protected $fillable = [
         'codigo',
         'nome',
@@ -24,8 +26,11 @@ class ContaGeral extends Model
 
     // Tipos de conta
     public const TIPO_ATIVO = 'ativo';
+
     public const TIPO_PASSIVO = 'passivo';
+
     public const TIPO_RECEITA = 'receita';
+
     public const TIPO_DESPESA = 'despesa';
 
     public function contaPai(): BelongsTo
@@ -86,8 +91,9 @@ class ContaGeral extends Model
     public function getCodigoCompletoAttribute(): string
     {
         if ($this->contaPai) {
-            return $this->contaPai->codigo_completo . '.' . $this->codigo;
+            return $this->contaPai->codigo_completo.'.'.$this->codigo;
         }
+
         return $this->codigo;
     }
 }
