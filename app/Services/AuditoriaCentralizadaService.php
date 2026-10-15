@@ -19,7 +19,7 @@ class AuditoriaCentralizadaService
         ?string $description = null,
         ?array $metadata = null
     ): NationalAuditLog {
-        $tenant = app('current.tenant');
+        $tenant = app()->bound('current.tenant') ? app('current.tenant') : null;
         $user = Auth::user();
         $request = request();
 
@@ -42,8 +42,8 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_LOGIN,
-            entity_type: 'User',
-            entity_id: $user->id,
+            entityType: 'User',
+            entityId: $user->id,
             description: "Utilizador {$user->name} fez login",
             metadata: [
                 'email' => $user->email,
@@ -56,8 +56,8 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_LOGOUT,
-            entity_type: 'User',
-            entity_id: $user->id,
+            entityType: 'User',
+            entityId: $user->id,
             description: "Utilizador {$user->name} fez logout"
         );
     }
@@ -66,9 +66,9 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_CREATE,
-            entity_type: $entityType,
-            entity_id: $entityId,
-            new_values: $data,
+            entityType: $entityType,
+            entityId: $entityId,
+            newValues: $data,
             description: $description ?? "Criado {$entityType} #{$entityId}"
         );
     }
@@ -77,10 +77,10 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_UPDATE,
-            entity_type: $entityType,
-            entity_id: $entityId,
-            old_values: $oldValues,
-            new_values: $newValues,
+            entityType: $entityType,
+            entityId: $entityId,
+            oldValues: $oldValues,
+            newValues: $newValues,
             description: $description ?? "Atualizado {$entityType} #{$entityId}"
         );
     }
@@ -89,9 +89,9 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_DELETE,
-            entity_type: $entityType,
-            entity_id: $entityId,
-            old_values: $deletedData,
+            entityType: $entityType,
+            entityId: $entityId,
+            oldValues: $deletedData,
             description: $description ?? "Eliminado {$entityType} #{$entityId}"
         );
     }
@@ -100,8 +100,8 @@ class AuditoriaCentralizadaService
     {
         return $this->logAction(
             NationalAuditLog::ACTION_SYNC,
-            entity_type: 'Tenant',
-            entity_id: $sourceTenant->id,
+            entityType: 'Tenant',
+            entityId: $sourceTenant->id,
             description: "Sincronização de {$sourceTenant->name}" . ($targetTenant ? " para {$targetTenant->name}" : ''),
             metadata: [
                 'source_tenant' => $sourceTenant->code,
