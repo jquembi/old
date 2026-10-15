@@ -150,6 +150,71 @@ class PerspetivaService
         return $this->getModo() === self::MODO_PROVINCIAL;
     }
 
+    public const AREA_NACIONAL = 'nacional';
+    public const AREA_TERRITORIAL = 'territorial';
+    public const AREA_COMUM = 'comum';
+
+    /**
+     * Classifica uma rota na área a que pertence. Rotas desconhecidas são comuns.
+     */
+    public function areaDaRota(?string $nome): string
+    {
+        if (! $nome) {
+            return self::AREA_COMUM;
+        }
+
+        if (str_starts_with($nome, 'nacional.')) {
+            return self::AREA_NACIONAL;
+        }
+
+        foreach (['dashboard', 'municipio.', 'municipios.', 'erp.'] as $prefixo) {
+            if ($nome === $prefixo || str_starts_with($nome, $prefixo)) {
+                return self::AREA_TERRITORIAL;
+            }
+        }
+
+        return self::AREA_COMUM;
+    }
+
+    /**
+     * Isolamento: Global vê tudo; Nacional só a área nacional; Provincial só a territorial.
+     */
+    public function areaPermitida(string $area): bool
+    {
+        if ($area === self::AREA_COMUM) {
+            return true;
+        }
+
+        return match ($this->getModo()) {
+            self::MODO_NACIONAL => $area === self::AREA_NACIONAL,
+            self::MODO_PROVINCIAL => $area === self::AREA_TERRITORIAL,
+            default => true,
+        };
+    }
+
+    public function rotaPermitida(?string $nome): bool
+    {
+        return $this->areaPermitida($this->areaDaRota($nome));
+    }
+
+    public function exibeAreaNacional(): bool
+    {
+        return $this->areaPermitida(self::AREA_NACIONAL);
+    }
+
+    public function exibeAreaTerritorial(): bool
+    {
+        return $this->areaPermitida(self::AREA_TERRITORIAL);
+    }
+
+    /**
+     * Rota inicial da perspetiva ativa.
+     */
+    public function rotaInicial(): string
+    {
+        return $this->isNacional() ? 'nacional.dashboard' : 'dashboard';
+    }
+
     /**
      * Retorna a lista de todas as províncias ativas para seleção.
      */

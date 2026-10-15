@@ -15,7 +15,7 @@ use App\Http\Livewire\Nacional\AdministracaoNacional;
 |
 */
 
-Route::middleware(['web', 'auth', 'verified', 'set.tenant:validate', 'geo.context', 'geo.angola', 'tenant.type:central'])->group(function () {
+Route::middleware(['web', 'auth', 'verified', 'set.tenant:validate', 'geo.context', 'geo.angola', 'tenant.type:central', 'perspetiva'])->group(function () {
     
     // Dashboard Nacional
     Route::get('/nacional', DashboardNacional::class)->name('nacional.dashboard');

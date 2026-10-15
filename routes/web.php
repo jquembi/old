@@ -172,7 +172,7 @@ Route::get('documentos/baixar/{token}', [DocumentoAutenticidadeController::class
 // ─── Painel do Sistema (acesso restrito INOTU) ───────────
 Route::get('sistema', PainelSistema::class)->middleware(['auth', 'verified', 'nivel:1'])->name('painel.sistema');
 
-Route::middleware(['auth', 'verified', 'set.tenant:validate', 'geo.context', 'geo.angola', 'tenant.type:provincial', 'log.acesso'])->group(function () {
+Route::middleware(['auth', 'verified', 'set.tenant:validate', 'geo.context', 'geo.angola', 'tenant.type:provincial', 'perspetiva', 'log.acesso'])->group(function () {
     Route::get('dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('notificacoes', Notificacoes::class)

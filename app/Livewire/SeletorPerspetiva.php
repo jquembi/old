@@ -45,7 +45,7 @@ class SeletorPerspetiva extends Component
         $this->dispatch('toast', type: 'info', message: $msg);
         $this->dispatch('perspetiva-alterada', modo: $novoModo, provinciaId: $this->provinciaId);
 
-        $this->redirect(request()->header('Referer') ?: route('dashboard'), navigate: true);
+        $this->redirect(route($service->rotaInicial()), navigate: true);
     }
 
     public function selecionarProvincia(int $id): void

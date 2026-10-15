@@ -36,6 +36,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'set.tenant'    => SetTenant::class,
             'geo.context'   => SetGeoTenantContext::class,
             'tenant.type'   => TenantType::class,
+            'perspetiva'    => \App\Http\Middleware\IsolarPerspetiva::class,
         ]);
 
         // Rate limiting para API: 60 req/min por utilizador

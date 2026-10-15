@@ -26,7 +26,11 @@ class TenantType
             abort(403, 'Acesso restrito ao Núcleo Central Nacional');
         }
 
-        if ($type === 'provincial' && ! $tenant->isProvincial()) {
+        // O Superadmin acede às rotas provinciais em qualquer perspetiva; o isolamento
+        // por perspetiva é feito pelo middleware `perspetiva`.
+        $superadmin = $type === 'provincial' && $request->user()?->isSuperAdminNacional();
+
+        if ($type === 'provincial' && ! $superadmin && ! $tenant->isProvincial()) {
             abort(403, 'Acesso restrito aos Nodes Provinciais');
         }
 

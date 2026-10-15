@@ -18,7 +18,14 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav class="pt-4">
+                @php
+                    $perspetivaSidebar = app(\App\Services\PerspetivaService::class);
+                    $verTerritorial = $perspetivaSidebar->exibeAreaTerritorial();
+                    $verNacional = $perspetivaSidebar->exibeAreaNacional();
+                @endphp
+
                 {{-- ── TERRITÓRIO ── --}}
+                @if($verTerritorial)
                 <flux:sidebar.item
                     icon="home"
                     :href="route('dashboard')"
@@ -27,6 +34,7 @@
                 >
                     Dashboard
                 </flux:sidebar.item>
+                @endif
 
                 {{-- Municípios --}}
                 @php
@@ -57,6 +65,7 @@
                         : null;
                 @endphp
 
+                @if($verTerritorial)
                 <flux:sidebar.group
                     icon="map"
                     heading="Território"
@@ -81,9 +90,10 @@
                         </flux:sidebar.group>
                     @endforeach
                 </flux:sidebar.group>
+                @endif
 
                 {{-- ── ERP ── --}}
-                @if($user->temPermissao('financeiro.ver') || $user->temPermissao('rh.ver') || $user->temPermissao('compras.ver') || $user->temPermissao('patrimonio.ver'))
+                @if($verTerritorial && ($user->temPermissao('financeiro.ver') || $user->temPermissao('rh.ver') || $user->temPermissao('compras.ver') || $user->temPermissao('patrimonio.ver')))
                     <flux:sidebar.group
                         icon="cog-6-tooth"
                         heading="ERP"
@@ -212,26 +222,57 @@
                     </flux:sidebar.group>
                 @endif
 
+                {{-- ── NÚCLEO NACIONAL ── --}}
+                @if($verNacional && $user->isNacional())
+                    <flux:sidebar.item
+                        icon="building-library"
+                        :href="route('nacional.dashboard')"
+                        :current="request()->routeIs('nacional.dashboard')"
+                        wire:navigate
+                    >
+                        Dashboard Nacional
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.group icon="chart-bar" heading="Indicadores" expandable :expanded="request()->routeIs('nacional.indicadores*')">
+                        <flux:sidebar.item :href="route('nacional.indicadores')" :current="request()->routeIs('nacional.indicadores')" wire:navigate>Visão Geral</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.indicadores.processos')" :current="request()->routeIs('nacional.indicadores.processos')" wire:navigate>Processos</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.indicadores.terras')" :current="request()->routeIs('nacional.indicadores.terras')" wire:navigate>Terras</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.indicadores.financeiro')" :current="request()->routeIs('nacional.indicadores.financeiro')" wire:navigate>Financeiro</flux:sidebar.item>
+                    </flux:sidebar.group>
+
+                    <flux:sidebar.item
+                        icon="server-stack"
+                        :href="route('nacional.nodes')"
+                        :current="request()->routeIs('nacional.nodes') || request()->routeIs('nacional.node.*')"
+                        wire:navigate
+                    >
+                        Supervisão de Nodes
+                    </flux:sidebar.item>
+
+                    <flux:sidebar.group icon="document-chart-bar" heading="Relatórios" expandable :expanded="request()->routeIs('nacional.relatorios*')">
+                        <flux:sidebar.item :href="route('nacional.relatorios')" :current="request()->routeIs('nacional.relatorios')" wire:navigate>Relatórios Nacionais</flux:sidebar.item>
+                    </flux:sidebar.group>
+
+                    <flux:sidebar.group icon="adjustments-horizontal" heading="Administração Nacional" expandable :expanded="request()->routeIs('nacional.parametros') || request()->routeIs('nacional.usuarios-nacionais') || request()->routeIs('nacional.regras-globais')">
+                        <flux:sidebar.item :href="route('nacional.parametros')" :current="request()->routeIs('nacional.parametros')" wire:navigate>Parâmetros</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.usuarios-nacionais')" :current="request()->routeIs('nacional.usuarios-nacionais')" wire:navigate>Utilizadores Nacionais</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.regras-globais')" :current="request()->routeIs('nacional.regras-globais')" wire:navigate>Regras Globais</flux:sidebar.item>
+                    </flux:sidebar.group>
+
+                    <flux:sidebar.group icon="shield-check" heading="Auditoria Nacional" expandable :expanded="request()->routeIs('nacional.auditoria*')">
+                        <flux:sidebar.item :href="route('nacional.auditoria')" :current="request()->routeIs('nacional.auditoria')" wire:navigate>Eventos</flux:sidebar.item>
+                        <flux:sidebar.item :href="route('nacional.auditoria.logs')" :current="request()->routeIs('nacional.auditoria.logs')" wire:navigate>Registos</flux:sidebar.item>
+                    </flux:sidebar.group>
+                @endif
+
                 {{-- ── GESTÃO ── --}}
                 @if(auth()->user()->isNacional() || auth()->user()->isInotu() || auth()->user()->isProvincial() || auth()->user()->isAdminMunicipal())
                     <flux:sidebar.group
                         icon="cog-6-tooth"
                         heading="Gestão"
                         expandable
-                        :expanded="request()->routeIs('nacional.*') || request()->routeIs('usuarios.*') || request()->routeIs('auditoria.*') || request()->routeIs('permissoes.*') || request()->routeIs('erros-sistema.*')"
+                        :expanded="request()->routeIs('usuarios.*') || request()->routeIs('auditoria.*') || request()->routeIs('permissoes.*') || request()->routeIs('erros-sistema.*')"
                     >
-                        {{-- Dashboard Nacional (apenas para usuários nacionais) --}}
-                        @if(auth()->user()->isNacional())
-                            <flux:sidebar.item
-                                icon="home"
-                                :href="route('nacional.dashboard')"
-                                :current="request()->routeIs('nacional.*')"
-                                wire:navigate
-                            >
-                                Dashboard Nacional
-                            </flux:sidebar.item>
-                        @endif
-
                         @if(auth()->user()->temPermissao('usuarios.ver'))
                             <flux:sidebar.item
                                 icon="users"
