@@ -16,6 +16,9 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     Volt::route('settings/password', 'settings.password')->name('user-password.edit');
     Volt::route('settings/appearance', 'settings.appearance')->name('appearance.edit');
+    Route::get('settings/qr-layouts', \App\Livewire\ConfiguracaoDocumentoQr::class)
+        ->middleware(['nivel:1,2'])
+        ->name('settings.qr-layouts');
 
     Volt::route('settings/two-factor', 'settings.two-factor')
         ->middleware(

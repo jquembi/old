@@ -281,6 +281,15 @@
                             >
                                 Erros do Sistema
                             </flux:sidebar.item>
+
+                            <flux:sidebar.item
+                                icon="qr-code"
+                                :href="route('settings.qr-layouts')"
+                                :current="request()->routeIs('settings.qr-layouts')"
+                                wire:navigate
+                            >
+                                Layouts de QR Code
+                            </flux:sidebar.item>
                         @endif
                     </flux:sidebar.group>
                 @endif
@@ -361,8 +370,24 @@
             {{-- Notificações --}}
             <livewire:notificacao-centro key="notif-header" />
 
-            {{-- Toggle dark mode --}}
-            <flux:button icon="moon" size="sm" variant="ghost" x-on:click="$flux.dark ? $flux.dark = false : $flux.dark = true" title="Alternar modo escuro" />
+            {{-- Alternar Tema (Claro / Escuro) --}}
+            <button
+                type="button"
+                x-data
+                x-on:click="$flux.dark = !$flux.dark; window.Flux?.applyAppearance ? window.Flux.applyAppearance($flux.dark ? 'dark' : 'light') : document.documentElement.classList.toggle('dark', $flux.dark)"
+                class="relative inline-flex size-9 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                :title="$flux.dark ? 'Mudar para modo claro' : 'Mudar para modo escuro'"
+                aria-label="Alternar tema visual"
+            >
+                {{-- Ícone Sol (quando em modo escuro) --}}
+                <svg x-show="$flux.dark" x-cloak class="size-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+                {{-- Ícone Lua (quando em modo claro) --}}
+                <svg x-show="!$flux.dark" class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+            </button>
 
             {{-- Perfil (Apenas Avatar/Iniciais no Header) --}}
             <flux:dropdown position="bottom" align="end">
@@ -432,6 +457,23 @@
             @endif
             <livewire:live-search key="search-mobile" />
             <livewire:notificacao-centro key="notif-mobile" />
+
+            {{-- Alternar Tema no Mobile --}}
+            <button
+                type="button"
+                x-data
+                x-on:click="$flux.dark = !$flux.dark; window.Flux?.applyAppearance ? window.Flux.applyAppearance($flux.dark ? 'dark' : 'light') : document.documentElement.classList.toggle('dark', $flux.dark)"
+                class="relative inline-flex size-9 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
+                :title="$flux.dark ? 'Mudar para modo claro' : 'Mudar para modo escuro'"
+                aria-label="Alternar tema visual"
+            >
+                <svg x-show="$flux.dark" x-cloak class="size-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" />
+                </svg>
+                <svg x-show="!$flux.dark" class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+                </svg>
+            </button>
 
             <flux:dropdown position="top" align="end">
                 <flux:profile :initials="auth()->user()->initials()" class="cursor-pointer" />

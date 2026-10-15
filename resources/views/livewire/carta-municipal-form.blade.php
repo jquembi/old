@@ -64,7 +64,7 @@
                         <div class="flex items-center gap-2">
                             <h3 class="text-sm font-bold text-emerald-900 dark:text-emerald-200">Leitura OCR da Carta Municipal Concluída</h3>
                             <span class="rounded-full bg-emerald-200/80 px-2 py-0.5 text-[11px] font-semibold text-emerald-800 dark:bg-emerald-800/60 dark:text-emerald-200">
-                                {{ $ocrDados['num_paginas'] ?? 1 }} pág. analisadas
+                                {{ $ocrDados['paginas_processadas'] ?? $ocrDados['num_paginas'] ?? 1 }} pág. analisadas
                             </span>
                         </div>
                         <p class="mt-0.5 text-xs text-emerald-700 dark:text-emerald-300">

@@ -374,33 +374,35 @@
     </div>
 
     {{-- SECTION: GRÁFICOS E CHARTS REAIS 1 --}}
-    <div class="grid gap-6 lg:grid-cols-3">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {{-- Gráfico 1: Processos e Instrumentos por Município (2 Colunas) --}}
-        <div class="lg:col-span-2 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div class="flex items-center justify-between border-b border-zinc-100 pb-4 dark:border-zinc-800">
+        <div class="lg:col-span-2 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 min-w-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-4 dark:border-zinc-800">
                 <div>
-                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Distribuição Territorial por Município</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Volume de Instrumentos, Loteamentos e Projectos nos principais municípios</p>
+                    <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Distribuição Territorial por Município</h3>
+                    <p class="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Volume de Instrumentos, Loteamentos e Projectos nos principais municípios</p>
                 </div>
-                <span class="inline-flex items-center rounded-lg bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <span class="inline-flex items-center self-start sm:self-auto rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] sm:text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 shrink-0">
                     Dados Reais
                 </span>
             </div>
 
-            <div class="mt-4 h-72 w-full relative">
-                <canvas id="chartMunicipiosCanvas" class="w-full h-full"></canvas>
+            <div class="mt-4 w-full overflow-x-auto overflow-y-hidden no-scrollbar">
+                <div class="h-64 sm:h-72 min-w-[300px] w-full relative">
+                    <canvas id="chartMunicipiosCanvas" class="w-full h-full block"></canvas>
+                </div>
             </div>
         </div>
 
         {{-- Gráfico 2: Instrumentos por Estado (Doughnut Chart) --}}
-        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between min-w-0">
             <div class="border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <h3 class="text-base font-bold text-zinc-900 dark:text-white">Estado dos Instrumentos</h3>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Fases de elaboração e homologação</p>
+                <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Estado dos Instrumentos</h3>
+                <p class="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Fases de elaboração e homologação</p>
             </div>
 
-            <div class="my-auto py-4 h-64 w-full relative flex items-center justify-center">
-                <canvas id="chartEstadosCanvas" class="max-h-60"></canvas>
+            <div class="my-auto py-4 h-56 sm:h-64 w-full relative flex items-center justify-center min-w-0">
+                <canvas id="chartEstadosCanvas" class="max-h-52 sm:max-h-60 w-full"></canvas>
             </div>
 
             <div class="grid grid-cols-2 gap-2 text-center text-xs pt-2 border-t border-zinc-100 dark:border-zinc-800">
@@ -417,34 +419,36 @@
     </div>
 
     {{-- SECTION: GRÁFICOS E CHARTS REAIS 2 --}}
-    <div class="grid gap-6 lg:grid-cols-3">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-3">
         {{-- Gráfico 3: Tendência Semestral (Linha / Área) --}}
-        <div class="lg:col-span-2 rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-            <div class="flex items-center justify-between border-b border-zinc-100 pb-4 dark:border-zinc-800">
+        <div class="lg:col-span-2 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 min-w-0">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-zinc-100 pb-4 dark:border-zinc-800">
                 <div>
-                    <h3 class="text-base font-bold text-zinc-900 dark:text-white">Evolução Mensal de Registos</h3>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Dinâmica de submissão de instrumentos de planeamento e projectos nos últimos 6 meses</p>
+                    <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Evolução Mensal de Registos</h3>
+                    <p class="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Dinâmica de submissão de instrumentos de planeamento e projectos nos últimos 6 meses</p>
                 </div>
-                <span class="inline-flex items-center gap-1.5 text-xs text-zinc-500">
+                <span class="inline-flex items-center gap-1.5 text-xs text-zinc-500 self-start sm:self-auto shrink-0">
                     <span class="inline-block h-2.5 w-2.5 rounded-full bg-red-600"></span> Instrumentos
                     <span class="inline-block h-2.5 w-2.5 rounded-full bg-teal-500 ml-2"></span> Projectos
                 </span>
             </div>
 
-            <div class="mt-4 h-64 w-full relative">
-                <canvas id="chartTendenciaCanvas" class="w-full h-full"></canvas>
+            <div class="mt-4 w-full overflow-x-auto overflow-y-hidden no-scrollbar">
+                <div class="h-60 sm:h-64 min-w-[300px] w-full relative">
+                    <canvas id="chartTendenciaCanvas" class="w-full h-full block"></canvas>
+                </div>
             </div>
         </div>
 
         {{-- Gráfico 4: Tipos de Projectos de Requalificação --}}
-        <div class="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 sm:p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between min-w-0">
             <div class="border-b border-zinc-100 pb-4 dark:border-zinc-800">
-                <h3 class="text-base font-bold text-zinc-900 dark:text-white">Tipologia de Projectos</h3>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Distribuição das intervenções urbanas</p>
+                <h3 class="text-sm sm:text-base font-bold text-zinc-900 dark:text-white">Tipologia de Projectos</h3>
+                <p class="text-[11px] sm:text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Distribuição das intervenções urbanas</p>
             </div>
 
-            <div class="my-auto py-4 h-64 w-full relative flex items-center justify-center">
-                <canvas id="chartTiposCanvas" class="max-h-60"></canvas>
+            <div class="my-auto py-4 h-56 sm:h-64 w-full relative flex items-center justify-center min-w-0">
+                <canvas id="chartTiposCanvas" class="max-h-52 sm:max-h-60 w-full"></canvas>
             </div>
 
             <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">

@@ -2,13 +2,51 @@ import Chart from 'chart.js/auto';
 
 function registerDashboardCharts() {
     window.Alpine.data('dashboardCharts', (chartMunicipios, chartEstados, chartTipos, chartTendencia) => ({
+        _themeObserver: null,
+        _cachedData: null,
+
         init() {
+            this._cachedData = { chartMunicipios, chartEstados, chartTipos, chartTendencia };
             this.$nextTick(() => {
                 this.renderAllCharts(chartMunicipios, chartEstados, chartTipos, chartTendencia);
             });
+
+            // Re-renderizar gráficos com cores e dimensões adaptadas ao alternar o tema
+            this._themeObserver = new MutationObserver((mutations) => {
+                for (const mutation of mutations) {
+                    if (mutation.attributeName === 'class' && this._cachedData) {
+                        this.renderAllCharts(
+                            this._cachedData.chartMunicipios,
+                            this._cachedData.chartEstados,
+                            this._cachedData.chartTipos,
+                            this._cachedData.chartTendencia
+                        );
+                        break;
+                    }
+                }
+            });
+
+            this._themeObserver.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ['class'],
+            });
+
+            // Ajustar redimensionamento dos gráficos ao redimensionar a tela
+            this._resizeHandler = () => {
+                this.$root.querySelectorAll('canvas').forEach(canvas => {
+                    Chart.getChart(canvas)?.resize();
+                });
+            };
+            window.addEventListener('resize', this._resizeHandler);
         },
 
         destroy() {
+            if (this._themeObserver) {
+                this._themeObserver.disconnect();
+            }
+            if (this._resizeHandler) {
+                window.removeEventListener('resize', this._resizeHandler);
+            }
             this.$root.querySelectorAll('canvas').forEach(canvas => {
                 Chart.getChart(canvas)?.destroy();
             });

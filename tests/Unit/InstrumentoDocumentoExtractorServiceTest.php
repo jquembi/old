@@ -2,10 +2,12 @@
 
 use App\Services\InstrumentoDocumentoExtractorService;
 
-test('extrai ano e estado de texto de plano municipal com contexto', function () {
-    $service = new InstrumentoDocumentoExtractorService();
+uses(Tests\TestCase::class);
 
-    $texto = <<<TEXT
+test('extrai ano e estado de texto de plano municipal com contexto', function () {
+    $service = new InstrumentoDocumentoExtractorService;
+
+    $texto = <<<'TEXT'
     REPÚBLICA DE ANGOLA
     GOVERNO PROVINCIAL DA HUÍLA
     ADMINISTRAÇÃO MUNICIPAL DO LUBANGO
@@ -25,9 +27,9 @@ test('extrai ano e estado de texto de plano municipal com contexto', function ()
 });
 
 test('detecta ano a partir do nome do ficheiro quando ausente no corpo', function () {
-    $service = new InstrumentoDocumentoExtractorService();
+    $service = new InstrumentoDocumentoExtractorService;
 
-    $texto = "Documento técnico de planeamento sem data explícita no corpo.";
+    $texto = 'Documento técnico de planeamento sem data explícita no corpo.';
     $resultado = $service->analisarTexto($texto, 'PMOT_Cuvango_2025_Final.pdf', 'PMOT', 'Cuvango');
 
     expect($resultado['ano'])->toBe('2025');
@@ -35,8 +37,12 @@ test('detecta ano a partir do nome do ficheiro quando ausente no corpo', functio
 });
 
 test('extrai texto e metadados de PDF existente no projecto', function () {
-    $service = new InstrumentoDocumentoExtractorService();
-    $pdfPath = __DIR__ . '/../../public/Documentacao/PROJECTO DO G.TERRAS.pdf';
+    $service = new InstrumentoDocumentoExtractorService;
+    $pdfPath = __DIR__.'/../../public/Documentacao/PROJECTO DO G.TERRAS.pdf';
+
+    if (PHP_OS_FAMILY !== 'Windows') {
+        test()->markTestSkipped('Leitura nativa de PDF requer Windows.');
+    }
 
     if (! file_exists($pdfPath)) {
         test()->markTestSkipped('Ficheiro de teste nao encontrado.');

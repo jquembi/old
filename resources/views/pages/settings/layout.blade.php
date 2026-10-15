@@ -1,4 +1,4 @@
-﻿<div class="flex items-start max-md:flex-col gap-0">
+<div class="flex items-start max-md:flex-col gap-0">
     {{-- ── Sidebar de Navegação ────────────────────────── --}}
     <div class="shrink-0 w-full md:w-56 pb-4 md:pb-0 md:me-10">
         {{-- Mini-card do utilizador --}}
@@ -50,6 +50,11 @@
                 <flux:navlist.item :href="route('appearance.edit')" wire:navigate icon="swatch">
                     Aparência
                 </flux:navlist.item>
+                @if(auth()->user()->isNacional() || auth()->user()->isInotu())
+                    <flux:navlist.item :href="route('settings.qr-layouts')" wire:navigate icon="qr-code">
+                        Layouts de QR Code
+                    </flux:navlist.item>
+                @endif
             </flux:navlist.group>
         </flux:navlist>
     </div>

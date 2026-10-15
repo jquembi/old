@@ -180,6 +180,10 @@
 
                 {{-- Resultados Extraídos pelo OCR --}}
                 @if($dadosExtraidos && !isset($dadosExtraidos['erro']))
+                    @foreach($dadosExtraidos['avisos'] ?? [] as $aviso)
+                        <p class="mt-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200">{{ $aviso }}</p>
+                    @endforeach
+
                     <div class="mt-4 space-y-3 rounded-xl border border-cyan-200 bg-white p-4 text-xs dark:border-cyan-900/50 dark:bg-zinc-800">
                         <div class="flex items-center justify-between">
                             <span class="font-bold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider text-[10px]">Dados Detectados</span>

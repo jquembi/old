@@ -61,14 +61,15 @@
         type="button"
         @click="openSearch()"
         class="relative inline-flex size-9 items-center justify-center rounded-lg text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white"
-        title="Pesquisar (Ctrl+K ou /)"
+        title="Pesquisa inteligente (Ctrl+K ou /)"
+        aria-label="Pesquisa inteligente e atalhos"
         aria-haspopup="dialog"
         :aria-expanded="openModal"
     >
         <svg class="size-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
         </svg>
-        <span class="sr-only">Pesquisar</span>
+        <span class="sr-only">Pesquisa inteligente</span>
     </button>
 
     {{-- MODAL SPOTLIGHT INTELIGENTE (COMMAND PALETTE) --}}
@@ -419,6 +420,10 @@
                         <span class="inline-flex items-center gap-1">
                             <kbd class="px-1.5 py-0.5 rounded-md bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px] border border-zinc-200 dark:border-zinc-700 shadow-2xs">Esc</kbd>
                             Fechar
+                        </span>
+                        <span class="inline-flex items-center gap-1">
+                            <kbd class="px-1.5 py-0.5 rounded-md bg-white dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-mono text-[10px] border border-zinc-200 dark:border-zinc-700 shadow-2xs">⌘K</kbd>
+                            Atalho
                         </span>
                     </div>
 

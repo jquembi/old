@@ -114,6 +114,9 @@ class CartaMunicipalForm extends Component
      */
     public function executarLeituraOcrParaFicheiro(TemporaryUploadedFile $ficheiro): void
     {
+        $this->ocrDados = null;
+        $this->ocrSucesso = false;
+        $this->ocrTextoPreview = '';
         $this->ocrProcessando = true;
 
         try {
@@ -135,7 +138,7 @@ class CartaMunicipalForm extends Component
                 $this->ocrMensagem = $resultado['mensagem'];
 
                 // Preenchimento automático dos campos
-                if (! empty($this->ocrDados['ano'])) {
+                if (! empty($this->ocrDados['ano_detectado'])) {
                     $this->ano = $this->ocrDados['ano'];
                 }
 
@@ -155,7 +158,7 @@ class CartaMunicipalForm extends Component
 
                 $this->dispatch('notificacao', [
                     'tipo' => 'success',
-                    'mensagem' => "Leitura da carta concluída com sucesso! Ano detectado: {$this->ano}.",
+                    'mensagem' => $resultado['mensagem'],
                 ]);
             } else {
                 $this->ocrSucesso = false;
@@ -197,15 +200,15 @@ class CartaMunicipalForm extends Component
                     $this->ocrSucesso = true;
                     $this->ocrDados = $resultado['dados'];
                     $this->ocrTextoPreview = $resultado['texto'];
-                    $this->ocrMensagem = 'Leitura OCR concluída a partir do documento existente.';
+                    $this->ocrMensagem = $resultado['mensagem'];
 
-                    if (! empty($this->ocrDados['ano'])) {
+                    if (! empty($this->ocrDados['ano_detectado'])) {
                         $this->ano = $this->ocrDados['ano'];
                     }
 
                     $this->dispatch('notificacao', [
                         'tipo' => 'success',
-                        'mensagem' => "OCR da carta concluído! Ano detectado: {$this->ano}.",
+                        'mensagem' => $resultado['mensagem'],
                     ]);
                     return;
                 }
@@ -227,7 +230,7 @@ class CartaMunicipalForm extends Component
             return;
         }
 
-        if (! empty($this->ocrDados['ano'])) {
+        if (! empty($this->ocrDados['ano_detectado'])) {
             $this->ano = $this->ocrDados['ano'];
         }
         if (! empty($this->ocrDados['titulo'])) {

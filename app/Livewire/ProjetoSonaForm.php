@@ -115,7 +115,7 @@ class ProjetoSonaForm extends Component
             }
 
             // Se detectou estado
-            if (!empty($resultado['estado_sugerido'])) {
+            if (in_array($resultado['estado_sugerido'] ?? null, ['em_curso', 'concluido', 'suspenso'], true)) {
                 $this->estado = $resultado['estado_sugerido'];
             }
 

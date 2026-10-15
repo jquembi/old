@@ -2,9 +2,10 @@
 
 namespace App\Services;
 
-use Exception;
+use DOMDocument;
+use DOMXPath;
 use Illuminate\Support\Str;
-use Smalot\PdfParser\Parser as PdfParser;
+use RuntimeException;
 use ZipArchive;
 
 class InstrumentoDocumentoExtractorService
@@ -14,7 +15,7 @@ class InstrumentoDocumentoExtractorService
      */
     public function extrairDeFicheiro(string $caminhoFicheiro, ?string $nomeOriginal = null, ?string $tipoNome = null, ?string $municipioNome = null): array
     {
-        if (! file_exists($caminhoFicheiro)) {
+        if (! is_file($caminhoFicheiro) || ! is_readable($caminhoFicheiro)) {
             return [
                 'sucesso' => false,
                 'mensagem' => 'Ficheiro não encontrado para leitura.',
@@ -26,90 +27,131 @@ class InstrumentoDocumentoExtractorService
         $extensao = strtolower(pathinfo($nomeOriginal ?: $caminhoFicheiro, PATHINFO_EXTENSION));
         $texto = '';
         $numPaginas = 1;
-
+        $leitura = ['motor' => 'texto-nativo', 'avisos' => [], 'paginas_processadas' => 1];
         try {
-            if ($extensao === 'pdf') {
-                $resultadoPdf = $this->extrairTextoPdf($caminhoFicheiro);
-                $texto = $resultadoPdf['texto'];
-                $numPaginas = $resultadoPdf['paginas'];
-            } elseif (in_array($extensao, ['doc', 'docx'])) {
+            if (filesize($caminhoFicheiro) > 50 * 1024 * 1024) {
+                throw new RuntimeException('O ficheiro excede o limite de 50 MB.');
+            }
+            if ($extensao === 'pdf' || in_array($extensao, ['png', 'jpg', 'jpeg', 'bmp', 'tif', 'tiff'])) {
+                $leitura = app(NativeOcrService::class)->extract($caminhoFicheiro, $extensao === 'pdf' ? 'pdf' : 'image');
+                $texto = $leitura['texto'] ?? '';
+                $numPaginas = $leitura['paginas'] ?? 1;
+            } elseif ($extensao === 'docx') {
                 $texto = $this->extrairTextoDocx($caminhoFicheiro);
-            } elseif (in_array($extensao, ['txt', 'rtf', 'csv'])) {
+            } elseif (in_array($extensao, ['txt', 'csv'])) {
                 $texto = file_get_contents($caminhoFicheiro) ?: '';
             } else {
-                // Outro tipo de ficheiro (DWG, SHP, ZIP, etc.)
-                $texto = '';
+                throw new RuntimeException('Leitura automática disponível para PDF, DOCX, TXT, CSV e imagens PNG, JPG, BMP ou TIFF.');
             }
-        } catch (Exception $e) {
-            $texto = '';
+        } catch (\Throwable $e) {
+            return [
+                'sucesso' => false, 'mensagem' => 'Não foi possível ler o documento: '.$e->getMessage(),
+                'texto' => '', 'dados' => $this->dadosVazios(),
+            ];
         }
 
         $texto = $this->normalizarTexto($texto);
         $dados = $this->analisarTexto($texto, $nomeOriginal ?: basename($caminhoFicheiro), $tipoNome, $municipioNome);
         $dados['num_paginas'] = $numPaginas;
+        $dados['paginas_processadas'] = $leitura['paginas_processadas'];
+        if ($texto === '') {
+            $dados = $this->dadosVazios();
+        }
 
-        $temExtracao = ! empty($dados['ano']) || ! empty($dados['titulo']) || ! empty($dados['descricao']);
+        $temExtracao = trim($texto) !== '';
 
         return [
-            'sucesso' => $temExtracao || ! empty($texto),
+            'sucesso' => $temExtracao,
             'mensagem' => $temExtracao
-                ? 'Leitura e análise do documento concluídas com sucesso.'
-                : 'Ficheiro processado, mas não foi possível identificar campos específicos automaticamente.',
-            'texto' => Str::limit($texto, 3000),
+                ? 'Leitura e análise concluídas.'.(! empty($leitura['avisos']) ? ' '.implode(' ', $leitura['avisos']) : '')
+                : 'Não foi encontrado texto legível. Use uma imagem mais nítida ou com melhor iluminação.',
+            'texto' => Str::limit($texto, 12000),
+            'motor' => $leitura['motor'],
+            'idioma' => $leitura['idioma'] ?? null,
+            'avisos' => $leitura['avisos'] ?? [],
+            'paginas_processadas' => $leitura['paginas_processadas'],
             'dados' => $dados,
         ];
     }
 
-    /**
-     * Extrai texto de um ficheiro PDF usando Smalot\PdfParser.
-     */
-    private function extrairTextoPdf(string $caminho): array
+    /** Compatibilidade com os formulários de projectos SONA e Outros Projectos. */
+    public function extrairMetadados(string $caminho, string $nomeOriginal, ?string $mimeType = null): array
     {
-        $parser = new PdfParser();
-        $pdf = $parser->parseFile($caminho);
-        $pages = $pdf->getPages();
-        $texto = $pdf->getText();
+        $resultado = $this->extrairDeFicheiro($caminho, $nomeOriginal);
+        if (! $resultado['sucesso']) {
+            throw new RuntimeException($resultado['mensagem']);
+        }
 
         return [
-            'texto' => $texto ?: '',
-            'paginas' => count($pages) ?: 1,
+            'titulo_sugerido' => $resultado['dados']['titulo'],
+            'resumo_extraido' => $resultado['dados']['descricao'],
+            'estado_sugerido' => match (true) {
+                (bool) preg_match('/\b(conclu[íi]do|finalizado|terminado)\b/iu', $resultado['texto']) => 'concluido',
+                (bool) preg_match('/\b(suspenso|suspens[ãa]o)\b/iu', $resultado['texto']) => 'suspenso',
+                (bool) preg_match('/\b(em curso|em execu[çc][ãa]o|em andamento)\b/iu', $resultado['texto']) => 'em_curso',
+                (bool) preg_match('/\b(planificado|planejado)\b/iu', $resultado['texto']) => 'planificado',
+                default => null,
+            },
+            'ano_detectado' => $resultado['dados']['ano_detectado'] ? $resultado['dados']['ano'] : null,
+            'texto_extraido' => $resultado['texto'],
+            'num_paginas' => $resultado['dados']['num_paginas'],
+            'motor' => $resultado['motor'], 'avisos' => $resultado['avisos'],
         ];
     }
 
-    /**
-     * Extrai texto de ficheiro Word (.docx).
-     */
     private function extrairTextoDocx(string $caminho): string
     {
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         if ($zip->open($caminho) !== true) {
-            return '';
+            throw new RuntimeException('O documento DOCX está danificado ou não é um ficheiro Word válido.');
         }
-
-        $xml = $zip->getFromName('word/document.xml');
-        $zip->close();
-
-        if (! $xml) {
-            return '';
-        }
-
-        // Processar parágrafos
-        preg_match_all('/<w:p[^>]*>(.*?)<\/w:p>/s', $xml, $paragrafos);
-        $textoCompleto = '';
-
-        if (! empty($paragrafos[1])) {
-            foreach ($paragrafos[1] as $p) {
-                preg_match_all('/<w:t[^>]*>(.*?)<\/w:t>/s', $p, $tMatches);
-                if (! empty($tMatches[1])) {
-                    $linha = implode('', $tMatches[1]);
-                    if (trim($linha) !== '') {
-                        $textoCompleto .= trim($linha) . "\n";
+        try {
+            $parts = ['word/document.xml'];
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $name = $zip->getNameIndex($i);
+                if (preg_match('#^word/(header|footer)[0-9]+\.xml$#', $name)) {
+                    $parts[] = $name;
+                }
+            }
+            $text = [];
+            foreach ($parts as $part) {
+                $info = $zip->statName($part);
+                if (! $info || $info['size'] > 8 * 1024 * 1024) {
+                    throw new RuntimeException('Conteúdo Word ausente ou demasiado grande para análise.');
+                }
+                $xml = $zip->getFromName($part);
+                if (stripos($xml, '<!DOCTYPE') !== false || stripos($xml, '<!ENTITY') !== false) {
+                    throw new RuntimeException('O documento contém declarações XML não suportadas.');
+                }
+                $document = new DOMDocument;
+                $previous = libxml_use_internal_errors(true);
+                try {
+                    if (! $document->loadXML($xml, LIBXML_NONET)) {
+                        throw new RuntimeException('O conteúdo XML do documento está danificado.');
+                    }
+                } finally {
+                    libxml_clear_errors();
+                    libxml_use_internal_errors($previous);
+                }
+                $xpath = new DOMXPath($document);
+                $xpath->registerNamespace('w', 'http://schemas.openxmlformats.org/wordprocessingml/2006/main');
+                foreach ($xpath->query('//w:p') as $paragraph) {
+                    $line = '';
+                    foreach ($xpath->query('.//w:t | .//w:tab | .//w:br', $paragraph) as $node) {
+                        $line .= match ($node->localName) {
+                            'tab' => "\t", 'br' => "\n", default => $node->textContent,
+                        };
+                    }
+                    if (trim($line) !== '') {
+                        $text[] = trim($line);
                     }
                 }
             }
-        }
 
-        return $textoCompleto;
+            return implode("\n", $text);
+        } finally {
+            $zip->close();
+        }
     }
 
     /**
@@ -174,7 +216,7 @@ class InstrumentoDocumentoExtractorService
             if (preg_match($padrao, $texto, $matches)) {
                 $ano = $matches[1];
                 if (strlen($ano) === 2) {
-                    $ano = '20' . $ano;
+                    $ano = '20'.$ano;
                 }
                 if ($this->anoValido((int) $ano)) {
                     return (string) $ano;
@@ -197,6 +239,7 @@ class InstrumentoDocumentoExtractorService
                 // Retorna o ano mais frequente ou o mais recente no cabeçalho
                 $contagem = array_count_values($anos);
                 arsort($contagem);
+
                 return (string) key($contagem);
             }
         }
@@ -210,6 +253,7 @@ class InstrumentoDocumentoExtractorService
     private function anoValido(int $ano): bool
     {
         $anoAtual = (int) date('Y');
+
         return $ano >= 1990 && $ano <= ($anoAtual + 5);
     }
 
@@ -242,6 +286,7 @@ class InstrumentoDocumentoExtractorService
                     if ($tituloEncontrado === mb_strtoupper($tituloEncontrado)) {
                         $tituloEncontrado = Str::title(mb_strtolower($tituloEncontrado));
                     }
+
                     return $tituloEncontrado;
                 }
             }
@@ -250,6 +295,7 @@ class InstrumentoDocumentoExtractorService
         // Se tiver tipo e município, gerar título institucional estruturado
         if ($tipoNome && $municipioNome) {
             $sufixoAno = $ano ? " - {$ano}" : '';
+
             return "{$tipoNome} de {$municipioNome}{$sufixoAno}";
         }
 
@@ -258,6 +304,7 @@ class InstrumentoDocumentoExtractorService
             $base = pathinfo($nomeFicheiro, PATHINFO_FILENAME);
             $base = str_replace(['_', '-'], ' ', $base);
             $base = preg_replace('/\s+/', ' ', $base);
+
             return Str::title(trim($base));
         }
 
@@ -353,6 +400,7 @@ class InstrumentoDocumentoExtractorService
 
         if (! empty($linhasSignificativas)) {
             $descricao = implode(' ', $linhasSignificativas);
+
             return Str::limit(preg_replace('/\s+/', ' ', $descricao), 400);
         }
 
@@ -371,7 +419,7 @@ class InstrumentoDocumentoExtractorService
             'Área Rural', 'Expansão Urbana', 'Equipamentos Públicos', 'Rede Viária',
             'Infraestruturas', 'Património Natural', 'Cartografia', 'SIG', 'Topografia',
             'Escala', 'WGS84', 'UTM', 'Curvas de Nível', 'Hidrografia',
-            'Diário da República', 'Consulta Pública', 'Homologação', 'INOTU'
+            'Diário da República', 'Consulta Pública', 'Homologação', 'INOTU',
         ];
 
         $encontrados = [];

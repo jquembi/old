@@ -115,6 +115,9 @@ class InstrumentoForm extends Component
      */
     public function executarLeituraOcrParaFicheiro(TemporaryUploadedFile $ficheiro): void
     {
+        $this->ocrDados = null;
+        $this->ocrSucesso = false;
+        $this->ocrTextoPreview = '';
         $this->ocrProcessando = true;
 
         try {
@@ -136,7 +139,7 @@ class InstrumentoForm extends Component
                 $this->ocrMensagem = $resultado['mensagem'];
 
                 // Auto-preenchimento inteligente dos campos caso estejam padrão ou vazios
-                if (! empty($this->ocrDados['ano'])) {
+                if (! empty($this->ocrDados['ano_detectado'])) {
                     $this->ano = $this->ocrDados['ano'];
                 }
 
@@ -156,7 +159,7 @@ class InstrumentoForm extends Component
 
                 $this->dispatch('notificacao', [
                     'tipo' => 'success',
-                    'mensagem' => "Leitura OCR realizada com sucesso! Ano detectado: {$this->ano}.",
+                    'mensagem' => $resultado['mensagem'],
                 ]);
             } else {
                 $this->ocrSucesso = false;
@@ -198,15 +201,15 @@ class InstrumentoForm extends Component
                     $this->ocrSucesso = true;
                     $this->ocrDados = $resultado['dados'];
                     $this->ocrTextoPreview = $resultado['texto'];
-                    $this->ocrMensagem = 'Leitura OCR concluída a partir do documento existente.';
+                    $this->ocrMensagem = $resultado['mensagem'];
 
-                    if (! empty($this->ocrDados['ano'])) {
+                    if (! empty($this->ocrDados['ano_detectado'])) {
                         $this->ano = $this->ocrDados['ano'];
                     }
 
                     $this->dispatch('notificacao', [
                         'tipo' => 'success',
-                        'mensagem' => "OCR concluído! Ano detectado: {$this->ano}.",
+                        'mensagem' => $resultado['mensagem'],
                     ]);
                     return;
                 }
@@ -228,7 +231,7 @@ class InstrumentoForm extends Component
             return;
         }
 
-        if (! empty($this->ocrDados['ano'])) {
+        if (! empty($this->ocrDados['ano_detectado'])) {
             $this->ano = $this->ocrDados['ano'];
         }
         if (! empty($this->ocrDados['titulo'])) {

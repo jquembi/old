@@ -110,7 +110,7 @@ class OutroProjetoForm extends Component
                 $this->descricao = $resultado['resumo_extraido'];
             }
 
-            if (!empty($resultado['estado_sugerido'])) {
+            if (in_array($resultado['estado_sugerido'] ?? null, ['planificado', 'em_curso', 'concluido', 'suspenso'], true)) {
                 $this->estado = $resultado['estado_sugerido'];
             }
 
