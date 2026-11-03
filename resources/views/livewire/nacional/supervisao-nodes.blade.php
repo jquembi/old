@@ -12,24 +12,22 @@
         <x-ui.stat-card label="Falhas (24h)" :value="$resumo['falhas']" detail="Sincronizações falhadas" tone="violet" />
     </div>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input type="text" aria-label="Pesquisar nodes" wire:model.live.debounce.300ms="search" placeholder="Pesquisar por nome ou código..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            <select aria-label="Filtrar por tipo" wire:model.live="tipo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <option value="">Todos os tipos</option>
-                <option value="central">Central</option>
-                <option value="provincial">Provincial</option>
-            </select>
-            <select aria-label="Filtrar por estado" wire:model.live="estado" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <option value="">Todos os estados</option>
-                <option value="ativo">Ativos</option>
-                <option value="inativo">Inativos</option>
-                <option value="online">Online</option>
-                <option value="offline">Offline</option>
-                <option value="syncing">A sincronizar</option>
-            </select>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3">
+        <x-ui.search-input aria-label="Pesquisar nodes" placeholder="Pesquisar por nome ou código..." wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por tipo" wire:model.live="tipo">
+            <option value="">Todos os tipos</option>
+            <option value="central">Central</option>
+            <option value="provincial">Provincial</option>
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por estado" wire:model.live="estado">
+            <option value="">Todos os estados</option>
+            <option value="ativo">Ativos</option>
+            <option value="inativo">Inativos</option>
+            <option value="online">Online</option>
+            <option value="offline">Offline</option>
+            <option value="syncing">A sincronizar</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-[860px]">
@@ -54,10 +52,19 @@
                         <td class="text-zinc-500 dark:text-zinc-400">{{ $referencia ? $referencia->diffForHumans() : 'Nunca' }}</td>
                         <td>{{ $node->falhas_count }}</td>
                         <td class="text-right whitespace-nowrap">
-                            <a href="{{ route('nacional.node.detalhe', $node->id) }}" wire:navigate class="text-blue-600 hover:text-blue-900 mr-2">Detalhes</a>
+                            <a href="{{ route('nacional.node.detalhe', $node->id) }}" wire:navigate class="btn-table btn-table-neutral" aria-label="Ver detalhes do node {{ $node->code }}">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6Z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                                Detalhes
+                            </a>
                             @if($podeGerir && $node->type === 'provincial')
-                                <button type="button" wire:click="sincronizar({{ $node->id }})" class="text-emerald-600 hover:text-emerald-900 mr-2">Sincronizar</button>
-                                <button type="button" wire:click="alternarAtivo({{ $node->id }})" wire:confirm="{{ $node->is_active ? 'Desativar' : 'Ativar' }} o node {{ $node->code }}?" class="text-orange-600 hover:text-orange-900">{{ $node->is_active ? 'Desativar' : 'Ativar' }}</button>
+                                <button type="button" wire:click="sincronizar({{ $node->id }})" wire:loading.attr="disabled" wire:target="sincronizar({{ $node->id }})" class="btn-table btn-table-success" aria-label="Sincronizar node {{ $node->code }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5v4.5h-4.5M3.75 16.5V12h4.5"/><path stroke-linecap="round" stroke-linejoin="round" d="M5.2 9a7.5 7.5 0 0 1 12.6-2.7l2.45 2.2M3.75 13.5l2.45 2.2A7.5 7.5 0 0 0 18.8 13"/></svg>
+                                    Sincronizar
+                                </button>
+                                <button type="button" wire:click="alternarAtivo({{ $node->id }})" wire:confirm="{{ $node->is_active ? 'Desativar' : 'Ativar' }} o node {{ $node->code }}?" class="btn-table btn-table-warning" aria-label="{{ $node->is_active ? 'Desativar' : 'Ativar' }} node {{ $node->code }}">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75v8.5m5.3-5.3a7.5 7.5 0 1 1-10.6 0"/></svg>
+                                    {{ $node->is_active ? 'Desativar' : 'Ativar' }}
+                                </button>
                             @endif
                         </td>
                     </tr>

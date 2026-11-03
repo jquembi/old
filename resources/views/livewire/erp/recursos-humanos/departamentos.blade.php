@@ -5,11 +5,9 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div>
-            <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full md:w-1/3 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">

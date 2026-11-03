@@ -5,31 +5,23 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            </div>
-            <div>
-                <select aria-label="Filtrar por status" wire:model.live="status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Status</option>
-                    <option value="pendente">Pendente</option>
-                    <option value="confirmado">Confirmado</option>
-                    <option value="cancelado">Cancelado</option>
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por metodo" wire:model.live="metodo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Métodos</option>
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="transferencia">Transferência</option>
-                    <option value="multicaixa">Multicaixa</option>
-                    <option value="cheque">Cheque</option>
-                    <option value="cartao">Cartão</option>
-                </select>
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por status" wire:model.live="status">
+            <option value="">Todos os Status</option>
+            <option value="pendente">Pendente</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="cancelado">Cancelado</option>
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por método" wire:model.live="metodo">
+            <option value="">Todos os Métodos</option>
+            <option value="dinheiro">Dinheiro</option>
+            <option value="transferencia">Transferência</option>
+            <option value="multicaixa">Multicaixa</option>
+            <option value="cheque">Cheque</option>
+            <option value="cartao">Cartão</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">

@@ -5,23 +5,17 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            </div>
-            <div>
-                <select aria-label="Filtrar por tipo" wire:model.live="tipo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Tipos</option>
-                    <option value="edificio">Edifício</option>
-                    <option value="sala">Sala</option>
-                    <option value="armazem">Armazém</option>
-                    <option value="garagem">Garagem</option>
-                    <option value="outro">Outro</option>
-                </select>
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-2">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por tipo" wire:model.live="tipo">
+            <option value="">Todos os Tipos</option>
+            <option value="edificio">Edifício</option>
+            <option value="sala">Sala</option>
+            <option value="armazem">Armazém</option>
+            <option value="garagem">Garagem</option>
+            <option value="outro">Outro</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">

@@ -18,9 +18,19 @@ class ProvinciasMunicipiosSeeder extends Seeder
 {
     public function run(): void
     {
+        Provincia::firstOrCreate(
+            ['codigo' => 'CUN'],
+            ['nome' => 'Cunene']
+        );
+
         $huila = Provincia::firstOrCreate(
             ['codigo' => 'HUI'],
             ['nome'   => 'Huíla']
+        );
+
+        Provincia::firstOrCreate(
+            ['codigo' => 'NAM'],
+            ['nome' => 'Namibe']
         );
 
         $municipios = [

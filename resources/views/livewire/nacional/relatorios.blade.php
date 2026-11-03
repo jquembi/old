@@ -14,33 +14,17 @@
         <div class="border-s-4 border-angola-red bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">{{ session('info') }}</div>
     @endif
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-                <label for="rel-categoria" class="mb-1 block">Categoria</label>
-                <select id="rel-categoria" wire:model.live="categoria" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    @foreach($categorias as $chave => $rotulo)<option value="{{ $chave }}">{{ $rotulo }}</option>@endforeach
-                </select>
-            </div>
-            <div>
-                <label for="rel-provincia" class="mb-1 block">Província</label>
-                <select id="rel-provincia" wire:model.live="provinciaId" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todas</option>
-                    @foreach($provincias as $id => $nome)<option value="{{ $id }}">{{ $nome }}</option>@endforeach
-                </select>
-            </div>
-            <div>
-                <label for="rel-de" class="mb-1 block">De</label>
-                <input id="rel-de" type="date" wire:model.live="de" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                @error('de')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-            </div>
-            <div>
-                <label for="rel-ate" class="mb-1 block">Até</label>
-                <input id="rel-ate" type="date" wire:model.live="ate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                @error('ate')<p class="mt-1 text-xs text-red-600">{{ $message }}</p>@enderror
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-4">
+        <x-ui.filter-field label="Categoria" wire:model.live="categoria">
+            @foreach($categorias as $chave => $rotulo)<option value="{{ $chave }}">{{ $rotulo }}</option>@endforeach
+        </x-ui.filter-field>
+        <x-ui.filter-field label="Província" wire:model.live="provinciaId">
+            <option value="">Todas</option>
+            @foreach($provincias as $id => $nome)<option value="{{ $id }}">{{ $nome }}</option>@endforeach
+        </x-ui.filter-field>
+        <x-ui.filter-field label="De" type="date" wire:model.live="de" :error="$errors->first('de')" />
+        <x-ui.filter-field label="Até" type="date" wire:model.live="ate" :error="$errors->first('ate')" />
+    </x-ui.filter-bar>
 
     <x-ui.card :title="'Relatório — '.$categorias[$categoria]" :description="'Período: '.($de ? \Carbon\Carbon::parse($de)->format('d/m/Y') : 'início').' a '.($ate ? \Carbon\Carbon::parse($ate)->format('d/m/Y') : 'hoje').' · Emitido em '.now()->format('d/m/Y H:i')" padding="p-0">
         <div class="overflow-x-auto">

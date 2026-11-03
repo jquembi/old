@@ -1,5 +1,5 @@
-@if($isSuperAdmin)
 <div class="relative" x-data="{ open: false, showProvincias: {{ $modo === 'provincial' ? 'true' : 'false' }} }" @click.outside="open = false" @keydown.escape.window="open = false">
+@if($isSuperAdmin)
     {{-- Botão de Alternância de Perspetiva (Apenas Ícone no Header) --}}
     <button
         type="button"
@@ -161,5 +161,5 @@
             </div>
         </div>
     </div>
-</div>
 @endif
+</div>

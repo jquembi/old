@@ -5,32 +5,24 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-                <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            </div>
-            <div>
-                <select aria-label="Filtrar por tipo" wire:model.live="tipo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Tipos</option>
-                    <option value="ativo">Ativo</option>
-                    <option value="passivo">Passivo</option>
-                    <option value="receita">Receita</option>
-                    <option value="despesa">Despesa</option>
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por nivel" wire:model.live="nivel" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Níveis</option>
-                    <option value="1">Nível 1</option>
-                    <option value="2">Nível 2</option>
-                    <option value="3">Nível 3</option>
-                    <option value="4">Nível 4</option>
-                    <option value="5">Nível 5</option>
-                </select>
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por tipo" wire:model.live="tipo">
+            <option value="">Todos os Tipos</option>
+            <option value="ativo">Ativo</option>
+            <option value="passivo">Passivo</option>
+            <option value="receita">Receita</option>
+            <option value="despesa">Despesa</option>
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por nível" wire:model.live="nivel">
+            <option value="">Todos os Níveis</option>
+            <option value="1">Nível 1</option>
+            <option value="2">Nível 2</option>
+            <option value="3">Nível 3</option>
+            <option value="4">Nível 4</option>
+            <option value="5">Nível 5</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">

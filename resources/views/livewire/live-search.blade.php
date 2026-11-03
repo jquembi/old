@@ -108,12 +108,12 @@
                 <div class="relative flex items-center border-b border-zinc-100 dark:border-zinc-800/90 px-3.5 sm:px-5 py-3 sm:py-4 bg-white dark:bg-zinc-900 gap-2">
                     {{-- Ícone / Loading Spinner --}}
                     <div class="flex items-center justify-center w-8 h-8 rounded-xl bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 shrink-0">
-                        <div wire:loading.remove wire:target="query, scope, setQuery, clear">
+                        <div wire:loading.remove.delay.shorter wire:target="query, scope, setQuery, clear">
                             <svg class="w-5 h-5 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                             </svg>
                         </div>
-                        <div wire:loading wire:target="query, scope, setQuery, clear">
+                        <div wire:loading.delay.shorter wire:target="query, scope, setQuery, clear">
                             <svg class="animate-spin w-5 h-5 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -125,10 +125,11 @@
                     <input
                         x-ref="modalSearchInput"
                         type="search"
-                        wire:model.live.debounce.250ms="query"
+                        wire:model.live.debounce.300ms="query"
                         placeholder="Pesquisar municípios, instrumentos, operações, utilizadores, atalhos..."
                         class="w-full bg-transparent px-2 sm:px-3.5 py-1 text-sm sm:text-base md:text-lg font-sans font-medium text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 dark:placeholder:text-zinc-500 outline-none border-none focus:ring-0 min-w-0"
                         autocomplete="off"
+                        @input="active = -1; if ($refs.modalContent) $refs.modalContent.scrollTop = 0"
                         @keydown.arrow-down.prevent="moveNext()"
                         @keydown.arrow-up.prevent="movePrev()"
                         @keydown.enter.prevent="selectActive()"
@@ -168,7 +169,8 @@
                         <button
                             type="button"
                             wire:click="$set('scope', '{{ $key }}')"
-                            class="inline-flex items-center px-3 py-1 text-xs rounded-full transition-all duration-150 shrink-0
+                            @click="active = -1"
+                            aria-pressed="{{ $scope === $key ? 'true' : 'false' }}" items-center px-3 py-1 text-xs rounded-full transition-all duration-150 shrink-0
                                 {{ $scope === $key
                                     ? 'bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 font-semibold shadow-xs ring-1 ring-zinc-900/10'
                                     : 'bg-zinc-100/90 text-zinc-600 hover:bg-zinc-200/90 dark:bg-zinc-800/90 dark:text-zinc-400 dark:hover:bg-zinc-700/90 font-medium'
@@ -181,7 +183,7 @@
                 </div>
 
                 {{-- 3. Conteúdo Rolável do Modal --}}
-                <div x-ref="modalContent" class="overflow-y-auto flex-1 p-3.5 sm:p-5 md:p-6 space-y-5 sm:space-y-7">
+                <div x-ref="modalContent" wire:loading.class.delay.shorter="opacity-60" wire:target="query, scope" class="overflow-y-auto flex-1 p-3.5 sm:p-5 md:p-6 space-y-5 sm:space-y-7 transition-opacity duration-150 scroll-smooth">
 
                     {{-- CENÁRIO A: ESTADO INICIAL / ACESSOS RÁPIDOS (query < 2) --}}
                     @if(mb_strlen(trim($query)) < 2)

@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Concerns\UsesCentralConnection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Tenant extends Model
@@ -25,6 +27,7 @@ class Tenant extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'database_port' => 'integer',
         'last_sync_at' => 'datetime',
         'config' => 'array',
     ];
@@ -41,6 +44,11 @@ class Tenant extends Model
     public function indicators(): HasMany
     {
         return $this->hasMany(NationalIndicator::class);
+    }
+
+    public function provincia(): BelongsTo
+    {
+        return $this->belongsTo(Provincia::class, 'code', 'codigo');
     }
 
     public function syncLogs(): HasMany
@@ -113,22 +121,22 @@ class Tenant extends Model
         ]), static fn ($value) => $value !== null);
     }
 
-    public function scopeActive($query)
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }
 
-    public function scopeCentral($query)
+    public function scopeCentral(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_CENTRAL);
     }
 
-    public function scopeProvincial($query)
+    public function scopeProvincial(Builder $query): Builder
     {
         return $query->where('type', self::TYPE_PROVINCIAL);
     }
 
-    public function scopeOnline($query)
+    public function scopeOnline(Builder $query): Builder
     {
         return $query->where('sync_status', self::SYNC_ONLINE);
     }

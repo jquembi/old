@@ -10,15 +10,13 @@
     @endunless
 
     @unless($regras)
-        <div class="ui-card p-5 sm:p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" aria-label="Pesquisar parâmetros" wire:model.live.debounce.300ms="search" placeholder="Pesquisar parâmetro..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <select aria-label="Filtrar por grupo" wire:model.live="grupo" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os grupos</option>
-                    @foreach($grupos as $chave => $rotulo)@if($chave !== 'regras')<option value="{{ $chave }}">{{ $rotulo }}</option>@endif @endforeach
-                </select>
-            </div>
-        </div>
+        <x-ui.filter-bar columns="md:grid-cols-2">
+            <x-ui.search-input aria-label="Pesquisar parâmetros" placeholder="Pesquisar parâmetro..." wire:model.live.debounce.300ms="search" />
+            <x-ui.filter-field aria-label="Filtrar por grupo" wire:model.live="grupo">
+                <option value="">Todos os grupos</option>
+                @foreach($grupos as $chave => $rotulo)@if($chave !== 'regras')<option value="{{ $chave }}">{{ $rotulo }}</option>@endif @endforeach
+            </x-ui.filter-field>
+        </x-ui.filter-bar>
     @endunless
 
     @forelse($parametros as $nomeGrupo => $itens)

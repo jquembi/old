@@ -5,33 +5,25 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-                <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            </div>
-            <div>
-                <select aria-label="Filtrar por status" wire:model.live="status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Status</option>
-                    <option value="rascunho">Rascunho</option>
-                    <option value="pendente_aprovacao">Pendente Aprovação</option>
-                    <option value="aprovado">Aprovado</option>
-                    <option value="rejeitado">Rejeitado</option>
-                    <option value="em_processamento">Em Processamento</option>
-                    <option value="concluido">Concluído</option>
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por prioridade" wire:model.live="prioridade" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todas as Prioridades</option>
-                    <option value="baixa">Baixa</option>
-                    <option value="normal">Normal</option>
-                    <option value="alta">Alta</option>
-                    <option value="urgente">Urgente</option>
-                </select>
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por status" wire:model.live="status">
+            <option value="">Todos os Status</option>
+            <option value="rascunho">Rascunho</option>
+            <option value="pendente_aprovacao">Pendente Aprovação</option>
+            <option value="aprovado">Aprovado</option>
+            <option value="rejeitado">Rejeitado</option>
+            <option value="em_processamento">Em Processamento</option>
+            <option value="concluido">Concluído</option>
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por prioridade" wire:model.live="prioridade">
+            <option value="">Todas as Prioridades</option>
+            <option value="baixa">Baixa</option>
+            <option value="normal">Normal</option>
+            <option value="alta">Alta</option>
+            <option value="urgente">Urgente</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">

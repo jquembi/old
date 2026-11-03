@@ -274,11 +274,21 @@ select:focus[data-flux-control] {
 .badge-black  { @apply bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300; }
 
 /* ── Botão primário ── */
-.btn-primary { @apply inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; background: #C30E20; }
-.btn-primary:hover { background: #a00c1a; }
-.btn-primary:active { background: #8d0a15; }
+.btn-primary { @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-150 ease-out focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2; background: #C30E20; }
+.btn-primary:hover:not(:disabled) { background: #a00c1a; @apply -translate-y-px shadow-md; }
+.btn-primary:active:not(:disabled) { background: #8d0a15; @apply translate-y-0 shadow-sm; }
 .btn-primary:focus-visible { outline-color: #C30E20; }
-.btn-ghost   { @apply inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors; }
+.btn-primary:disabled,
+.btn-ghost:disabled { @apply cursor-not-allowed opacity-50; }
+.btn-primary svg,
+.btn-ghost svg { @apply h-4 w-4 shrink-0; }
+.btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-700 shadow-sm transition duration-150 ease-out hover:border-zinc-300 hover:bg-zinc-50 hover:shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800; }
+
+.btn-table { @apply inline-flex items-center justify-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1; }
+.btn-table svg { @apply h-3.5 w-3.5 shrink-0; }
+.btn-table-neutral { @apply text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white; }
+.btn-table-success { @apply text-emerald-700 hover:bg-emerald-50 hover:text-emerald-900 dark:text-emerald-400 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300; }
+.btn-table-warning { @apply text-amber-700 hover:bg-amber-50 hover:text-amber-900 dark:text-amber-400 dark:hover:bg-amber-950/40 dark:hover:text-amber-300; }
 
 /* Superfície administrativa consistente e sinalização institucional discreta. */
 [data-flux-sidebar] [data-flux-sidebar-item][data-current] {
@@ -342,16 +352,47 @@ select:focus[data-flux-control] {
 .ui-status-brand { @apply border-red-200 bg-red-50 text-angola-red dark:border-red-900/50 dark:bg-red-950/30; }
 .ui-status-neutral { @apply border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300; }
 
-.ui-empty-state { @apply flex min-h-48 flex-col items-center justify-center rounded-lg border border-dashed border-zinc-200 bg-zinc-50/60 px-6 py-10 text-center dark:border-zinc-700 dark:bg-zinc-800/30; }
-.ui-empty-state-icon { @apply mb-3 h-10 w-10 text-zinc-300 dark:text-zinc-600; }
-.ui-empty-state-icon svg { @apply h-full w-full; }
+.ui-empty-state { @apply flex min-h-48 flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-gradient-to-b from-zinc-50 to-white px-6 py-10 text-center dark:border-zinc-700 dark:from-zinc-900/70 dark:to-zinc-900; }
+.ui-empty-state-icon { @apply mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-red-100 bg-red-50 text-angola-red shadow-sm dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-400; }
+.ui-empty-state-icon svg { @apply h-7 w-7; }
+.ui-empty-state-title { @apply text-sm font-bold tracking-tight text-zinc-900 dark:text-zinc-100; }
 
+
+/* Pesquisa e filtros padronizados (x-ui.filter-bar, x-ui.search-input, x-ui.filter-field). */
+.ui-filter-bar { @apply rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900; }
+.ui-filter-actions { @apply mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3 dark:border-zinc-800; }
+.ui-filter-label { @apply mb-1 block text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400; }
+.ui-control { @apply w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-angola-red focus:outline-none focus:ring-2 focus:ring-angola-red/30 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500; }
+.ui-control:disabled { @apply cursor-not-allowed bg-zinc-50 opacity-60 dark:bg-zinc-800; }
+.ui-search { @apply relative; }
+.ui-search-icon { @apply pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400; }
+.ui-search-input { @apply pl-9; }
+.ui-search-input::-webkit-search-cancel-button { @apply cursor-pointer; }
 
 /* Native ERP controls share the municipal forms and respect the global theme. */
-.ui-module input:not([type="checkbox"]):not([type="radio"]),
-.ui-module select,
+.ui-module input:not([type="checkbox"]):not([type="radio"]):not(.ui-control),
+.ui-module select:not(.ui-control),
 .ui-module textarea {
     @apply rounded-md border border-zinc-300 bg-white text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100;
 }
 .ui-module label { @apply text-sm font-medium text-zinc-700 dark:text-zinc-300; }
 .ui-module button:disabled { @apply cursor-wait opacity-60; }
+
+/* ── Menu de contexto (listagens e Studio) ── */
+.ctxm { position: fixed; z-index: 9999; min-width: 14rem; max-width: 20rem; padding: .3rem; border-radius: .85rem; background: rgba(255,255,255,.96); backdrop-filter: blur(14px); border: 1px solid rgb(228 228 231); box-shadow: 0 18px 48px -12px rgb(0 0 0 / .28), 0 2px 6px rgb(0 0 0 / .06); animation: ctxm-in .12s ease-out; font-size: .8125rem; }
+.dark .ctxm { background: rgba(24,24,27,.96); border-color: rgb(63 63 70); color: rgb(228 228 231); }
+@keyframes ctxm-in { from { opacity: 0; transform: scale(.96) translateY(-4px); } to { opacity: 1; transform: none; } }
+.ctxm-head { display: flex; align-items: center; gap: .4rem; padding: .4rem .6rem .45rem; font-size: .6875rem; text-transform: uppercase; letter-spacing: .06em; color: rgb(113 113 122); }
+.ctxm-dot { width: .5rem; height: .5rem; border-radius: 9999px; background: var(--ctxm-cor, #52525b); flex: none; }
+.ctxm-area { font-weight: 700; color: var(--ctxm-cor, #52525b); }
+.ctxm-title { margin-left: auto; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: none; letter-spacing: 0; }
+.ctxm-sep { height: 1px; margin: .25rem .4rem; background: rgb(228 228 231); }
+.dark .ctxm-sep { background: rgb(63 63 70); }
+.ctxm-item { display: flex; align-items: center; gap: .6rem; width: 100%; padding: .4rem .6rem; border-radius: .55rem; text-align: left; color: inherit; cursor: pointer; }
+.ctxm-item:hover, .ctxm-item:focus-visible { outline: none; background: color-mix(in srgb, var(--ctxm-cor, #52525b) 12%, transparent); }
+.ctxm-item.is-danger { color: rgb(220 38 38); }
+.ctxm-item.is-danger:hover, .ctxm-item.is-danger:focus-visible { background: rgb(220 38 38 / .1); }
+.ctxm-ico { display: inline-flex; width: 1rem; height: 1rem; flex: none; opacity: .8; }
+.ctxm-ico svg { width: 100%; height: 100%; }
+.ctxm-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ctxm-kbd { margin-left: auto; font-size: .6875rem; color: rgb(161 161 170); }

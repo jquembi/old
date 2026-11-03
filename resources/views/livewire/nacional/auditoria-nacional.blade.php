@@ -15,24 +15,21 @@
         <x-ui.stat-card label="Erros por resolver" :value="$resumo['erros']" detail="Erros do sistema em aberto" tone="yellow" />
     </div>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
-            <input type="text" aria-label="Pesquisar" wire:model.live.debounce.400ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red xl:col-span-2">
-            <select aria-label="Filtrar por ação" wire:model.live="acao" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <option value="">Todas as ações</option>
-                @foreach($acoes as $a)<option value="{{ $a }}">{{ $a }}</option>@endforeach
-            </select>
-            @if($eventos)
-                <select aria-label="Filtrar por node" wire:model.live="tenantId" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os nodes</option>
-                    @foreach($tenants as $id => $nome)<option value="{{ $id }}">{{ $nome }}</option>@endforeach
-                </select>
-            @endif
-            <input type="date" aria-label="Data inicial" wire:model.live="de" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            <input type="date" aria-label="Data final" wire:model.live="ate" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-        </div>
-        <div class="mt-3"><button type="button" wire:click="limparFiltros" class="btn-ghost">Limpar filtros</button></div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-3 xl:grid-cols-6" clear="limparFiltros">
+        <x-ui.search-input wire:model.live.debounce.400ms="search" wrapper-class="xl:col-span-2" />
+        <x-ui.filter-field aria-label="Filtrar por ação" wire:model.live="acao">
+            <option value="">Todas as ações</option>
+            @foreach($acoes as $a)<option value="{{ $a }}">{{ $a }}</option>@endforeach
+        </x-ui.filter-field>
+        @if($eventos)
+            <x-ui.filter-field aria-label="Filtrar por node" wire:model.live="tenantId">
+                <option value="">Todos os nodes</option>
+                @foreach($tenants as $id => $nome)<option value="{{ $id }}">{{ $nome }}</option>@endforeach
+            </x-ui.filter-field>
+        @endif
+        <x-ui.filter-field type="date" aria-label="Data inicial" wire:model.live="de" />
+        <x-ui.filter-field type="date" aria-label="Data final" wire:model.live="ate" />
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-[860px]">

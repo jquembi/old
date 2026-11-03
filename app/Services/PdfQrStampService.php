@@ -2,8 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\TipoDocumentoQrConfig;
-use setasign\Fpdi\Fpdi;
+use App\Models\DocumentoLayout;
 use Throwable;
 
 class PdfQrStampService
@@ -27,6 +26,7 @@ class PdfQrStampService
         } catch (Throwable $e) {
             // Em caso de PDF protegido ou erro de parsing, preserva o PDF original
             report($e);
+
             return $conteudo;
         }
     }
@@ -40,188 +40,80 @@ class PdfQrStampService
         string $tipoDocumento,
         ?string $textoPersonalizado = null
     ): string {
-        $config = TipoDocumentoQrConfig::obterParaTipo($tipoDocumento);
-        $tempPdf = tempnam(sys_get_temp_dir(), 'pdf_qr_src_') . '.pdf';
+        $layout = DocumentoLayout::efetivo($tipoDocumento);
+        if (! $layout['ativo']) {
+            return $conteudo;
+        }
+
+        $blocos = $layout['blocos'];
+        if ($textoPersonalizado) {
+            foreach ($blocos as &$bloco) {
+                if (($bloco['tipo'] ?? '') === 'qr') {
+                    $bloco['props']['rotulo'] = $textoPersonalizado;
+                }
+            }
+            unset($bloco);
+        }
+
+        return static::aplicarBlocos($conteudo, $blocos, [
+            'qr_url' => $qrUrl,
+            'tipo_nome' => DocumentoLayout::tipos()[$tipoDocumento]['nome'] ?? '',
+        ]);
+    }
+
+    /**
+     * Sobrepõe os blocos de um layout a cada página do PDF.
+     */
+    public static function aplicarBlocos(string $conteudo, array $blocos, array $ctx = []): string
+    {
+        $tempPdf = tempnam(sys_get_temp_dir(), 'pdf_qr_src_').'.pdf';
         file_put_contents($tempPdf, $conteudo);
 
         try {
-            $fpdi = new Fpdi();
-            $pageCount = $fpdi->setSourceFile($tempPdf);
+            $fpdi = new DocumentoPdf;
+            $fpdi->SetAutoPageBreak(false);
+            $fpdi->SetMargins(0, 0, 0);
+            $total = $fpdi->setSourceFile($tempPdf);
+            $ctx['institucional'] ??= DocumentoLayout::institucional();
 
-            $qrImgTemp = static::gerarImagemQrTemp(
-                $qrUrl,
-                $config->cor_qr,
-                $config->cor_fundo,
-                $config->nivel_correcao
-            );
-
-            for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-                $templateId = $fpdi->importPage($pageNo);
-                $size = $fpdi->getTemplateSize($templateId);
-
-                // Determina orientação da página original
-                $orientation = ($size['width'] > $size['height']) ? 'L' : 'P';
-                $fpdi->AddPage($orientation, [$size['width'], $size['height']]);
-                $fpdi->useTemplate($templateId);
-
-                // Verifica se esta página deve receber o QR code
-                $deveAplicar = match ($config->pagina) {
-                    'primeira' => ($pageNo === 1),
-                    'ultima' => ($pageNo === $pageCount),
-                    default => true,
-                };
-
-                if ($deveAplicar && $qrImgTemp && is_file($qrImgTemp)) {
-                    static::estamparQrNaPagina(
-                        $fpdi,
-                        $size['width'],
-                        $size['height'],
-                        $qrImgTemp,
-                        $config,
-                        $textoPersonalizado
-                    );
-                }
-            }
-
-            if ($qrImgTemp && is_file($qrImgTemp)) {
-                @unlink($qrImgTemp);
+            for ($n = 1; $n <= $total; $n++) {
+                $tpl = $fpdi->importPage($n);
+                $size = $fpdi->getTemplateSize($tpl);
+                $fpdi->AddPage($size['width'] > $size['height'] ? 'L' : 'P', [$size['width'], $size['height']]);
+                $fpdi->useTemplate($tpl);
+                DocumentoLayoutRenderer::renderizar($fpdi, $blocos, $n, $total, $size['width'], $size['height'], $ctx);
             }
 
             return $fpdi->Output('S');
         } finally {
-            if (is_file($tempPdf)) {
-                @unlink($tempPdf);
+            @unlink($tempPdf);
+        }
+    }
+
+    /**
+     * PDF de exemplo (página em branco com conteúdo fictício) para pré-visualizar um layout.
+     */
+    public static function gerarExemplo(array $layout, string $tipoNome, string $qrUrl = 'https://inotu.ao/verificar/EXEMPLO'): string
+    {
+        $paisagem = ($layout['orientacao'] ?? 'retrato') === 'paisagem';
+        $base = new DocumentoPdf;
+        $base->SetAutoPageBreak(false);
+        $base->SetMargins(0, 0, 0);
+        for ($i = 1; $i <= 2; $i++) {
+            $base->AddPage($paisagem ? 'L' : 'P', 'A4');
+            $base->SetDrawColor(228, 228, 231);
+            $base->SetFillColor(244, 244, 245);
+            $larg = $base->GetPageWidth();
+            $alt = $base->GetPageHeight();
+            for ($l = 0; $l < 22; $l++) {
+                $base->Rect($larg * 0.08, $alt * 0.2 + $l * ($alt * 0.03), $larg * (0.84 - (($l * 7) % 5) * 0.08), 2.2, 'F');
             }
         }
-    }
 
-    /**
-     * Desenha o QR code com moldura e rótulo na posição configurada.
-     */
-    protected static function estamparQrNaPagina(
-        Fpdi $fpdi,
-        float $pageWidth,
-        float $pageHeight,
-        string $qrImagePath,
-        TipoDocumentoQrConfig $config,
-        ?string $textoPersonalizado = null
-    ): void {
-        // Converte as percentagens configuradas para mm na página
-        $qrSize = ($config->largura_pct / 100.0) * $pageWidth;
-        $qrSize = max(12.0, min(45.0, $qrSize)); // mm - tamanho compacto e profissional
-        if ($config->tamanho_mm > 0 && $config->largura_pct <= 0) {
-            $qrSize = max(12.0, min(45.0, (float) $config->tamanho_mm));
-        }
-
-        $x = ($config->posicao_x_pct / 100.0) * $pageWidth;
-        $y = ($config->posicao_y_pct / 100.0) * $pageHeight;
-
-        $padding = $config->incluir_moldura ? 1.5 : 0.0;
-        $tamanhoTotal = $qrSize + ($padding * 2);
-
-        $texto = $textoPersonalizado ?: ($config->incluir_rotulo ? $config->texto_rotulo : null);
-        $tamanhoImagemQr = $texto ? max(10.0, $qrSize - 2.5) : $qrSize;
-
-        // Desenha moldura de fundo estritamente QUADRADA (Square)
-        if ($config->incluir_moldura) {
-            [$rF, $gF, $bF] = static::hexToRgb($config->cor_fundo);
-            [$rB, $gB, $bB] = static::hexToRgb($config->cor_moldura);
-
-            $fpdi->SetFillColor($rF, $gF, $bF);
-            $fpdi->SetDrawColor($rB, $gB, $bB);
-            $fpdi->SetLineWidth(0.3);
-            $fpdi->Rect($x, $y, $tamanhoTotal, $tamanhoTotal, 'DF');
-        }
-
-        // Centraliza a imagem do QR Code dentro do quadrado
-        $offsetX = $x + (($tamanhoTotal - $tamanhoImagemQr) / 2.0);
-        $offsetY = $texto ? ($y + $padding + 0.5) : ($y + (($tamanhoTotal - $tamanhoImagemQr) / 2.0));
-
-        $fpdi->Image(
-            $qrImagePath,
-            $offsetX,
-            $offsetY,
-            $tamanhoImagemQr,
-            $tamanhoImagemQr
-        );
-
-        // Insere texto de autenticidade / legenda abaixo do QR dentro da moldura quadrada
-        if ($texto) {
-            [$rT, $gT, $bT] = static::hexToRgb($config->cor_qr);
-            $fpdi->SetTextColor($rT, $gT, $bT);
-            $fpdi->SetFont('Arial', 'B', 4.5);
-
-            $fpdi->SetXY($x, $y + $tamanhoTotal - 2.8);
-            $fpdi->Cell($tamanhoTotal, 2.2, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $texto), 0, 1, 'C');
-        }
-    }
-
-    /**
-     * Gera um ficheiro PNG temporário com o QR code usando GD ou script do sistema.
-     */
-    protected static function gerarImagemQrTemp(
-        string $url,
-        string $corQr = '#18181b',
-        string $corFundo = '#ffffff',
-        string $nivel = 'M'
-    ): ?string {
-        $tempPath = tempnam(sys_get_temp_dir(), 'inotu_qr_') . '.png';
-
-        // Tenta gerar com o motor nativo via Node / script simples se disponível
-        $nodeScript = "
-            import QRCode from 'qrcode';
-            import fs from 'fs';
-            QRCode.toFile('{$tempPath}', '{$url}', {
-                width: 320,
-                margin: 1,
-                color: { dark: '{$corQr}', light: '{$corFundo}' },
-                errorCorrectionLevel: '{$nivel}'
-            });
-        ";
-
-        $tempJs = tempnam(sys_get_temp_dir(), 'qr_node_') . '.js';
-        file_put_contents($tempJs, $nodeScript);
-
-        $nodeExe = 'node';
-        @exec("{$nodeExe} \"{$tempJs}\" 2>&1");
-        @unlink($tempJs);
-
-        if (is_file($tempPath) && filesize($tempPath) > 0) {
-            return $tempPath;
-        }
-
-        // Fallback rápido usando GD se o node não responder no terminal
-        if (extension_loaded('gd')) {
-            $im = imagecreate(160, 160);
-            [$rF, $gF, $bF] = static::hexToRgb($corFundo);
-            [$rQ, $gQ, $bQ] = static::hexToRgb($corQr);
-            imagecolorallocate($im, $rF, $gF, $bF);
-            $dark = imagecolorallocate($im, $rQ, $gQ, $bQ);
-            imagerectangle($im, 10, 10, 150, 150, $dark);
-            imagestring($im, 2, 40, 70, 'QR CODE', $dark);
-            imagepng($im, $tempPath);
-            imagedestroy($im);
-            return $tempPath;
-        }
-
-        return null;
-    }
-
-    protected static function hexToRgb(string $hex): array
-    {
-        $hex = ltrim($hex, '#');
-        if (strlen($hex) === 3) {
-            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
-        }
-
-        if (strlen($hex) !== 6) {
-            return [24, 24, 27];
-        }
-
-        return [
-            hexdec(substr($hex, 0, 2)),
-            hexdec(substr($hex, 2, 2)),
-            hexdec(substr($hex, 4, 2)),
-        ];
+        return static::aplicarBlocos($base->Output('S'), $layout['blocos'] ?? [], [
+            'qr_url' => $qrUrl,
+            'tipo_nome' => $tipoNome,
+            'titulo' => 'Documento de exemplo',
+        ]);
     }
 }

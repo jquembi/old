@@ -19,21 +19,19 @@
         @endforeach
     </nav>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <select aria-label="Filtrar por província" wire:model.live="provinciaId" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <option value="">Todas as províncias</option>
-                @foreach($provincias as $id => $nome)
-                    <option value="{{ $id }}">{{ $nome }}</option>
-                @endforeach
-            </select>
-            <select aria-label="Período da evolução" wire:model.live="meses" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                <option value="3">Últimos 3 meses</option>
-                <option value="6">Últimos 6 meses</option>
-                <option value="12">Últimos 12 meses</option>
-            </select>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-2">
+        <x-ui.filter-field aria-label="Filtrar por província" wire:model.live="provinciaId">
+            <option value="">Todas as províncias</option>
+            @foreach($provincias as $id => $nome)
+                <option value="{{ $id }}">{{ $nome }}</option>
+            @endforeach
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Período da evolução" wire:model.live="meses">
+            <option value="3">Últimos 3 meses</option>
+            <option value="6">Últimos 6 meses</option>
+            <option value="12">Últimos 12 meses</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         @foreach(array_slice($dados['colunas'], 0, 4) as $i => $coluna)

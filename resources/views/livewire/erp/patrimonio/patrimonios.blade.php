@@ -5,49 +5,37 @@
         </button></x-slot:actions>
     </x-ui.page-header>
 
-    <div class="ui-card p-5 sm:p-6">
-        <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-            <div>
-                <input type="text" aria-label="Pesquisar registos" wire:model.live.debounce.300ms="search" placeholder="Pesquisar..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-            </div>
-            <div>
-                <select aria-label="Filtrar por categoria id" wire:model.live="categoria_id" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todas as Categorias</option>
-                    @foreach ($categorias as $categoria)
-                        <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por localizacao id" wire:model.live="localizacao_id" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todas as Localizações</option>
-                    @foreach ($localizacoes as $localizacao)
-                        <option value="{{ $localizacao->id }}">{{ $localizacao->nome }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por estado" wire:model.live="estado" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Estados</option>
-                    <option value="novo">Novo</option>
-                    <option value="bom">Bom</option>
-                    <option value="razoavel">Razoável</option>
-                    <option value="mau">Mau</option>
-                    <option value="danificado">Danificado</option>
-                    <option value="obsoleto">Obsoleto</option>
-                </select>
-            </div>
-            <div>
-                <select aria-label="Filtrar por status" wire:model.live="status" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
-                    <option value="">Todos os Status</option>
-                    <option value="ativo">Ativo</option>
-                    <option value="inativo">Inativo</option>
-                    <option value="manutencao">Em Manutenção</option>
-                    <option value="baixa">Baixa</option>
-                </select>
-            </div>
-        </div>
-    </div>
+    <x-ui.filter-bar columns="md:grid-cols-2 xl:grid-cols-5">
+        <x-ui.search-input wire:model.live.debounce.300ms="search" />
+        <x-ui.filter-field aria-label="Filtrar por categoria" wire:model.live="categoria_id">
+            <option value="">Todas as Categorias</option>
+            @foreach ($categorias as $categoria)
+                <option value="{{ $categoria->id }}">{{ $categoria->nome }}</option>
+            @endforeach
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por localização" wire:model.live="localizacao_id">
+            <option value="">Todas as Localizações</option>
+            @foreach ($localizacoes as $localizacao)
+                <option value="{{ $localizacao->id }}">{{ $localizacao->nome }}</option>
+            @endforeach
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por estado" wire:model.live="estado">
+            <option value="">Todos os Estados</option>
+            <option value="novo">Novo</option>
+            <option value="bom">Bom</option>
+            <option value="razoavel">Razoável</option>
+            <option value="mau">Mau</option>
+            <option value="danificado">Danificado</option>
+            <option value="obsoleto">Obsoleto</option>
+        </x-ui.filter-field>
+        <x-ui.filter-field aria-label="Filtrar por status" wire:model.live="status">
+            <option value="">Todos os Status</option>
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+            <option value="manutencao">Em Manutenção</option>
+            <option value="baixa">Baixa</option>
+        </x-ui.filter-field>
+    </x-ui.filter-bar>
 
     <div class="ui-card overflow-x-auto">
         <table class="table-gov min-w-full">
