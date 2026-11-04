@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Concerns\EnviaParaLixeira;
 use App\Models\Concerns\HasSyncMetadata;
+use App\Shared\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,12 +12,31 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Instrumento extends Model
 {
-    use EnviaParaLixeira, HasSyncMetadata;
+    use EnviaParaLixeira, HasSlug, HasSyncMetadata;
+
+    protected $slugSource = 'titulo';
 
     protected $fillable = [
-        'municipio_id', 'tipo_instrumento_id', 'titulo',
+        'municipio_id', 'tipo_instrumento_id', 'titulo', 'slug',
         'descricao', 'estado', 'ano', 'criado_por', 'actualizado_por', 'deleted_by',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    /** Aceita o slug e, por compatibilidade com QR codes e links antigos, o id numérico. */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $registo = $this->where($field ?? 'slug', $value)->first();
+
+        if (! $registo && $field === null && ctype_digit((string) $value)) {
+            $registo = $this->where('id', $value)->first();
+        }
+
+        return $registo;
+    }
 
     public function municipio(): BelongsTo
     {

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Models\Funcionario;
 use App\Models\Municipio;
 use App\Models\Role;
 use App\Models\User;
@@ -20,6 +21,7 @@ class UsuarioForm extends Component
     public array $role_ids = [];
     public ?int $municipio_id = null;
     public bool $activo = true;
+    public ?int $funcionario_id = null;
 
     public function mount(mixed $usuario = null): void
     {
@@ -59,6 +61,7 @@ class UsuarioForm extends Component
         $this->email = $user->email;
         $this->municipio_id = $user->municipio_id;
         $this->activo = (bool) $user->activo;
+        $this->funcionario_id = $user->funcionario?->id;
         $this->role_ids = $user->roles()->pluck('id')->map(fn($id) => (string) $id)->toArray();
     }
 
@@ -82,6 +85,7 @@ class UsuarioForm extends Component
             'role_ids.*' => ['integer', 'exists:rule_manager_roles,id'],
             'municipio_id' => ['nullable', 'integer', 'exists:municipios,id'],
             'activo' => ['boolean'],
+            'funcionario_id' => ['nullable', 'integer', 'exists:funcionarios,id'],
         ];
     }
 
@@ -155,13 +159,32 @@ class UsuarioForm extends Component
             session()->flash('status', "Utilizador '{$targetUser->name}' criado com sucesso.");
         }
 
+        $this->vincularFuncionario($targetUser);
+
         return redirect()->route('usuarios.index');
+    }
+
+    protected function vincularFuncionario(User $alvo): void
+    {
+        Funcionario::where('user_id', $alvo->id)
+            ->when($this->funcionario_id, fn ($q) => $q->where('id', '!=', $this->funcionario_id))
+            ->update(['user_id' => null]);
+
+        if ($this->funcionario_id) {
+            Funcionario::whereKey($this->funcionario_id)
+                ->where(fn ($q) => $q->whereNull('user_id')->orWhere('user_id', $alvo->id))
+                ->update(['user_id' => $alvo->id]);
+        }
     }
 
     public function render()
     {
         $currentUser = auth()->user();
         return view('livewire.usuario-form', [
+            'funcionarios' => Funcionario::query()
+                ->where(fn ($q) => $q->whereNull('user_id')->when($this->registoId, fn ($q) => $q->orWhere('user_id', $this->registoId)))
+                ->orderBy('nome_completo')
+                ->get(['id', 'nome_completo', 'numero_funcionario']),
             'roles' => Role::all(),
             'municipios' => Municipio::orderBy('nome')->get(),
             'userRoleLevel' => $currentUser ? $currentUser->roleLevel() : 99,

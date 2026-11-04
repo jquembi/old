@@ -6,6 +6,7 @@ use App\Concerns\TemPermissoes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -69,6 +70,11 @@ class User extends Authenticatable
     public function municipio(): BelongsTo
     {
         return $this->belongsTo(Municipio::class);
+    }
+
+    public function funcionario(): HasOne
+    {
+        return $this->hasOne(Funcionario::class);
     }
 
     public function criadoPor(): BelongsTo

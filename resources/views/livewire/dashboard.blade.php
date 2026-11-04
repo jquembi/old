@@ -502,7 +502,7 @@
                         </div>
                     </div>
                     @if($inst->municipio)
-                        <a href="{{ route('municipio.instrumentos.detalhe', [$inst->municipio, $inst->id]) }}" wire:navigate class="text-xs font-semibold text-red-600 hover:underline shrink-0">
+                        <a href="{{ route('instrumento.detalhe', $inst) }}" wire:navigate class="text-xs font-semibold text-red-600 hover:underline shrink-0">
                             Ver Detalhes
                         </a>
                     @endif

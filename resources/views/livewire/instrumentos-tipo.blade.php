@@ -259,7 +259,7 @@
                                     </a>
 
                                     @if($podeEditar)
-                                        <a href="{{ route('municipio.instrumentos.tipo.editar', [$municipio, $tipoSlug, $inst->id]) }}" wire:navigate title="Editar">
+                                        <a href="{{ route('municipio.instrumentos.tipo.editar', [$municipio, $tipoSlug, $inst->slug]) }}" wire:navigate title="Editar">
                                             <flux:button size="sm" variant="ghost" icon="pencil" />
                                         </a>
                                     @endif

@@ -34,10 +34,41 @@ class DocumentoAutenticidadeService
         ];
     }
 
+    /**
+     * Localiza o registo que referencia o ficheiro e devolve o seu token de
+     * autenticidade, gerando-o quando o registo ainda não tem um.
+     */
     public static function buscarTokenPorCaminho(?string $caminho): ?string
     {
         if (! $caminho) {
             return null;
+        }
+
+        $colunas = [
+            \App\Models\InstrumentoFicheiro::class => ['caminho'],
+            \App\Models\LoteamentoFicheiro::class => ['caminho'],
+            \App\Models\ProjectoSonaFicheiro::class => ['caminho'],
+            \App\Models\Parecer::class => ['ficheiro_caminho'],
+            \App\Models\Croqui::class => ['ficheiro_pdf_caminho', 'memoria_descritiva_caminho'],
+            \App\Models\ArquivoBase::class => ['ficheiro_caminho'],
+        ];
+
+        foreach ($colunas as $modelo => $campos) {
+            try {
+                $registo = $modelo::query()
+                    ->where(function ($q) use ($campos, $caminho) {
+                        foreach ($campos as $campo) {
+                            $q->orWhere($campo, $caminho);
+                        }
+                    })
+                    ->first();
+            } catch (\Throwable) {
+                continue;
+            }
+
+            if ($registo) {
+                return $registo->qr_token ?: $registo->gerarQrToken();
+            }
         }
 
         return null;

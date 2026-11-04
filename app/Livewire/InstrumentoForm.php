@@ -46,7 +46,15 @@ class InstrumentoForm extends Component
         $this->municipio = $municipio;
         $this->tipoSlug = $tipoSlug;
         $this->tipo = TipoInstrumento::query()->with('categoria')->where('slug', $tipoSlug)->firstOrFail();
-        $this->registoId = $instrumento instanceof Instrumento ? $instrumento->id : ($instrumento ? (int) $instrumento : null);
+        $this->registoId = null;
+        if ($instrumento instanceof Instrumento) {
+            $this->registoId = $instrumento->id;
+        } elseif ($instrumento) {
+            $this->registoId = $this->registoQuery()
+                ->where(fn ($q) => $q->where('slug', (string) $instrumento)
+                    ->when(ctype_digit((string) $instrumento), fn ($q) => $q->orWhere('id', (int) $instrumento)))
+                ->value('id') ?? abort(404);
+        }
 
         if ($this->registoId) {
             $registo = $this->registoQuery()->with('ficheiros')->findOrFail($this->registoId);

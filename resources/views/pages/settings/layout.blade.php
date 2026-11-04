@@ -51,8 +51,8 @@
                     Aparência
                 </flux:navlist.item>
                 @if(auth()->user()->isNacional() || auth()->user()->isInotu())
-                    <flux:navlist.item :href="route('settings.qr-layouts')" wire:navigate icon="qr-code">
-                        Layouts de QR Code
+                    <flux:navlist.item :href="route('settings.documento-studio')" wire:navigate icon="swatch">
+                        Document Studio
                     </flux:navlist.item>
                 @endif
             </flux:navlist.group>

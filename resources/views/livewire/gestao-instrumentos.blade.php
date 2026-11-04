@@ -2,7 +2,7 @@
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <flux:heading size="xl">Instrumentos</flux:heading>
-                <flux:text class="mt-1">Instrumentos de ordenamento do território, urbanísticos e cartas municipais</flux:text>
+                <flux:text class="mt-1">Instrumentos de ordenamento do territï¿½rio, urbanï¿½sticos e cartas municipais</flux:text>
             </div>
             @if($podeEditar)
                 <flux:button wire:click="abrirFormulario" variant="primary" icon="plus">
@@ -42,8 +42,8 @@
 
                 @if($municipios->isNotEmpty())
                 <div class="mt-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
-                    <flux:heading size="sm" class="mb-3">Filtrar Município</flux:heading>
-                    <flux:select wire:model.live="municipioId" placeholder="Todos os municípios">
+                    <flux:heading size="sm" class="mb-3">Filtrar Municï¿½pio</flux:heading>
+                    <flux:select wire:model.live="municipioId" placeholder="Todos os municï¿½pios">
                         <flux:select.option value="">Todos</flux:select.option>
                         @foreach($municipios as $mun)
                             <flux:select.option value="{{ $mun->id }}">{{ $mun->nome }}</flux:select.option>
@@ -64,13 +64,13 @@
                         {{-- Card do instrumento com QR no canto superior direito --}}
                         <div class="relative rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
 
-                            {{-- QR Code — canto superior direito --}}
+                            {{-- QR Code ï¿½ canto superior direito --}}
                             <div class="absolute right-4 top-4 z-10">
                                 <div class="rounded-lg border border-zinc-200 bg-white p-1.5 shadow-sm dark:border-zinc-600 dark:bg-zinc-800"
-                                     title="Aponte a câmara para aceder ao detalhe deste documento">
+                                     title="Aponte a cï¿½mara para aceder ao detalhe deste documento">
                                     <canvas
                                         x-data
-                                        x-init="renderQrCode($el, '{{ route('instrumento.detalhe', $inst->id) }}', 72)"
+                                        x-init="renderQrCode($el, '{{ route('instrumento.detalhe', $inst) }}', 72)"
                                         width="72"
                                         height="72"
                                         class="block"
@@ -81,7 +81,7 @@
                             <div class="flex items-start justify-between">
                                 <div class="flex-1 pr-24">
                                     <div class="flex items-center gap-2">
-                                        <a href="{{ route('instrumento.detalhe', $inst->id) }}"
+                                        <a href="{{ route('instrumento.detalhe', $inst) }}"
                                            class="font-semibold text-zinc-900 hover:text-indigo-600 dark:text-zinc-100 dark:hover:text-indigo-400 text-sm">
                                             {{ $inst->titulo }}
                                         </a>
@@ -124,7 +124,7 @@
                                     <div class="flex flex-col gap-1 ml-2">
                                         <flux:button wire:click="editar({{ $inst->id }})" size="sm" variant="ghost" icon="pencil" />
                                         @if($podeEliminar)
-                                            <flux:button x-on:click.prevent="$dispatch('confirmar', { title: 'Confirmação', message: 'Enviar este instrumento para a lixeira?', action: 'eliminar', component: $wire.$id, params: [{{ $inst->id }}], variant: 'danger' })" size="sm" variant="ghost" icon="trash" class="text-red-500" />
+                                            <flux:button x-on:click.prevent="$dispatch('confirmar', { title: 'Confirmaï¿½ï¿½o', message: 'Enviar este instrumento para a lixeira?', action: 'eliminar', component: $wire.$id, params: [{{ $inst->id }}], variant: 'danger' })" size="sm" variant="ghost" icon="trash" class="text-red-500" />
                                         @endif
                                     </div>
                                 @endif
@@ -151,12 +151,12 @@
                     {{ $editingId ? 'Editar Instrumento' : 'Carregar Documento' }}
                 </flux:heading>
                 <p class="mb-5 text-sm text-zinc-500 dark:text-zinc-400">
-                    Preencha o nome do documento e faça o upload do ficheiro. As restantes informações são preenchidas automaticamente.
+                    Preencha o nome do documento e faï¿½a o upload do ficheiro. As restantes informaï¿½ï¿½es sï¿½o preenchidas automaticamente.
                 </p>
 
                 <div class="space-y-4">
 
-                    {{-- Tipo (obrigatório) --}}
+                    {{-- Tipo (obrigatï¿½rio) --}}
                     <flux:select wire:model="tipoInstrumentoId" label="Tipo de Instrumento" required>
                         <flux:select.option value="">Seleccione o tipo...</flux:select.option>
                         @foreach($categorias as $cat)
@@ -168,10 +168,10 @@
                         @endforeach
                     </flux:select>
 
-                    {{-- Município (apenas para utilizadores com acesso a vários municípios) --}}
+                    {{-- Municï¿½pio (apenas para utilizadores com acesso a vï¿½rios municï¿½pios) --}}
                     @if(!auth()->user()->isMunicipal() && $municipios->isNotEmpty())
-                    <flux:select wire:model="municipioId" label="Município" required>
-                        <flux:select.option value="">Seleccione o município...</flux:select.option>
+                    <flux:select wire:model="municipioId" label="Municï¿½pio" required>
+                        <flux:select.option value="">Seleccione o municï¿½pio...</flux:select.option>
                         @foreach($municipios as $mun)
                             <flux:select.option value="{{ $mun->id }}">{{ $mun->nome }}</flux:select.option>
                         @endforeach
@@ -185,7 +185,7 @@
                     <div>
                         <label class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                             Upload de Ficheiros
-                            <span class="ml-1 text-xs font-normal text-zinc-400">(PDF, QGIS, DWG, ArcGIS, KMZ — máx. 100MB)</span>
+                            <span class="ml-1 text-xs font-normal text-zinc-400">(PDF, QGIS, DWG, ArcGIS, KMZ ï¿½ mï¿½x. 100MB)</span>
                         </label>
                         <input type="file" wire:model="ficheiros" multiple
                             class="block w-full text-sm text-zinc-500 file:mr-4 file:rounded file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/30 dark:file:text-indigo-300" />
@@ -227,11 +227,11 @@
                         @error('ficheiros.*') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                     </div>
 
-                    {{-- Campos avançados (colapsáveis) — apenas para admins / edição --}}
+                    {{-- Campos avanï¿½ados (colapsï¿½veis) ï¿½ apenas para admins / ediï¿½ï¿½o --}}
                     @if(auth()->user()->isInotu() || $editingId)
                     <details class="rounded-lg border border-zinc-200 dark:border-zinc-700">
                         <summary class="cursor-pointer px-4 py-2 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 rounded-lg select-none">
-                            Opções avançadas (estado, ano, descrição)
+                            Opï¿½ï¿½es avanï¿½adas (estado, ano, descriï¿½ï¿½o)
                         </summary>
                         <div class="space-y-4 p-4">
                             <flux:input wire:model="ano" label="Ano" placeholder="{{ date('Y') }}" />
@@ -243,7 +243,7 @@
                                 <flux:select.option value="rejeitado">Rejeitado</flux:select.option>
                                 @endif
                             </flux:select>
-                            <flux:textarea wire:model="descricao" label="Descrição" rows="3" placeholder="Informações adicionais sobre o documento..." />
+                            <flux:textarea wire:model="descricao" label="Descriï¿½ï¿½o" rows="3" placeholder="Informaï¿½ï¿½es adicionais sobre o documento..." />
                         </div>
                     </details>
                     @endif

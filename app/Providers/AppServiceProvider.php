@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (! $this->app->runningInConsole() && ! \App\Services\InstaladorService::instalado()) {
+            \App\Services\InstaladorService::prepararAmbienteWeb();
+        }
+
         $this->configureDefaults();
         $this->configureRateLimiting();
         Event::listen(GeoAccessAllowed::class, RecordGeoAccessDecision::class);

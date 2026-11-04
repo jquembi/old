@@ -51,7 +51,7 @@ function recolherAcoes(linha) {
     const itens = [];
     linha.querySelectorAll('a[href], button, [wire\\:click]').forEach((el) => {
         if (el.closest('[data-no-ctx]') || el.disabled || el.getAttribute('aria-disabled') === 'true') return;
-        if (el.tagName === 'BUTTON' && el.type === 'submit' && !el.hasAttribute('wire:click')) return;
+        if (el.tagName === 'BUTTON' && !el.hasAttribute('wire:click')) return;
         const href = el.getAttribute('href');
         if (href && (href === '#' || href.startsWith('javascript:'))) return;
 

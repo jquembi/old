@@ -32,9 +32,9 @@ it('permite que administradores acedam à página de personalização de layouts
     $admin = criarUsuarioNacional();
     $this->actingAs($admin);
 
-    $this->get(route('settings.qr-layouts'))
+    $this->get(route('settings.documento-studio'))
         ->assertOk()
-        ->assertSee('Personalização do Código QR por Tipo de Documento')
+        ->assertSee('Document Studio')
         ->assertSee('Croqui de Localização')
         ->assertSee('Memória Descritiva');
 });

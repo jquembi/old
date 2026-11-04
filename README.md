@@ -128,34 +128,30 @@ O sistema digitaliza e moderniza os processos de gestão fundiária, permitindo 
 git clone <url-do-repositorio> inotu
 cd inotu
 
-# 2. Instalar dependências (PHP e Node)
+# 2. Instalar dependências PHP
 composer install
-npm install
 
-# 3. Configurar ambiente
-cp .env.example .env
-php artisan key:generate
+# 3. Instalação guiada (.env, chave, migrations, dados base,
+#    super administrador, storage link, npm install e build)
+php artisan gterra:install
 
-# 4. Criar e migrar a base de dados
-touch database/database.sqlite
-php artisan migrate
-
-# 5. (Opcional) Popular com dados de exemplo
-php artisan db:seed
-
-# 6. Compilar assets
-npm run build
-
-# 7. Iniciar o servidor
+# 4. Iniciar o servidor
 php artisan serve
 ```
 
-Ou, em alternativa, utilizando o script `setup` do Composer:
+Opções do instalador (`php artisan gterra:install`):
 
-```bash
-composer setup
-php artisan serve
-```
+| Opção | Efeito |
+|-------|--------|
+| `--admin-name`, `--admin-email`, `--admin-password` | Dados do super administrador (sem perguntas interactivas) |
+| `--configure` | Executa antes o assistente `gterra:setup` (núcleo central ou node provincial) |
+| `--demo` | Carrega utilizadores de demonstração com palavras-passe conhecidas (nunca em produção) |
+| `--skip-build` | Não executa `npm install` nem `npm run build` |
+| `--force` | Obrigatório em ambiente de produção |
+
+O instalador é reexecutável: migrations e dados base não duplicam registos.
+
+Em alternativa, `composer setup` executa `composer install` seguido de `gterra:install`.
 
 ---
 

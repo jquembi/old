@@ -135,9 +135,7 @@
                                 <flux:button size="sm" variant="primary" icon="pencil">Editar</flux:button>
                             </a>
                         @endif
-                        <a href="{{ route('instrumento.detalhe', $detalhe) }}" wire:navigate>
-                            <flux:button size="sm" variant="ghost" icon="eye">Ficha Completa</flux:button>
-                        </a>
+
                         <flux:button wire:click="fecharDetalhe" size="sm" variant="ghost" icon="x-mark">Fechar</flux:button>
                     </div>
                 </div>

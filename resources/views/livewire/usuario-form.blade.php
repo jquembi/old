@@ -99,6 +99,14 @@
             </flux:select>
         @endif
 
+        {{-- Funcionário vinculado --}}
+        <flux:select wire:model="funcionario_id" label="Funcionário vinculado">
+            <flux:select.option value="">Nenhum</flux:select.option>
+            @foreach($funcionarios as $func)
+                <flux:select.option value="{{ $func->id }}">{{ $func->numero_funcionario }} — {{ $func->nome_completo }}</flux:select.option>
+            @endforeach
+        </flux:select>
+
         {{-- Activo --}}
         <div class="flex items-center gap-3 py-1">
             <input type="checkbox" wire:model="activo" id="activo-check"

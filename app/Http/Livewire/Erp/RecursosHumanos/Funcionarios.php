@@ -5,6 +5,11 @@ namespace App\Http\Livewire\Erp\RecursosHumanos;
 use App\Models\Cargo;
 use App\Models\Departamento;
 use App\Models\Funcionario;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -54,6 +59,14 @@ class Funcionarios extends Component
 
     public $observacoes = '';
 
+    public $user_id_form = '';
+
+    public string $modo_utilizador = 'existente';
+
+    public $user_password = '';
+
+    public $user_role_id = '';
+
     protected $rules = [
         'numero_funcionario' => 'required|string|max:20|unique:funcionarios,numero_funcionario',
         'nome_completo' => 'required|string|max:255',
@@ -69,6 +82,18 @@ class Funcionarios extends Component
         'salario_base' => 'nullable|numeric|min:0',
         'tipo_contrato' => 'required|in:efetivo,contrato,estagio,temporario',
     ];
+
+    protected function messages(): array
+    {
+        return [
+            'user_id_form.required' => 'Selecione o utilizador vinculado ao funcionário.',
+            'user_id_form.unique' => 'Este utilizador já está vinculado a outro funcionário.',
+            'email.required' => 'O email é obrigatório para criar o utilizador.',
+            'email.unique' => 'Este email já pertence a um utilizador.',
+            'user_password.required' => 'Defina a palavra-passe do novo utilizador.',
+            'user_role_id.required' => 'Selecione a função do novo utilizador.',
+        ];
+    }
 
     public function updated($property): void
     {
@@ -101,20 +126,33 @@ class Funcionarios extends Component
             $query->where('status', $this->status);
         }
 
-        $funcionarios = $query->orderBy('nome_completo')->paginate(15);
+        $funcionarios = $query->with('user')->orderBy('nome_completo')->paginate(15);
         $departamentos = Departamento::activo()->get();
         $cargos = Cargo::activo()->get();
+
+        $utilizadoresLivres = User::query()
+            ->whereDoesntHave('funcionario')
+            ->when($this->funcionarioId, fn ($q) => $q->orWhereHas('funcionario', fn ($f) => $f->whereKey($this->funcionarioId)))
+            ->orderBy('name')
+            ->get(['id', 'name', 'email']);
+
+        $actual = auth()->user();
+        $funcoes = Role::all()->filter(fn ($r) => $actual?->isNacional() || $r->nivel >= $actual?->roleLevel());
 
         return view('livewire.erp.recursos-humanos.funcionarios', [
             'funcionarios' => $funcionarios,
             'departamentos' => $departamentos,
             'cargos' => $cargos,
+            'utilizadoresLivres' => $utilizadoresLivres,
+            'funcoes' => $funcoes,
         ]);
     }
 
     public function create()
     {
-        $this->reset(['funcionarioId', 'numero_funcionario', 'nome_completo', 'nome_curto', 'bi', 'data_nascimento', 'genero', 'telefone', 'email', 'endereco', 'departamento_id_form', 'cargo_id_form', 'data_admissao', 'salario_base', 'tipo_contrato', 'observacoes']);
+        $this->reset(['funcionarioId', 'numero_funcionario', 'nome_completo', 'nome_curto', 'bi', 'data_nascimento', 'genero', 'telefone', 'email', 'endereco', 'departamento_id_form', 'cargo_id_form', 'data_admissao', 'salario_base', 'tipo_contrato', 'observacoes', 'user_id_form', 'user_password', 'user_role_id']);
+        $this->modo_utilizador = 'existente';
+        $this->resetValidation();
         $this->data_nascimento = now()->subYears(25)->format('Y-m-d');
         $this->data_admissao = now()->format('Y-m-d');
         $this->modalOpen = true;
@@ -122,6 +160,11 @@ class Funcionarios extends Component
 
     public function edit(Funcionario $funcionario)
     {
+        $this->resetValidation();
+        $this->modo_utilizador = 'existente';
+        $this->user_password = '';
+        $this->user_role_id = '';
+        $this->user_id_form = $funcionario->user_id ?? '';
         $this->funcionarioId = $funcionario->id;
         $this->numero_funcionario = $funcionario->numero_funcionario;
         $this->nome_completo = $funcionario->nome_completo;
@@ -144,11 +187,43 @@ class Funcionarios extends Component
     public function save()
     {
         $this->rules['numero_funcionario'] = 'required|string|max:20|unique:funcionarios,numero_funcionario,'.$this->funcionarioId;
+
+        if ($this->modo_utilizador === 'novo' && ! $this->funcionarioId) {
+            $this->rules['email'] = ['required', 'email', 'unique:users,email'];
+            $this->rules['user_password'] = ['required', 'string', Password::min(8)];
+            $this->rules['user_role_id'] = ['required', 'integer', 'exists:rule_manager_roles,id'];
+        } else {
+            $this->rules['user_id_form'] = ['required', 'integer', 'exists:users,id', Rule::unique('funcionarios', 'user_id')->ignore($this->funcionarioId)];
+        }
+
         $this->validate();
+
+        $actual = auth()->user();
+        $userId = $this->user_id_form;
+
+        if ($this->modo_utilizador === 'novo' && ! $this->funcionarioId) {
+            $role = Role::findOrFail($this->user_role_id);
+            if (! $actual->isNacional() && $role->nivel < $actual->roleLevel()) {
+                $this->addError('user_role_id', 'Não tem permissão para atribuir esta função.');
+
+                return;
+            }
+
+            $novo = User::create([
+                'name' => $this->nome_completo,
+                'email' => $this->email,
+                'password' => Hash::make($this->user_password),
+                'activo' => true,
+                'criado_por' => $actual->id,
+            ]);
+            $novo->roles()->sync([$role->id]);
+            $userId = $novo->id;
+        }
 
         Funcionario::updateOrCreate(
             ['id' => $this->funcionarioId],
             [
+                'user_id' => $userId,
                 'numero_funcionario' => $this->numero_funcionario,
                 'nome_completo' => $this->nome_completo,
                 'nome_curto' => $this->nome_curto,
@@ -158,10 +233,10 @@ class Funcionarios extends Component
                 'telefone' => $this->telefone,
                 'email' => $this->email,
                 'endereco' => $this->endereco,
-                'departamento_id' => $this->departamento_id_form,
-                'cargo_id' => $this->cargo_id_form,
+                'departamento_id' => $this->departamento_id_form ?: null,
+                'cargo_id' => $this->cargo_id_form ?: null,
                 'data_admissao' => $this->data_admissao,
-                'salario_base' => $this->salario_base,
+                'salario_base' => $this->salario_base ?: null,
                 'tipo_contrato' => $this->tipo_contrato,
                 'status' => 'ativo',
                 'observacoes' => $this->observacoes,

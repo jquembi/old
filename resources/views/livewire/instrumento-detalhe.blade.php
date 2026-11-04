@@ -55,7 +55,7 @@
                     Imprimir Ficha
                 </flux:button>
                 @if(auth()->user()?->temPermissao('instrumentos.editar_municipio'))
-                    <a href="{{ route('municipio.instrumentos.tipo.editar', [$instrumento->municipio, $instrumento->tipoInstrumento->slug, $instrumento->id]) }}" wire:navigate>
+                    <a href="{{ route('municipio.instrumentos.tipo.editar', [$instrumento->municipio, $instrumento->tipoInstrumento->slug, $instrumento->slug]) }}" wire:navigate>
                         <flux:button variant="primary" icon="pencil">Editar</flux:button>
                     </a>
                 @endif
@@ -166,7 +166,7 @@
                 <div class="mx-auto my-4 flex h-36 w-36 items-center justify-center rounded-2xl border border-zinc-200 bg-white p-3 shadow-xs dark:border-zinc-700 dark:bg-zinc-800">
                     <canvas
                         x-data
-                        x-init="renderQrCode($el, '{{ route('instrumento.detalhe', $instrumento->id) }}', 120)"
+                        x-init="renderQrCode($el, '{{ route('instrumento.detalhe', $instrumento) }}', 120)"
                         width="120"
                         height="120"
                         class="block"

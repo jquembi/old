@@ -324,12 +324,12 @@
                             </flux:sidebar.item>
 
                             <flux:sidebar.item
-                                icon="qr-code"
-                                :href="route('settings.qr-layouts')"
-                                :current="request()->routeIs('settings.qr-layouts')"
+                                icon="swatch"
+                                :href="route('settings.documento-studio')"
+                                :current="request()->routeIs('settings.documento-studio')"
                                 wire:navigate
                             >
-                                Layouts de QR Code
+                                Document Studio
                             </flux:sidebar.item>
                         @endif
                     </flux:sidebar.group>

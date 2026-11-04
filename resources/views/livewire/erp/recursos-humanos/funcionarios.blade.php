@@ -47,7 +47,7 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-50">{{ $funcionario->numero_funcionario }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">
                             <div>{{ $funcionario->nome_completo }}</div>
-                            <div class="text-xs text-gray-400">{{ $funcionario->nome_curto }}</div>
+                            <div class="text-xs text-gray-400">{{ $funcionario->user?->email ?? 'Sem utilizador' }}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">{{ $funcionario->departamento->nome ?? '-' }}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">{{ $funcionario->cargo->nome ?? '-' }}</td>
@@ -78,6 +78,45 @@
             <div role="dialog" aria-modal="true" aria-label="Formulário de registo" class="ui-card relative mx-auto my-8 w-full max-w-2xl p-6">
                 <h3 class="text-lg font-bold text-zinc-900 dark:text-zinc-50 mb-4">{{ $funcionarioId ? 'Editar Funcionário' : 'Novo Funcionário' }}</h3>
                 <form wire:submit="save">
+                    <div class="mb-4 rounded-lg border border-zinc-200 dark:border-zinc-700 p-4">
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-sm font-bold text-zinc-700 dark:text-zinc-300">Utilizador de acesso</span>
+                            @unless ($funcionarioId)
+                                <div class="flex gap-4 text-sm">
+                                    <label class="flex items-center gap-1"><input type="radio" wire:model.live="modo_utilizador" value="existente"> Existente</label>
+                                    <label class="flex items-center gap-1"><input type="radio" wire:model.live="modo_utilizador" value="novo"> Criar novo</label>
+                                </div>
+                            @endunless
+                        </div>
+                        @if ($modo_utilizador === 'novo' && ! $funcionarioId)
+                            <p class="mb-3 text-xs text-zinc-500">O utilizador será criado com o nome completo e o email indicados abaixo.</p>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label for="erp-user_password" class="block text-zinc-700 dark:text-zinc-300 text-sm font-bold mb-2">Palavra-passe</label>
+                                    <input id="erp-user_password" type="password" wire:model="user_password" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
+                                    @error('user_password') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+                                <div>
+                                    <label for="erp-user_role_id" class="block text-zinc-700 dark:text-zinc-300 text-sm font-bold mb-2">Função</label>
+                                    <select id="erp-user_role_id" wire:model="user_role_id" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
+                                        <option value="">Selecione</option>
+                                        @foreach ($funcoes as $funcao)
+                                            <option value="{{ $funcao->id }}">{{ $funcao->descricao ?? $funcao->nome }}</option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_role_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                </div>
+                            </div>
+                        @else
+                            <select id="erp-user_id_form" wire:model="user_id_form" aria-label="Utilizador" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-angola-red">
+                                <option value="">Selecione o utilizador</option>
+                                @foreach ($utilizadoresLivres as $u)
+                                    <option value="{{ $u->id }}">{{ $u->name }} — {{ $u->email }}</option>
+                                @endforeach
+                            </select>
+                            @error('user_id_form') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                        @endif
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="mb-4">
                             <label for="erp-numero_funcionario" class="block text-zinc-700 dark:text-zinc-300 text-sm font-bold mb-2">Número Funcionário</label>

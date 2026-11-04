@@ -23,6 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
         then: function () {
             Route::middleware(['web'])->group(base_path('routes/nacional.php'));
+            Route::middleware(['web', \App\Http\Middleware\GarantirNaoInstalado::class])
+                ->withoutMiddleware([SetTenant::class])
+                ->prefix('instalar')
+                ->name('instalador.')
+                ->group(base_path('routes/instalador.php'));
             Route::middleware(['api'])->prefix('api/gateway')->group(base_path('routes/api_gateway.php'));
         },
     )
@@ -42,7 +47,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // Rate limiting para API: 60 req/min por utilizador
         // Resolve a base provincial antes da autenticação; as rotas autenticadas
         // executam set.tenant novamente para validar o âmbito do utilizador.
-        $middleware->web(append: [
+        $middleware->web(prepend: [
+            \App\Http\Middleware\RedirecionarParaInstalacao::class,
+        ], append: [
             SetTenant::class,
         ]);
 
