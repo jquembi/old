@@ -165,13 +165,6 @@
                 @error('ficheiro') <span class="mt-2 block text-xs text-red-500">{{ $message }}</span> @enderror
             </section>
 
-            @if($errors->any())
-                <div class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/60 dark:bg-red-950/30">
-                    @foreach($errors->all() as $error)
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $error }}</p>
-                    @endforeach
-                </div>
-            @endif
         </div>
 
         <aside class="space-y-4 xl:sticky xl:top-20 xl:self-start">

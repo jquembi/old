@@ -22,8 +22,8 @@ return new class extends Migration
             $table->text('endereco')->nullable();
             $table->foreignId('municipio_id')->nullable()->constrained('municipios')->onDelete('set null');
             $table->foreignId('tenant_id')->nullable()->constrained('tenants')->onDelete('set null');
-            $table->foreignId('departamento_id')->nullable()->constrained('departamentos')->onDelete('set null');
-            $table->foreignId('cargo_id')->nullable()->constrained('cargos')->onDelete('set null');
+            $table->foreignId('departamento_id')->nullable();
+            $table->foreignId('cargo_id')->nullable();
             $table->date('data_admissao');
             $table->date('data_demissao')->nullable();
             $table->decimal('salario_base', 15, 2)->nullable();

@@ -126,9 +126,6 @@ new #[Title('Palavra-passe')] class extends Component {
                     Atualizar palavra-passe
                 </flux:button>
 
-                <x-action-message on="password-updated" class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-                    Guardado.
-                </x-action-message>
             </div>
         </form>
 

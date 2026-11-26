@@ -498,9 +498,14 @@ export class MapEditor {
     }
 
     _showSyncToast(count) {
+        const texto = `${count} alteração(ões) sincronizada(s)`;
+        if (window.toastr) {
+            window.toastr.success(texto, 'Mapa');
+            return;
+        }
         const el = document.getElementById('sync-toast');
         if (!el) return;
-        el.textContent = `⟳ ${count} alteração(ões) sincronizada(s)`;
+        el.textContent = `⟳ ${texto}`;
         el.classList.remove('hidden');
         el.classList.add('show');
         setTimeout(() => {

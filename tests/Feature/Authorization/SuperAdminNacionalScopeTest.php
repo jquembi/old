@@ -55,16 +55,16 @@ it('permite ao superadmin com província abrir as rotas nacionais no núcleo', f
     $this->get('/nacional/administracao/usuarios-nacionais')->assertOk();
 });
 
-it('permite ao superadmin abrir o nacional na instalação local da Huíla', function () {
+it('nega o núcleo nacional numa instalação provincial, mesmo em desenvolvimento', function () {
     $this->app->detectEnvironment(fn () => 'local');
+    $this->withoutMiddleware(\JoseQuembi\AngolaGeoGuard\Http\Middleware\EnsureRequestIsFromAngola::class);
     config([
         'tenancy.deployment_mode' => 'node', 'tenancy.node.code' => 'HUI',
         'tenancy.node.database' => ':memory:',
     ]);
     $this->actingAs(nacionalAccessUser(Role::NIVEL_NACIONAL, Role::SUPER_ADMIN_NACIONAL));
-    $this->get('/nacional')->assertOk();
-    $this->get('/nacional/indicadores')->assertOk();
-    $this->get('/nacional/administracao/usuarios-nacionais')->assertOk();
+    $this->get('/nacional')->assertForbidden();
+    $this->get('/nacional/indicadores')->assertForbidden();
 });
 
 it('mantém o node de produção separado do núcleo nacional', function () {

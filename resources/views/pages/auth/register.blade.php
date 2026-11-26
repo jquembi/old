@@ -59,9 +59,9 @@
             </div>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
-            <span>{{ __('Já tem conta?') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('Iniciar sessão') }}</flux:link>
-        </div>
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">
+            Já tem conta?
+            <a href="{{ route('login') }}" class="font-semibold text-[#C30E20]" wire:navigate>Iniciar sessão</a>
+        </p>
     </div>
 </x-layouts::auth>

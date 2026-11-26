@@ -1,103 +1,218 @@
 {{-- ════════════════════════════════════════════════════════════════
      Toast Container + Validation Errors + Confirm Dialog
      Escuta: `toast`, `validation-errors`, `confirmar`
-     Colocar UMA VEZ no layout principal (sidebar.blade.php).
+     API: window.toastr.success|error|warning|info(mensagem, titulo)
 ═══════════════════════════════════════════════════════════════════ --}}
+@php
+    $mapaEstado = [
+        'verification-link-sent' => 'Enviámos um novo link de verificação para o seu email.',
+        'profile-updated' => 'Perfil actualizado.',
+        'password-updated' => 'Palavra-passe actualizada.',
+    ];
+    $toastsIniciais = [];
+    foreach (['success' => 'success', 'error' => 'error', 'warning' => 'warning', 'info' => 'info'] as $chave => $tipo) {
+        $mensagem = session($chave);
+        if (is_string($mensagem) && trim($mensagem) !== '') {
+            $toastsIniciais[] = ['type' => $tipo, 'message' => $mensagem];
+        }
+    }
+    $estado = session('status');
+    if (is_string($estado) && trim($estado) !== '') {
+        if (isset($mapaEstado[$estado])) {
+            $toastsIniciais[] = ['type' => 'success', 'message' => $mapaEstado[$estado]];
+        } elseif (! preg_match('/^[a-z0-9-]+$/', $estado)) {
+            $toastsIniciais[] = ['type' => 'success', 'message' => $estado];
+        }
+    }
+@endphp
+<script>
+    (function () {
+        if (window.toastr && window.toastr._pronto) return
+        function raiz() {
+            return document.querySelector('[data-toast-root]')
+        }
+        function enviar(type, message, title) {
+            const item = { type: type, message: String(message ?? ''), title: title ? String(title) : '' }
+            const el = raiz()
+            const dados = el && window.Alpine ? window.Alpine.$data(el) : null
+            if (dados && typeof dados.addToast === 'function') dados.addToast(item)
+            else (window.toastr._q = window.toastr._q || []).push(item)
+        }
+        window.toastr = {
+            _q: (window.toastr && window.toastr._q) || [],
+            _pronto: true,
+            success: function (message, title) { enviar('success', message, title) },
+            error: function (message, title) { enviar('error', message, title) },
+            warning: function (message, title) { enviar('warning', message, title) },
+            info: function (message, title) { enviar('info', message, title) },
+        }
+        window.alert = function (message) {
+            window.toastr.warning(String(message ?? ''), 'Aviso')
+        }
+    })()
+</script>
 
 {{-- ─── TOASTS ────────────────────────────────────────────── --}}
 <div
     x-data="{
         toasts: [],
-        maxToasts: 6,
+        maxToasts: 4,
         counter: 0,
 
         init() {
             const self = this
-            const shownErrors = new Map()
+            ;(window.toastr?._q || []).splice(0).forEach((item) => self.addToast(item))
 
-            // Intercepta erros de validação globalmente via Livewire hooks
-            Livewire.hook('commit', ({ component, succeed }) => {
-                succeed(({ snapshot }) => {
-                    const errors = snapshot?.memo?.errors
-                    if (!errors || Object.keys(errors).length === 0) {
-                        shownErrors.delete(component.id)
-                        return
-                    }
-
-                    const allMsgs = Object.values(errors).flat()
-                    const prev = shownErrors.get(component.id) || new Set()
-                    const newMsgs = allMsgs.filter(m => !prev.has(m))
-
-                    if (newMsgs.length > 0) {
-                        shownErrors.set(component.id, new Set(allMsgs))
-                        newMsgs.slice(0, 5).forEach(msg => {
-                            self.addToast({ type: 'error', message: msg })
-                        })
-                    }
+            const ligarValidacao = () => {
+                if (!window.Livewire || self._validacaoLigada) return
+                self._validacaoLigada = true
+                Livewire.hook('commit', ({ component, succeed }) => {
+                    succeed(({ snapshot }) => {
+                        const errors = snapshot?.memo?.errors || {}
+                        const messages = Object.values(errors).flat().filter(Boolean)
+                        self.showValidation(component.id, messages)
+                    })
                 })
-            })
+            }
+            ligarValidacao()
+            document.addEventListener('livewire:init', ligarValidacao)
 
-            @if (session('success'))
-                this.addToast({ type: 'success', message: @js(session('success')) });
+            const iniciais = @js($toastsIniciais ?? []);
+            iniciais.forEach((item) => this.addToast(item))
+            @if (isset($errors) && $errors->any())
+                this.showValidation('pagina', @js($errors->all()));
             @endif
-            @if (session('error'))
-                this.addToast({ type: 'error', message: @js(session('error')) });
-            @endif
-            @if (session('warning'))
-                this.addToast({ type: 'warning', message: @js(session('warning')) });
-            @endif
-            @if (session('info'))
-                this.addToast({ type: 'info', message: @js(session('info')) });
-            @endif
-            @if (session('status'))
-                this.addToast({ type: 'info', message: @js(session('status')) });
-            @endif
-            @if ($errors->any())
-                @foreach ($errors->all() as $erroMsg)
-                    this.addToast({ type: 'error', message: @js($erroMsg) });
-                @endforeach
-            @endif
+        },
+
+        showValidation(key, messages) {
+            const unicos = [...new Set(messages.map((m) => String(m).trim()).filter(Boolean))]
+            const idChave = 'validacao:' + key
+            if (unicos.length === 0) {
+                const existente = this.toasts.find((t) => t.key === idChave)
+                if (existente) this.removeToast(existente.id)
+                return
+            }
+            const extra = unicos.length > 3 ? `\n… e mais ${unicos.length - 3}` : ''
+            this.addToast({
+                key: idChave,
+                type: 'error',
+                title: unicos.length === 1 ? 'Não foi possível concluir' : unicos.length + ' pontos por corrigir',
+                message: unicos.slice(0, 3).join('\n') + extra,
+                silencioso: true,
+            })
+        },
+
+        humanizar(texto) {
+            const mapa = {
+                'auth.failed': 'Email ou palavra-passe incorrectos.',
+                'auth.password': 'A palavra-passe indicada está incorrecta.',
+                'auth.throttle': 'Demasiadas tentativas. Aguarde um momento e tente de novo.',
+            }
+            return String(texto || '').split('\n').map((linha) => mapa[linha.trim()] || linha).join('\n')
         },
 
         addToast(detail) {
-            const id = ++this.counter
-            const type = detail.type || detail[0] || 'info'
-            const message = detail.message || detail[1] || ''
-            if (!message) return
+            const type = detail.type || 'info'
+            const message = this.humanizar(String(detail.message || detail[1] || '').trim())
+            const title = detail.title ? String(detail.title) : ''
+            if (!message && !title) return
 
-            const toast = { id, type, message, visible: false, progress: 100 }
+            const key = detail.key || (type + '|' + title + '|' + message)
+            const existente = this.toasts.find((t) => t.key === key)
+            if (existente) {
+                const mudou = existente.message !== message || (title && existente.title !== title)
+                if (detail.silencioso) {
+                    if (mudou) {
+                        existente.title = title || existente.title
+                        existente.message = message
+                        existente.duration = this.durationFor(existente)
+                        this.armTimer(existente)
+                    }
+                    existente.visible = true
+                    return
+                }
+                existente.count += 1
+                existente.title = title || existente.title
+                existente.message = message || existente.message
+                existente.duration = this.durationFor(existente)
+                existente.visible = true
+                this.armTimer(existente)
+                return
+            }
+
+            const toast = {
+                id: ++this.counter,
+                key,
+                type,
+                title,
+                message,
+                count: 1,
+                visible: false,
+                progress: 100,
+                paused: false,
+                elapsed: 0,
+                duration: 0,
+                timer: null,
+            }
+            toast.duration = this.durationFor(toast)
             this.toasts.push(toast)
 
             if (this.toasts.length > this.maxToasts) {
-                this.removeToast(this.toasts[0].id)
+                this.toasts.splice(0, this.toasts.length - this.maxToasts).forEach((antigo) => {
+                    if (antigo.timer) clearInterval(antigo.timer)
+                })
             }
 
             this.$nextTick(() => {
-                const t = this.toasts.find(t => t.id === id)
+                const t = this.toasts.find((item) => item.id === toast.id)
                 if (t) t.visible = true
             })
+            this.armTimer(toast)
+        },
 
-            const duration = type === 'error' ? 6000 : 4000
-            const interval = 50
-            let elapsed = 0
-            const timer = setInterval(() => {
-                elapsed += interval
-                const t = this.toasts.find(t => t.id === id)
-                if (!t) { clearInterval(timer); return }
-                t.progress = Math.max(0, 100 - (elapsed / duration) * 100)
-                if (elapsed >= duration) {
-                    clearInterval(timer)
-                    this.removeToast(id)
+        durationFor(toast) {
+            const tamanho = (toast.title + toast.message).length
+            const base = toast.type === 'error' ? 5200 : 3600
+            return Math.min(11000, base + tamanho * 28)
+        },
+
+        armTimer(toast) {
+            if (toast.timer) clearInterval(toast.timer)
+            toast.elapsed = 0
+            toast.progress = 100
+            toast.paused = false
+            const passo = 50
+            toast.timer = setInterval(() => {
+                const actual = this.toasts.find((item) => item.id === toast.id)
+                if (!actual) { clearInterval(toast.timer); return }
+                if (actual.paused) return
+                actual.elapsed += passo
+                actual.progress = Math.max(0, 100 - (actual.elapsed / actual.duration) * 100)
+                if (actual.elapsed >= actual.duration) {
+                    clearInterval(actual.timer)
+                    this.removeToast(actual.id)
                 }
-            }, interval)
+            }, passo)
+        },
+
+        pause(id) {
+            const toast = this.toasts.find((item) => item.id === id)
+            if (toast) toast.paused = true
+        },
+
+        resume(id) {
+            const toast = this.toasts.find((item) => item.id === id)
+            if (toast) toast.paused = false
         },
 
         removeToast(id) {
-            const toast = this.toasts.find(t => t.id === id)
-            if (toast) toast.visible = false
+            const toast = this.toasts.find((item) => item.id === id)
+            if (!toast) return
+            if (toast.timer) clearInterval(toast.timer)
+            toast.visible = false
             setTimeout(() => {
-                this.toasts = this.toasts.filter(t => t.id !== id)
-            }, 300)
+                this.toasts = this.toasts.filter((item) => item.id !== id)
+            }, 280)
         },
 
         iconMarkup(type) {
@@ -111,22 +226,26 @@
         },
     }"
     @toast.window="addToast($event.detail)"
-    @validation-errors.window="
-        const erros = $event.detail.errors || $event.detail[0] || [];
-        erros.forEach(msg => addToast({ type: 'error', message: msg }))
-    "
+    @validation-errors.window="showValidation('evento', $event.detail.errors || $event.detail[0] || [])"
+    @action-message.window="addToast({ type: $event.detail.type || 'success', message: $event.detail.message || '' })"
+    @profile-updated.window="addToast({ type: 'success', message: 'Alterações guardadas.', title: 'Perfil' })"
+    @password-updated.window="addToast({ type: 'success', message: 'Palavra-passe actualizada.', title: 'Segurança' })"
+    data-toast-root
     class="fixed top-4 right-4 z-[9999] flex flex-col gap-2.5 pointer-events-none"
     style="max-width: min(24rem, calc(100vw - 2rem));"
 >
     <template x-for="toast in toasts" :key="toast.id">
         <div
             x-show="toast.visible"
+            :data-toast="toast.id"
             x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 translate-x-8 scale-95"
             x-transition:enter-end="opacity-100 translate-x-0 scale-100"
             x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100 translate-x-0 scale-100"
             x-transition:leave-end="opacity-0 translate-x-8 scale-95"
+            @mouseenter="pause(toast.id)"
+            @mouseleave="resume(toast.id)"
             class="pointer-events-auto relative overflow-hidden rounded-xl shadow-2xl ring-1 backdrop-blur-xl"
             :class="{
                 'bg-zinc-900/90 ring-emerald-500/20': toast.type === 'success',
@@ -149,9 +268,15 @@
             {{-- Conteúdo --}}
             <div class="flex items-start gap-3 px-4 py-3.5">
                 <div class="shrink-0 mt-0.5" x-html="iconMarkup(toast.type)"></div>
-                <p class="flex-1 min-w-0 text-sm font-medium text-zinc-100 leading-snug" x-text="toast.message"></p>
+                <div class="min-w-0 flex-1">
+                    <p class="text-sm font-semibold text-white" x-show="toast.title" x-text="toast.title"></p>
+                    <p class="text-sm leading-snug text-zinc-100 whitespace-pre-line" :class="toast.title ? 'mt-0.5 text-zinc-300' : 'font-medium'" x-text="toast.message"></p>
+                </div>
+                <span x-show="toast.count > 1" class="shrink-0 rounded-full bg-white/10 px-1.5 py-0.5 text-[11px] font-bold text-white" x-text="toast.count"></span>
                 <button
+                    type="button"
                     @click="removeToast(toast.id)"
+                    aria-label="Fechar aviso"
                     class="shrink-0 -mt-0.5 -mr-1 p-1 rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/50 transition-all duration-150"
                 >
                     <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

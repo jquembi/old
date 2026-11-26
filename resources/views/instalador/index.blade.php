@@ -32,6 +32,11 @@
         .msg { margin-top:12px; font-size:13px; padding:10px 12px; border-radius:8px; display:none; }
         .msg.ok { background:#dcfce7; display:block; } .msg.falha { background:#fee2e2; display:block; }
         .oculto { display:none !important; }
+        .modulos { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+        .modulo { display:flex; gap:10px; align-items:flex-start; border:1px solid #d4d4d8; border-radius:10px; padding:12px; cursor:pointer; background:#fff; }
+        .modulo:has(input:checked) { border-color:var(--vermelho); box-shadow:0 0 0 3px rgba(200,16,46,.15); }
+        .modulo input { width:auto; margin-top:3px; }
+        .modulo strong { display:block; } .modulo small { display:block; margin-top:2px; }
         @media (max-width:560px){ .grelha{grid-template-columns:1fr} .passos span{font-size:10px} }
     </style>
 </head>
@@ -107,15 +112,32 @@
                         <option value="local" @selected(! $producao)>Desenvolvimento</option>
                     </select></div>
                 <div><label for="dominio">Domínio principal</label><input id="dominio" name="dominio" value="gterra.gov.ao"></div>
-                <div class="larga"><label for="modo">Papel desta instalação</label>
-                    <select id="modo" name="modo">
-                        <option value="node">Node provincial</option>
-                        <option value="central">Núcleo central nacional</option>
-                    </select></div>
-                <div data-so-modo="node"><label for="node_code">Código do node (3 letras)</label><input id="node_code" name="node_code" value="HUI" maxlength="3"></div>
-                <div data-so-modo="node"><label for="node_name">Nome do node</label><input id="node_name" name="node_name" value="Província da Huíla"></div>
+                <div class="larga">
+                    <label>Módulo desta instalação</label>
+                    <div class="modulos">
+                        <label class="modulo"><input type="radio" name="modo" value="central"><span><strong>Núcleo nacional</strong><small>Visão central de todas as províncias.</small></span></label>
+                        <label class="modulo"><input type="radio" name="modo" value="node" checked><span><strong>Província</strong><small>Só os dados da província escolhida.</small></span></label>
+                    </div>
+                </div>
+                <div class="larga" data-so-modo="node"><label for="node_code">Província</label>
+                    <select id="node_code" name="node_code">
+                        <option value="">Seleccione a província</option>
+                        @foreach ($provincias as $codigo => $nome)
+                            <option value="{{ $codigo }}">{{ $nome }}</option>
+                        @endforeach
+                    </select>
+                    <input type="hidden" id="node_name" name="node_name" value="">
+                </div>
                 <div class="larga" data-so-modo="node"><label for="central_url">URL do núcleo central</label><input id="central_url" name="central_url" value="https://gterra.gov.ao"></div>
+                <div class="larga">
+                    <label>Dados iniciais</label>
+                    <div class="modulos">
+                        <label class="modulo"><input type="radio" name="conteudo" value="vazio" checked><span><strong>Não instalar nada</strong><small>Base vazia. Configura províncias, municípios e funções depois.</small></span></label>
+                        <label class="modulo"><input type="radio" name="conteudo" value="base"><span><strong>Carregar o catálogo</strong><small>Províncias, municípios, nodes, funções e categorias.</small></span></label>
+                    </div>
+                </div>
             </div>
+            <div class="msg" id="msg-sistema"></div>
             <div class="botoes">
                 <button type="button" class="secundario" data-anterior>Voltar</button>
                 <button type="button" class="primario" data-seguinte>Continuar</button>
@@ -145,11 +167,11 @@
         {{-- 5. Instalar --}}
         <section class="cartao oculto" data-passo="4">
             <h2>Instalar</h2>
-            <p class="sub" id="sub-instalar">Reveja e confirme. A instalação cria a estrutura da base de dados e os dados base.</p>
+            <p class="sub" id="sub-instalar">Reveja e confirme. Pode deixar a base vazia ou carregar o catálogo nacional.</p>
             <ul class="lista" id="progresso">
                 <li data-p="1"><span>Gravar configuração (.env)</span><strong>—</strong></li>
                 <li data-p="2"><span>Criar estrutura da base de dados</span><strong>—</strong></li>
-                <li data-p="3"><span>Carregar dados base</span><strong>—</strong></li>
+                <li data-p="3"><span id="rotulo-dados">Deixar a base vazia</span><strong>—</strong></li>
                 <li data-p="4"><span>Criar super administrador e finalizar</span><strong>—</strong></li>
             </ul>
             <div class="msg" id="msg-instalar"></div>
@@ -196,7 +218,15 @@
         $$('[data-so="sqlite"]').forEach(e => e.classList.toggle('oculto', !sqlite));
         $$('[data-so="rede"]').forEach(e => e.classList.toggle('oculto', sqlite));
     };
-    const actualizarModo = () => $$('[data-so-modo]').forEach(e => e.classList.toggle('oculto', e.dataset.soModo !== $('#modo').value));
+    const modoActual = () => $('input[name="modo"]:checked')?.value || 'node';
+    const sincronizarProvincia = () => {
+        const escolhida = $('#node_code')?.selectedOptions?.[0];
+        if ($('#node_name') && escolhida?.value) $('#node_name').value = escolhida.textContent.trim();
+    };
+    const actualizarModo = () => {
+        sincronizarProvincia();
+        $$('[data-so-modo]').forEach(e => e.classList.toggle('oculto', e.dataset.soModo !== modoActual()));
+    };
 
     const invalidarTeste = () => { $('#seg-base').disabled = true; };
     $('#db_connection').addEventListener('change', () => {
@@ -204,9 +234,16 @@
         if ($('#db_connection').value !== 'sqlite') $('#db_port').value = $('#db_connection').value === 'pgsql' ? '5432' : '3306';
     });
     $$('[data-so] input').forEach(i => i.addEventListener('input', invalidarTeste));
-    $('#modo').addEventListener('change', actualizarModo);
+    $$('input[name="modo"]').forEach(r => r.addEventListener('change', actualizarModo));
+    $('#node_code')?.addEventListener('change', sincronizarProvincia);
 
-    $$('[data-seguinte]').forEach(b => b.addEventListener('click', () => ir(actual + 1)));
+    $$('[data-seguinte]').forEach(b => b.addEventListener('click', () => {
+        if (actual === 2 && modoActual() === 'node' && ! $('#node_code').value) {
+            mostrar($('#msg-sistema'), 'Seleccione a província desta instalação.', false);
+            return;
+        }
+        ir(actual + 1);
+    }));
     $$('[data-anterior]').forEach(b => b.addEventListener('click', () => ir(actual - 1)));
 
     // O nome do cookie de sessão depende de APP_NAME; pede-se novo token após alterar o .env.
@@ -247,6 +284,11 @@
 
     $('#instalar').addEventListener('click', async () => {
         const d = dados();
+        const vazio = d.conteudo !== 'base';
+        $('#rotulo-dados').textContent = vazio ? 'Deixar a base vazia' : 'Carregar dados base';
+        $('#sub-instalar').textContent = vazio
+            ? 'A base fica sem catálogo. Só entra a conta de administrador.'
+            : 'A instalação cria a estrutura e carrega o catálogo nacional.';
         $('#botoes-instalar').classList.add('oculto');
         $('#msg-instalar').className = 'msg';
         for (const p of [1, 2, 3, 4]) {

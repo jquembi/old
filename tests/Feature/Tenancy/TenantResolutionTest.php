@@ -25,8 +25,13 @@ test('resolve o node pelo cabeçalho e ativa a ligação provincial', function (
     config()->set('tenancy.node.code', 'HUI');
     config()->set('tenancy.node.database', ':memory:');
 
-    $tenant = Tenant::where('code', 'HUI')->firstOrFail();
-    $tenant->update(['database_name' => ':memory:']);
+    Tenant::create([
+        'code' => 'HUI',
+        'name' => 'Província da Huíla',
+        'type' => Tenant::TYPE_PROVINCIAL,
+        'database_name' => ':memory:',
+        'is_active' => true,
+    ]);
 
     $this->withHeader('X-Tenant', 'HUI')
         ->get('/__test/tenant')

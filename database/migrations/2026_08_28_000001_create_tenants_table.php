@@ -38,18 +38,6 @@ return new class extends Migration
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
-        // Criar tenant Huíla (piloto)
-        DB::table('tenants')->insert([
-            'code' => 'HUI',
-            'name' => 'Província da Huíla',
-            'type' => 'provincial',
-            'database_name' => env('DB_DATABASE', 'gterras'),
-            'is_active' => true,
-            'sync_status' => 'online',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 
     public function down(): void

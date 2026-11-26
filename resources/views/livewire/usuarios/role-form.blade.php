@@ -20,18 +20,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
-    @if (session()->has('success'))
-        <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            {{ session('error') }}
-        </div>
-    @endif
-
     {{-- Bulk Actions --}}
     <div class="flex items-center gap-2 mb-4">
         <button wire:click="selectAll" class="px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">

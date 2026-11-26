@@ -114,11 +114,31 @@ class Tenant extends Model
             throw new \RuntimeException("Ligação [{$connectionName}] não configurada.");
         }
 
+        $database = $this->database_name;
+        $driver = $connection['driver'] ?? null;
+
+        // Um caminho de SQLite deixado no .env não é um nome de base MySQL.
+        // Nesse caso a ligação do node usa a base já configurada em DB_DATABASE.
+        if (in_array($driver, ['mysql', 'mariadb'], true) && $this->caminhoSqlite($database)) {
+            $database = $connection['database'] ?? null;
+        }
+
         return array_filter(array_replace($connection, [
-            'database' => $this->database_name,
+            'database' => $database,
             'host' => $this->database_host ?? ($connection['host'] ?? null),
             'port' => $this->database_port ?? ($connection['port'] ?? null),
         ]), static fn ($value) => $value !== null);
+    }
+
+    private function caminhoSqlite(?string $database): bool
+    {
+        if ($database === null || $database === '') {
+            return true;
+        }
+
+        $normalizado = str_replace('\\', '/', $database);
+
+        return str_ends_with($normalizado, '.sqlite') || str_contains($normalizado, '/');
     }
 
     public function scopeActive(Builder $query): Builder

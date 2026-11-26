@@ -2,11 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\Provincia;
 use App\Models\Role;
 use App\Models\Tenant;
 use App\Models\User;
 use Database\Seeders\CategoriaInstrumentosSeeder;
-use Database\Seeders\NodesSeeder;
 use Database\Seeders\ProvinciasMunicipiosSeeder;
 use Database\Seeders\RolesPermissoesSeederV2;
 use Database\Seeders\UsuariosIniciaisSeeder;
@@ -21,16 +21,16 @@ class InstaladorService
 
     /**
      * A instalação está concluída quando existe o ficheiro de bloqueio ou já há
-     * utilizadores. Em produção, uma base inacessível é tratada como instalada
-     * para que o assistente nunca fique exposto por uma falha de ligação.
+     * utilizadores. Sem base de dados, sem migrações ou sem ligação, o sistema
+     * conta como não instalado para que o assistente possa configurá-lo.
      */
     public static function instalado(): bool
     {
-        if (self::$instalado) {
+        $teste = app()->runningUnitTests();
+
+        if (self::$instalado && ! $teste) {
             return true;
         }
-
-        $teste = app()->runningUnitTests();
 
         if (! $teste && is_file(self::ficheiroBloqueio())) {
             return self::$instalado = true;
@@ -39,7 +39,7 @@ class InstaladorService
         try {
             $existe = Schema::hasTable('users') && DB::table('users')->exists();
         } catch (\Throwable) {
-            return app()->isProduction();
+            return false;
         }
 
         if ($existe) {
@@ -257,13 +257,43 @@ class InstaladorService
         Artisan::call('migrate', ['--force' => true]);
     }
 
-    public function dadosBase(string $modo): void
+    public function dadosBase(string $modo, bool $vazio = false, ?string $codigo = null, ?string $nome = null): void
     {
-        foreach ([ProvinciasMunicipiosSeeder::class, NodesSeeder::class, RolesPermissoesSeederV2::class, CategoriaInstrumentosSeeder::class] as $seeder) {
+        if ($vazio) {
+            $this->prepararVazio($modo, $codigo, $nome);
+
+            return;
+        }
+
+        foreach ([ProvinciasMunicipiosSeeder::class, RolesPermissoesSeederV2::class, CategoriaInstrumentosSeeder::class] as $seeder) {
             Artisan::call('db:seed', ['--class' => $seeder, '--force' => true]);
         }
 
         if ($modo === 'central' && Schema::hasTable('tenants')) {
+            Tenant::updateOrCreate(['code' => 'CTR'], [
+                'name' => 'Núcleo Central Nacional',
+                'type' => Tenant::TYPE_CENTRAL,
+                'database_name' => config('database.connections.'.config('database.default').'.database'),
+                'is_active' => true,
+            ]);
+        }
+    }
+
+    /**
+     * Instalação sem catálogo: só o âmbito escolhido, para se configurar depois.
+     */
+    private function prepararVazio(string $modo, ?string $codigo, ?string $nome): void
+    {
+        if ($modo === 'node') {
+            Provincia::updateOrCreate(
+                ['codigo' => strtoupper((string) $codigo)],
+                ['nome' => $nome ?: strtoupper((string) $codigo), 'activo' => true],
+            );
+
+            return;
+        }
+
+        if (Schema::hasTable('tenants')) {
             Tenant::updateOrCreate(['code' => 'CTR'], [
                 'name' => 'Núcleo Central Nacional',
                 'type' => Tenant::TYPE_CENTRAL,
@@ -278,16 +308,36 @@ class InstaladorService
         Artisan::call('db:seed', ['--class' => UsuariosIniciaisSeeder::class, '--force' => true]);
     }
 
-    public function criarSuperAdmin(string $nome, string $email, string $senha): User
+    public function criarSuperAdmin(string $nome, string $email, string $senha, string $modo = 'central', ?string $codigoProvincia = null): User
     {
-        $role = Role::firstOrCreate(
-            ['nome' => Role::SUPER_ADMIN_NACIONAL],
-            ['descricao' => 'Super Administrador Nacional - Visão geral completa do sistema', 'nivel' => Role::NIVEL_NACIONAL, 'grupo' => 'INOTU Nacional'],
-        );
+        $provincial = $modo === 'node';
+        $provincia = $provincial
+            ? Provincia::where('codigo', strtoupper((string) $codigoProvincia))->first()
+            : null;
+
+        if ($provincial && ! $provincia) {
+            throw new \RuntimeException('A província seleccionada não foi encontrada. Repita a instalação.');
+        }
+
+        $role = $provincial
+            ? Role::firstOrCreate(
+                ['nome' => Role::GOVERNADOR],
+                ['descricao' => 'Administrador da província instalada', 'nivel' => Role::NIVEL_PROVINCIAL, 'grupo' => Role::GRUPO_GOVERNO],
+            )
+            : Role::firstOrCreate(
+                ['nome' => Role::SUPER_ADMIN_NACIONAL],
+                ['descricao' => 'Super Administrador Nacional - Visão geral completa do sistema', 'nivel' => Role::NIVEL_NACIONAL, 'grupo' => 'INOTU Nacional'],
+            );
 
         $user = User::updateOrCreate(
             ['email' => $email],
-            ['name' => $nome, 'password' => Hash::make($senha), 'email_verified_at' => now(), 'activo' => true],
+            [
+                'name' => $nome,
+                'password' => Hash::make($senha),
+                'email_verified_at' => now(),
+                'activo' => true,
+                'provincia_id' => $provincia?->id,
+            ],
         );
         $user->roles()->syncWithoutDetaching([$role->id]);
 

@@ -352,8 +352,8 @@
                                                 <a href="{{ route('storage.serve', $fExist['caminho']) }}" target="_blank">
                                                     <flux:button size="xs" variant="ghost" icon="eye">Ver</flux:button>
                                                 </a>
-                                                <button type="button" wire:click="removerFicheiroExistente({{ $fExist['id'] }})"
-                                                    onclick="return confirm('Deseja realmente eliminar este anexo?')"
+                                                <button type="button"
+                                                    onclick='window.dispatchEvent(new CustomEvent("confirmar", { detail: { title: "Eliminar anexo", message: "Deseja realmente eliminar este anexo?", confirmLabel: "Eliminar", variant: "danger", action: "removerFicheiroExistente", params: [{{ (int) $fExist['id'] }}], component: @js($this->getId()) } }))'
                                                     class="rounded-lg p-1 text-zinc-400 hover:bg-zinc-100 hover:text-red-600 dark:hover:bg-zinc-800 dark:hover:text-red-400">
                                                     <flux:icon name="trash" class="h-4 w-4" />
                                                 </button>
@@ -365,21 +365,6 @@
                         @endif
                     </div>
                 </div>
-
-                {{-- Exibição de Erros de Validação --}}
-                @if($errors->any())
-                    <div class="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
-                        <div class="flex items-center gap-2 text-sm font-semibold text-red-800 dark:text-red-200 mb-1">
-                            <flux:icon name="exclamation-circle" class="h-4 w-4 text-red-600" />
-                            Por favor, corrija os seguintes erros:
-                        </div>
-                        <ul class="list-inside list-disc space-y-0.5 text-xs text-red-700 dark:text-red-300">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
 
                 {{-- Barra de Submissão / Guardar --}}
                 <div class="mt-6 flex items-center justify-between border-t border-zinc-200 pt-4 dark:border-zinc-800">

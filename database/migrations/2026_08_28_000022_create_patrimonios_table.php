@@ -13,11 +13,11 @@ return new class extends Migration
             $table->string('codigo', 30)->unique();
             $table->string('nome');
             $table->text('descricao')->nullable();
-            $table->foreignId('categoria_patrimonio_id')->nullable()->constrained('categorias_patrimonio')->onDelete('set null');
+            $table->foreignId('categoria_patrimonio_id')->nullable();
             $table->foreignId('tenant_id')->nullable()->constrained('tenants')->onDelete('set null');
             $table->foreignId('municipio_id')->nullable()->constrained('municipios')->onDelete('set null');
             $table->foreignId('departamento_id')->nullable()->constrained('departamentos')->onDelete('set null');
-            $table->foreignId('localizacao_id')->nullable()->constrained('localizacoes')->onDelete('set null');
+            $table->foreignId('localizacao_id')->nullable();
             $table->date('data_aquisicao');
             $table->decimal('valor_aquisicao', 15, 2);
             $table->decimal('valor_atual', 15, 2)->nullable();

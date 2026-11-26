@@ -211,8 +211,8 @@
                                             Baixar
                                         </a>
                                         @if($podeEliminar)
-                                            <button type="button" wire:click="eliminarFicheiro({{ $f->id }})"
-                                                onclick="return confirm('Deseja eliminar este anexo?')"
+                                            <button type="button"
+                                                onclick='window.dispatchEvent(new CustomEvent("confirmar", { detail: { title: "Eliminar anexo", message: "Deseja eliminar este anexo?", confirmLabel: "Eliminar", variant: "danger", action: "eliminarFicheiro", params: [{{ (int) $f->id }}], component: @js($this->getId()) } }))'
                                                 class="rounded-md p-1 text-zinc-400 hover:text-red-600">
                                                 <flux:icon name="trash" class="h-4 w-4" />
                                             </button>

@@ -38,14 +38,6 @@
         </div>
     </div>
 
-    {{-- Feedback de Mensagem / Status --}}
-    @if(session('status'))
-        <div class="flex items-center gap-2 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50">
-            <flux:icon.check-circle class="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-            <span>{{ session('status') }}</span>
-        </div>
-    @endif
-
     {{-- Indicadores KPI --}}
     <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <div class="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">

@@ -167,23 +167,6 @@
                 </div>
             </div>
 
-            {{-- Erros de Validação --}}
-            @if($errors->any())
-                <div class="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900/50 dark:bg-red-950/30">
-                    <div class="flex items-start gap-2">
-                        <flux:icon.exclamation-triangle class="h-5 w-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                        <div>
-                            <h4 class="text-sm font-semibold text-red-800 dark:text-red-300">Por favor, corrija os erros abaixo:</h4>
-                            <ul class="mt-1 list-disc list-inside text-xs text-red-700 dark:text-red-400 space-y-0.5">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
             {{-- Botões de Acção --}}
             <div class="flex items-center justify-end gap-3 pt-2">
                 <a href="{{ route('municipio.requalificacao.sona', $municipio) }}" wire:navigate>

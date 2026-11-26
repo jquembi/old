@@ -35,6 +35,10 @@ class PerspetivaService
      */
     public function getModo(): string
     {
+        if (\App\Support\AmbitoInstalacao::eProvincia()) {
+            return self::MODO_PROVINCIAL;
+        }
+
         if (! $this->isSuperAdmin()) {
             return self::MODO_GLOBAL;
         }
@@ -53,6 +57,10 @@ class PerspetivaService
      */
     public function getProvinciaId(): ?int
     {
+        if (\App\Support\AmbitoInstalacao::eProvincia()) {
+            return \App\Support\AmbitoInstalacao::provinciaId();
+        }
+
         if (! $this->isSuperAdmin() || $this->getModo() !== self::MODO_PROVINCIAL) {
             return null;
         }

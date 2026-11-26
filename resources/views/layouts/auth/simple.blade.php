@@ -2,113 +2,129 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
     <head>
         @include('partials.head')
+        <style>
+            .auth-hero { position: relative; overflow: hidden; }
+            .auth-slide {
+                position: absolute; inset: 0;
+                display: flex; flex-direction: column; justify-content: space-between;
+                padding: 2.5rem;
+                opacity: 0; visibility: hidden;
+                transition: opacity .6s ease, visibility .6s ease;
+            }
+            .auth-slide.is-active { opacity: 1; visibility: visible; }
+            .auth-dots { display: flex; gap: .4rem; }
+            .auth-dot { width: .5rem; height: .5rem; border-radius: 999px; border: 0; background: rgba(255,255,255,.35); cursor: pointer; padding: 0; }
+            .auth-dot.is-active { width: 1.6rem; background: #F2CB13; }
+            @media (prefers-reduced-motion: reduce) {
+                .auth-slide { transition: none; }
+            }
+        </style>
     </head>
-    <body class="min-h-screen bg-white antialiased">
-        <div class="relative grid min-h-screen flex-col items-center justify-center lg:max-w-none lg:grid-cols-2">
-            {{-- Painel Institucional --}}
-            <div class="relative hidden h-full flex-col overflow-hidden lg:flex">
-                {{-- Fundo com gradiente institucional --}}
-                <div class="absolute inset-0 bg-gradient-to-br from-zinc-950 via-red-950 to-zinc-950" style="background: linear-gradient(135deg, #0a0a0a 0%, #1a0005 40%, #0f0000 100%);"></div>
+    <body class="theme-glass min-h-screen antialiased">
+        <div class="grid min-h-screen lg:grid-cols-[minmax(0,1.05fr)_minmax(420px,.95fr)]">
+            <aside class="auth-hero relative hidden min-h-screen text-white lg:block" id="authHero">
+                <div class="absolute inset-0" style="background: radial-gradient(700px 420px at 0% 100%, rgba(195,14,32,.4), transparent 55%), linear-gradient(160deg, #07080d, #1a060c 70%);"></div>
 
-                {{-- Padrão decorativo --}}
-                <div class="absolute inset-0 opacity-10">
-                    <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2"></div>
-                    <div class="absolute bottom-0 left-0 w-80 h-80 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/3"></div>
-                </div>
-
-                {{-- Conteúdo institucional --}}
-                <div class="relative z-10 flex flex-col justify-between h-full p-10 text-white">
-                    {{-- Logo e nome do sistema --}}
-                    <div>
-                        <div class="flex items-center gap-3 mb-2">
-                            <img src="/imagens/no-background/INOTU.png" alt="INOTU" class="h-12 w-auto bg-white rounded-full p-1.5 drop-shadow-lg" />
-                            <div>
-                                <h2 class="text-xl font-semibold tracking-tight">G.TERRAS</h2>
-                                <p class="text-sm text-red-200/80">Sistema de Gestão Territorial</p>
-                            </div>
-                        </div>
+                <article class="auth-slide is-active">
+                    <a href="{{ route('home') }}" class="relative z-10 flex items-center gap-3">
+                        <img src="/imagens/no-background/INOTU.png" alt="INOTU" class="h-12 w-auto rounded-full bg-white p-1.5" />
+                        <span>
+                            <span class="block text-lg font-semibold">G.TERRAS</span>
+                            <span class="block text-sm text-white/65">Gestão territorial da Huíla</span>
+                        </span>
+                    </a>
+                    <div class="relative z-10 max-w-lg">
+                        <p class="text-xs font-bold uppercase tracking-[.18em] text-[#F2CB13]">INOTU</p>
+                        <h2 class="mt-3 text-4xl font-bold leading-tight">A base provincial de gestão de terras</h2>
+                        <p class="mt-4 text-base leading-7 text-white/75">Processos fundiários, loteamentos e operações urbanísticas com o âmbito da sua conta: nacional, provincial ou municipal.</p>
                     </div>
+                    <p class="relative z-10 text-sm text-white/50">República de Angola · Província da Huíla</p>
+                </article>
 
-                    {{-- Descrição central --}}
-                    <div class="space-y-6">
-                        <div>
-                            <h1 class="text-3xl font-semibold leading-tight tracking-tight">
-                                Base de Dados Provincial de Gestão de Terras
-                            </h1>
-                            <p class="mt-4 text-base text-white/75 leading-relaxed">
-                                Plataforma digital do Instituto Nacional de Ordenamento do Território e Urbanismo para a gestão integrada de processos fundiários da Província da Huíla.
-                            </p>
-                        </div>
-
-                        {{-- Funcionalidades --}}
-                        <div class="space-y-3">
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-8 h-8 rounded-md bg-white/10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
-                                    </svg>
-                                </div>
-                                <span class="text-sm text-white/85">Registo e acompanhamento de processos fundiários</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-8 h-8 rounded-md bg-white/10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-                                    </svg>
-                                </div>
-                                <span class="text-sm text-white/85">Gestão territorial por província e município</span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center justify-center w-8 h-8 rounded-md bg-white/10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
-                                    </svg>
-                                </div>
-                                <span class="text-sm text-white/85">Relatórios e auditoria de actividades</span>
-                            </div>
-                        </div>
+                <article class="auth-slide">
+                    <a href="{{ route('home') }}" class="relative z-10 flex items-center gap-3">
+                        <img src="/imagens/no-background/MINOPUH.png" alt="MINOPUH" class="h-12 w-auto rounded-xl bg-white p-1.5" />
+                        <span class="text-lg font-semibold">Área institucional</span>
+                    </a>
+                    <div class="relative z-10 max-w-lg">
+                        <p class="text-xs font-bold uppercase tracking-[.18em] text-[#F2CB13]">Acesso</p>
+                        <h2 class="mt-3 text-4xl font-bold leading-tight">Credenciais com o território certo</h2>
+                        <p class="mt-4 text-base leading-7 text-white/75">Cada sessão abre apenas os municípios e módulos autorizados. A auditoria regista a entrada e as acções seguintes.</p>
                     </div>
+                    <p class="relative z-10 text-sm text-white/50">MINOPUH · Urbanismo e habitação</p>
+                </article>
 
-                    {{-- Rodapé institucional --}}
-                    <div class="pt-6 border-t border-white/15">
-                        <div class="flex items-center gap-4 mb-3">
-                            <img src="/imagens/no-background/INSIGNIA.png" alt="República de Angola" class="h-8 w-auto bg-white rounded-full p-1 opacity-70" />
-                            <img src="/imagens/no-background/SONA.png" alt="Projecto SONA" class="h-8 w-auto bg-white rounded-full p-1 opacity-70" />
-                        </div>
-                        <p class="text-xs text-white/55 leading-relaxed">
-                            INOTU — Instituto Nacional de Ordenamento do Território e Urbanismo
-                        </p>
-                        <p class="text-xs text-white/35 mt-1">
-                            República de Angola &bull; Província da Huíla
-                        </p>
+                <article class="auth-slide">
+                    <a href="{{ route('home') }}" class="relative z-10 flex items-center gap-3">
+                        <img src="/imagens/no-background/SONA.png" alt="Projecto SONA" class="h-12 w-auto rounded-xl bg-white p-1.5" />
+                        <span class="text-lg font-semibold">Projecto SONA</span>
+                    </a>
+                    <div class="relative z-10 max-w-lg">
+                        <p class="text-xs font-bold uppercase tracking-[.18em] text-[#F2CB13]">Utentes</p>
+                        <h2 class="mt-3 text-4xl font-bold leading-tight">A consulta pública fica no portal</h2>
+                        <p class="mt-4 text-base leading-7 text-white/75">Quem não tem conta institucional acompanha solicitações pelo BI, RUPE ou referência, sem entrar nesta área.</p>
+                        <a href="{{ route('portal.home') }}" class="mt-6 inline-flex rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur hover:bg-white/15">Abrir portal do utente</a>
+                    </div>
+                    <p class="relative z-10 text-sm text-white/50">Requalificação e reconversão urbana</p>
+                </article>
+
+                <div class="absolute bottom-8 left-10 z-20 flex items-center gap-3">
+                    <div class="auth-dots" id="authDots">
+                        <button type="button" class="auth-dot is-active" data-auth-go="0" aria-label="Gestão de terras"></button>
+                        <button type="button" class="auth-dot" data-auth-go="1" aria-label="Acesso institucional"></button>
+                        <button type="button" class="auth-dot" data-auth-go="2" aria-label="Portal do utente"></button>
                     </div>
                 </div>
-            </div>
+            </aside>
 
-            {{-- Painel do formulário --}}
-            <div class="flex items-center justify-center p-6 md:p-10 bg-white dark:bg-zinc-900 min-h-screen relative">
-                {{-- Linha de acento vermelha no topo (mobile) --}}
-                <div class="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-red-700 via-red-600 to-red-700 lg:hidden"></div>
-
-                <div class="w-full max-w-sm space-y-6">
-                    {{-- Logo para mobile --}}
-                    <div class="flex flex-col items-center gap-3 lg:hidden mb-4">
-                        <img src="/imagens/no-background/INOTU.png" alt="INOTU" class="h-14 w-auto bg-white rounded-full p-1.5 shadow-md" />
-                        <div class="text-center">
-                            <h2 class="text-lg font-bold text-zinc-900 dark:text-white tracking-tight">G.TERRAS</h2>
-                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Sistema de Gestão Territorial</p>
-                        </div>
+            <div class="relative flex min-h-screen items-center justify-center px-4 py-10 sm:px-8">
+                <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-[#C30E20] via-black to-[#C30E20] lg:hidden"></div>
+                <div class="w-full max-w-md">
+                    <div class="mb-5 flex items-center justify-between gap-3 lg:hidden">
+                        <a href="{{ route('home') }}" class="flex items-center gap-2">
+                            <img src="/imagens/no-background/INOTU.png" alt="INOTU" class="h-11 w-auto rounded-full bg-white p-1" />
+                            <span class="text-sm font-bold text-zinc-900 dark:text-white">G.TERRAS</span>
+                        </a>
+                        <a href="{{ route('portal.home') }}" class="text-xs font-semibold text-[#C30E20]">Portal do utente</a>
                     </div>
 
-                    {{ $slot }}
+                    <div class="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-2xl backdrop-blur-2xl sm:p-8 dark:border-white/10 dark:bg-zinc-950/70">
+                        <p class="mb-5 hidden text-xs font-semibold text-zinc-500 lg:block">
+                            <a href="{{ route('home') }}" class="hover:text-[#C30E20]">Página inicial</a>
+                            <span class="px-1.5 text-zinc-300">/</span>
+                            Acesso institucional
+                        </p>
+                        {{ $slot }}
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Toast global (inclui suporte a session flash) --}}
         <x-toast-container />
-
         @fluxScripts
+        <script>
+            (function () {
+                var root = document.getElementById('authHero');
+                if (!root) return;
+                var slides = root.querySelectorAll('.auth-slide');
+                var dots = root.querySelectorAll('.auth-dot');
+                var current = 0;
+                var timer;
+                var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+                function goTo(index) {
+                    current = (index + slides.length) % slides.length;
+                    slides.forEach(function (slide, idx) { slide.classList.toggle('is-active', idx === current); });
+                    dots.forEach(function (dot, idx) { dot.classList.toggle('is-active', idx === current); });
+                    clearInterval(timer);
+                    if (!reduce) timer = setInterval(function () { goTo(current + 1); }, 6500);
+                }
+
+                dots.forEach(function (dot) {
+                    dot.addEventListener('click', function () { goTo(Number(dot.getAttribute('data-auth-go'))); });
+                });
+                goTo(0);
+            })();
+        </script>
     </body>
 </html>

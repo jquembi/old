@@ -180,13 +180,6 @@
 
         {{-- Erros e botões --}}
         <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
-            @if($errors->any())
-                <div class="mb-4 rounded bg-red-50 p-3 dark:bg-red-900/20">
-                    @foreach($errors->all() as $error)
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $error }}</p>
-                    @endforeach
-                </div>
-            @endif
             <div class="flex justify-end gap-3">
                 <a href="{{ route('municipio.operacoes.terrenos-ociosos', $municipio) }}" wire:navigate>
                     <flux:button variant="ghost">Cancelar</flux:button>

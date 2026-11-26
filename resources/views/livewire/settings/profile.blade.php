@@ -113,11 +113,6 @@
                         </p>
                     </div>
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-1 text-xs text-red-600 dark:text-red-400">
-                            Email de verificação enviado.
-                        </p>
-                    @endif
                 @endif
             </div>
 
@@ -126,9 +121,6 @@
                     Guardar alterações
                 </flux:button>
 
-                <x-action-message on="profile-updated" class="text-sm text-red-600 dark:text-red-400 font-medium">
-                    Guardado.
-                </x-action-message>
             </div>
         </form>
 

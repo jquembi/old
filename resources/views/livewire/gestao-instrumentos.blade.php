@@ -250,14 +250,6 @@
 
                 </div>
 
-                @if($errors->any())
-                    <div class="mt-4 rounded bg-red-50 p-3 dark:bg-red-900/20">
-                        @foreach($errors->all() as $error)
-                            <p class="text-sm text-red-600 dark:text-red-400">{{ $error }}</p>
-                        @endforeach
-                    </div>
-                @endif
-
                 <div class="mt-6 flex justify-end gap-3">
                     <flux:button wire:click="$set('showForm', false)" variant="ghost" wire:loading.attr="disabled" wire:target="ficheiros">
                         Cancelar

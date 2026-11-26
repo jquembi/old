@@ -25,7 +25,7 @@
             }
         </style>
     </head>
-    <body class="bg-white text-neutral-900 antialiased font-sans">
+    <body class="theme-glass text-neutral-900 antialiased font-sans">
 
         {{-- Faixa tricolor topo --}}
         <div class="gov-stripe"></div>

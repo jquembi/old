@@ -5,7 +5,6 @@ namespace App\Console\Commands;
 use App\Models\Role;
 use App\Models\User;
 use Database\Seeders\CategoriaInstrumentosSeeder;
-use Database\Seeders\NodesSeeder;
 use Database\Seeders\ProvinciasMunicipiosSeeder;
 use Database\Seeders\RolesPermissoesSeederV2;
 use Database\Seeders\UsuariosIniciaisSeeder;
@@ -57,7 +56,7 @@ class GterraInstallCommand extends Command
         }
 
         $this->components->task('Dados base (províncias, nodes, funções, categorias)', function () {
-            foreach ([ProvinciasMunicipiosSeeder::class, NodesSeeder::class, RolesPermissoesSeederV2::class, CategoriaInstrumentosSeeder::class] as $seeder) {
+            foreach ([ProvinciasMunicipiosSeeder::class, RolesPermissoesSeederV2::class, CategoriaInstrumentosSeeder::class] as $seeder) {
                 $this->callSilent('db:seed', ['--class' => $seeder, '--force' => true]);
             }
 

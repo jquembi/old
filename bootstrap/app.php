@@ -47,6 +47,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Rate limiting para API: 60 req/min por utilizador
         // Resolve a base provincial antes da autenticação; as rotas autenticadas
         // executam set.tenant novamente para validar o âmbito do utilizador.
+        // O assistente reescreve o .env (APP_NAME/chave), o que invalida a sessão
+        // a meio da instalação; só está acessível enquanto o sistema não está instalado.
+        $middleware->validateCsrfTokens(except: ['instalar/*']);
+
         $middleware->web(prepend: [
             \App\Http\Middleware\RedirecionarParaInstalacao::class,
         ], append: [

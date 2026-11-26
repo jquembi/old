@@ -38,6 +38,7 @@ class AppServiceProvider extends ServiceProvider
 
         $this->configureDefaults();
         $this->configureRateLimiting();
+        \App\Support\AmbitoInstalacao::restringirConsultas();
         Event::listen(GeoAccessAllowed::class, RecordGeoAccessDecision::class);
         Event::listen(GeoAccessDenied::class, RecordGeoAccessDecision::class);
         Event::listen(GeoAccessRequiresVerification::class, RecordGeoAccessDecision::class);

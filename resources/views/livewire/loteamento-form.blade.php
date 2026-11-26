@@ -68,14 +68,6 @@
                 </div>
             </div>
 
-            @if($errors->any())
-                <div class="mt-4 rounded bg-red-50 p-3 dark:bg-red-900/20">
-                    @foreach($errors->all() as $error)
-                        <p class="text-sm text-red-600 dark:text-red-400">{{ $error }}</p>
-                    @endforeach
-                </div>
-            @endif
-
             <div class="mt-6 flex justify-end gap-3">
                 <a href="{{ route('municipio.loteamentos', $municipio) }}" wire:navigate>
                     <flux:button variant="ghost">Cancelar</flux:button>

@@ -19,13 +19,6 @@
         </div>
     </div>
 
-    {{-- Flash Messages --}}
-    @if (session()->has('error'))
-        <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            {{ session('error') }}
-        </div>
-    @endif
-
     <form wire:submit="save" class="space-y-6">
         {{-- Dados Pessoais --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">

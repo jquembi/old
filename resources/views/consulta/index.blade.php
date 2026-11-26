@@ -3,7 +3,7 @@
 <head>
     @include('partials.head', ['title' => 'Consulta de Solicitações'])
 </head>
-<body class="min-h-screen bg-zinc-950 text-white antialiased">
+<body class="theme-glass theme-glass-dark min-h-screen text-white antialiased">
     <main class="min-h-screen">
         <section class="border-b border-white/10 bg-zinc-950">
             <div class="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6 lg:px-8">

@@ -23,9 +23,8 @@
             </flux:button>
         </form>
 
-        <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-400">
-            <span>{{ __('Ou voltar para') }}</span>
-            <flux:link :href="route('login')" wire:navigate>{{ __('iniciar sessão') }}</flux:link>
-        </div>
+        <p class="text-sm text-zinc-500">
+            <a href="{{ route('login') }}" class="font-semibold text-[#C30E20]" wire:navigate>Voltar a iniciar sessão</a>
+        </p>
     </div>
 </x-layouts::auth>

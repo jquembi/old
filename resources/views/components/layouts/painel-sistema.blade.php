@@ -14,7 +14,7 @@
         .painel-scrollbar::-webkit-scrollbar-thumb:hover { background: #52525b; }
     </style>
 </head>
-<body class="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+<body class="theme-glass theme-glass-dark min-h-screen text-zinc-100 antialiased">
     {{ $slot }}
     <x-toast-container />
     @fluxScripts

@@ -55,12 +55,12 @@ class SetTenant
 
     private function resolveTenant(Request $request): ?Tenant
     {
-        // No ambiente local, a mesma instalação serve as áreas provincial e
-        // nacional. Em produção, um node continua limitado à sua província.
-        if ($request->is('nacional', 'nacional/*')
+        // Só o núcleo consulta a área nacional. Uma instalação provincial
+        // permanece na sua província, mesmo em desenvolvimento.
+        if (! $this->isNodeDeployment()
+            && $request->is('nacional', 'nacional/*')
             && auth()->user()?->activo
-            && auth()->user()?->isNacional()
-            && (! $this->isNodeDeployment() || app()->environment('local'))) {
+            && auth()->user()?->isNacional()) {
             return Tenant::central()->first();
         }
 
@@ -168,10 +168,7 @@ class SetTenant
             throw new \RuntimeException('TENANT_NODE_CODE é obrigatório em instalações de node.');
         }
 
-        $host = $request->getHost();
-        $expectedHost = strtolower($code.'.'.config('tenancy.primary_domain'));
-
-        if (app()->environment('production') && strtolower($host) !== $expectedHost) {
+        if (app()->environment('production') && ! $this->anfitriaoDoNode($request->getHost(), $code)) {
             abort(404, 'Este node não responde por este domínio.');
         }
 
@@ -189,6 +186,17 @@ class SetTenant
             'is_active' => config('tenancy.node.active'),
             'sync_status' => Tenant::SYNC_ONLINE,
         ]);
+    }
+
+    private function anfitriaoDoNode(string $host, string $code): bool
+    {
+        $host = strtolower($host);
+        $permitidos = [
+            strtolower($code.'.'.config('tenancy.primary_domain')),
+            strtolower((string) parse_url((string) config('app.url'), PHP_URL_HOST)),
+        ];
+
+        return in_array($host, array_filter($permitidos), true);
     }
 
     private function isNodeDeployment(): bool

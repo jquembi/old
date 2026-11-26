@@ -10,10 +10,6 @@
         </x-slot:actions>
     </x-ui.page-header>
 
-    @if(session('info'))
-        <div class="border-s-4 border-angola-red bg-zinc-50 px-4 py-3 text-sm text-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">{{ session('info') }}</div>
-    @endif
-
     <x-ui.filter-bar columns="md:grid-cols-4">
         <x-ui.filter-field label="Categoria" wire:model.live="categoria">
             @foreach($categorias as $chave => $rotulo)<option value="{{ $chave }}">{{ $rotulo }}</option>@endforeach

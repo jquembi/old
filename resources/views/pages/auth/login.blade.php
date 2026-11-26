@@ -1,32 +1,10 @@
 <x-layouts::auth :title="__('Iniciar Sessão — G.TERRAS')">
     <div class="flex flex-col gap-6">
         {{-- Cabeçalho do Login --}}
-        <div class="text-center sm:text-left space-y-1">
-            <div class="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-2.5 py-1 text-xs font-semibold text-red-700 dark:text-red-300 border border-red-200 dark:border-red-900/50 mb-2">
-                <flux:icon.lock-closed class="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                <span>Acesso Seguro ao Portal</span>
-            </div>
-            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Iniciar Sessão</h1>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">Introduza as suas credenciais institucionais para aceder ao sistema.</p>
+        <div class="space-y-2 text-left">
+            <p class="text-xs font-bold uppercase tracking-[.16em] text-[#C30E20]">Conta institucional</p>
+            <h1 class="text-2xl font-bold tracking-tight text-zinc-950 dark:text-white">Iniciar sessão</h1>
         </div>
-
-        {{-- Status da Sessão --}}
-        <x-auth-session-status class="text-center" :status="session('status')" />
-
-        {{-- Resumo de Erros Visível se houver --}}
-        @if ($errors->any())
-            <div class="rounded-xl border border-red-200 bg-red-50/80 p-3.5 text-xs text-red-800 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-300 animate-shake">
-                <div class="flex items-start gap-2.5">
-                    <flux:icon.exclamation-triangle class="h-4 w-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
-                    <div class="space-y-1">
-                        <span class="font-semibold block">Falha na Autenticação</span>
-                        @foreach ($errors->all() as $error)
-                            <p class="leading-relaxed">{{ $error }}</p>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        @endif
 
         {{-- Formulário de Autenticação --}}
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-5">
@@ -85,15 +63,5 @@
                 </flux:button>
             </div>
         </form>
-
-        {{-- Informações de Apoio ao Utilizador --}}
-        <div class="pt-2 border-t border-zinc-100 dark:border-zinc-800 text-center">
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">
-                Precisa de assistência ou autorização de acesso?
-            </p>
-            <p class="text-xs text-zinc-600 dark:text-zinc-300 font-medium mt-1">
-                Contacte o Administrador Provincial ou Municipal do INOTU.
-            </p>
-        </div>
     </div>
 </x-layouts::auth>

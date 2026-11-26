@@ -106,6 +106,12 @@ export function alertModal(opts = {}) {
         variant = 'info',
     } = opts;
 
+    const tipo = { danger: 'error', success: 'success', warning: 'warning', info: 'info' }[variant] || 'info';
+    if (typeof window.toastr?.[tipo] === 'function') {
+        window.toastr[tipo](message || title, message ? title : undefined);
+        return Promise.resolve();
+    }
+
     return new Promise((resolve) => {
         const overlay = _ensureContainer();
         const iconMap = {

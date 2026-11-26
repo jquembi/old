@@ -116,17 +116,6 @@
             </label>
         </div>
 
-        {{-- Erros gerais --}}
-        @if($errors->any())
-            <div class="rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4">
-                <ul class="space-y-1">
-                    @foreach($errors->all() as $error)
-                        <li class="text-sm text-red-600 dark:text-red-400">{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
         {{-- Acções --}}
         <div class="flex items-center justify-end gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
             <a href="{{ route('usuarios.index') }}" wire:navigate>

@@ -3,13 +3,13 @@
     <head>
         @include('partials.head')
     </head>
-    <body class="min-h-screen bg-zinc-50 dark:bg-zinc-950 antialiased">
+    <body class="theme-glass min-h-screen antialiased">
 
         {{-- SECTION: Skip Link (acessibilidade) --}}
         <a href="#main-content" class="skip-link">Ir para o conteúdo</a>
 
         {{-- SECTION: Sidebar --}}
-        <flux:sidebar sticky collapsible class="dark border-e border-white/10 bg-zinc-950 shadow-[8px_0_24px_rgba(0,0,0,0.12)]">
+        <flux:sidebar sticky collapsible class="dark border-e border-white/10 bg-transparent">
 
             {{-- Cabeçalho do sidebar com logótipo --}}
             <flux:sidebar.header class="border-b border-white/5 pb-3">
@@ -374,7 +374,7 @@
         </flux:sidebar>
 
         {{-- SECTION: Header Desktop --}}
-        <flux:header class="hidden lg:flex h-16 items-center gap-4 border-b border-zinc-200 bg-white px-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <flux:header class="hidden lg:flex h-16 items-center gap-4 border-b border-white/50 bg-transparent px-5 shadow-none dark:border-white/10">
             {{-- Título da aplicação --}}
             <div class="flex items-center gap-2">
                 <span class="text-xs font-semibold tracking-widest text-zinc-400 dark:text-zinc-500 uppercase">G.TERRAS</span>
@@ -490,7 +490,7 @@
         </flux:header>
 
         {{-- SECTION: Header Mobile --}}
-        <flux:header class="lg:hidden border-b border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <flux:header class="lg:hidden border-b border-white/50 bg-transparent shadow-none dark:border-white/10">
             <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
             <flux:spacer />
             @if(auth()->user()->isSuperAdminNacional())
@@ -568,7 +568,7 @@
         </flux:header>
 
         {{-- SECTION: Conteúdo principal --}}
-        <flux:main id="main-content" class="min-h-[calc(100vh-4rem)] w-full max-w-none bg-zinc-50/70 dark:bg-zinc-950">
+        <flux:main id="main-content" class="min-h-[calc(100vh-4rem)] w-full max-w-none bg-transparent">
             {{ $slot }}
         </flux:main>
 

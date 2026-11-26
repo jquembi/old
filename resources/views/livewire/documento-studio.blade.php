@@ -1,10 +1,10 @@
-<div class="doc-studio" x-data="{ previewUrl: null, aGerar: false, guardado: false, erro: '' }"
+<div class="doc-studio" x-data="{ previewUrl: null, aGerar: false }"
     x-on:studio-preview.window="
         const bin = atob($event.detail.pdf); const arr = new Uint8Array(bin.length);
         for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
         previewUrl = URL.createObjectURL(new Blob([arr], { type: 'application/pdf' })); aGerar = false"
-    x-on:studio-erro.window="erro = $event.detail.mensagem; aGerar = false; setTimeout(() => erro = '', 4000)"
-    x-on:studio-guardado.window="guardado = true; setTimeout(() => guardado = false, 2500)">
+    x-on:studio-erro.window="aGerar = false; window.toastr?.error($event.detail.mensagem || 'Não foi possível concluir')"
+    x-on:studio-guardado.window="window.toastr?.success('Será aplicado aos próximos documentos descarregados.', 'Layout guardado')">
 
     @php
         $areaNome = 'Documentos';
@@ -70,8 +70,6 @@
             </div>
         </div>
 
-        <div x-show="guardado" x-transition x-cloak class="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">Layout guardado. Será aplicado aos próximos documentos descarregados.</div>
-        <div x-show="erro" x-cloak class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" x-text="erro"></div>
 
         {{-- Tipos de documento --}}
         <div class="flex gap-2 overflow-x-auto pb-1">

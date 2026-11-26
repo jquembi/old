@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Services\InstaladorService;
+use Database\Seeders\ProvinciasMunicipiosSeeder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class InstaladorController extends Controller
@@ -20,6 +22,7 @@ class InstaladorController extends Controller
             'urlActual' => request()->getSchemeAndHttpHost(),
             'caminhoSqlite' => database_path('database.sqlite'),
             'producao' => app()->isProduction(),
+            'provincias' => ProvinciasMunicipiosSeeder::catalogo(),
         ]);
     }
 
@@ -47,9 +50,17 @@ class InstaladorController extends Controller
                 return 'Estrutura da base de dados criada.';
             }),
             3 => $this->executar(function () use ($request) {
-                $this->instalador->dadosBase((string) $request->input('modo'));
+                $vazio = $request->input('conteudo') === 'vazio';
+                $this->instalador->dadosBase(
+                    (string) $request->input('modo'),
+                    $vazio,
+                    $request->input('node_code'),
+                    $request->input('node_name'),
+                );
 
-                return 'Províncias, municípios, nodes, funções e categorias carregados.';
+                return $vazio
+                    ? 'Base vazia. O catálogo fica para configurar depois.'
+                    : 'Províncias, municípios, nodes, funções e categorias carregados.';
             }),
             4 => $this->passoAdministrador($request),
             default => abort(404),
@@ -82,11 +93,17 @@ class InstaladorController extends Controller
         ]);
 
         return $this->executar(function () use ($dados) {
-            if (! empty($dados['demo']) && ! app()->isProduction()) {
+            if (! empty($dados['demo']) && ! app()->isProduction() && $request->input('conteudo') !== 'vazio') {
                 $this->instalador->utilizadoresDemonstracao();
             }
 
-            $this->instalador->criarSuperAdmin($dados['admin_name'], $dados['admin_email'], $dados['admin_password']);
+            $this->instalador->criarSuperAdmin(
+                $dados['admin_name'],
+                $dados['admin_email'],
+                $dados['admin_password'],
+                (string) $request->input('modo', 'central'),
+                $request->input('node_code'),
+            );
             $this->instalador->finalizar();
 
             return 'Super administrador criado. Instalação concluída.';
@@ -124,9 +141,10 @@ class InstaladorController extends Controller
             'app_env' => ['required', 'in:producao,local'],
             'modo' => ['required', 'in:central,node'],
             'dominio' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?$/'],
-            'node_code' => ['required_if:modo,node', 'nullable', 'regex:/^[A-Za-z]{3}$/'],
+            'node_code' => ['required_if:modo,node', 'nullable', Rule::in(array_keys(ProvinciasMunicipiosSeeder::catalogo()))],
             'node_name' => ['required_if:modo,node', 'nullable', 'string', 'max:255'],
             'central_url' => ['required_if:modo,node', 'nullable', 'url', 'max:255'],
+            'conteudo' => ['nullable', 'in:vazio,base'],
         ];
     }
 }
