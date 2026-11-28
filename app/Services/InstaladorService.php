@@ -149,6 +149,14 @@ class InstaladorService
             $key = 'base64:'.base64_encode(random_bytes(32));
             self::escreverEnv(['APP_KEY' => $key]);
             config(['app.key' => $key]);
+
+            // A aplicação pode ter sido publicada com config cache contendo APP_KEY vazio.
+            // Remover esse ficheiro é essencial: sem isto, cada novo pedido pode voltar
+            // a ler a chave vazia e gerar uma chave diferente, invalidando cookies e sessões.
+            $cachedConfig = base_path('bootstrap/cache/config.php');
+            if (is_file($cachedConfig) && ! @unlink($cachedConfig)) {
+                throw new RuntimeException('A chave da aplicação foi criada, mas não foi possível limpar bootstrap/cache/config.php. Remova a cache de configuração e actualize a página.');
+            }
         }
 
         // Não depender de tabelas de sessão/cache durante a instalação.
