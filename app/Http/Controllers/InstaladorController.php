@@ -176,7 +176,7 @@ class InstaladorController
     {
         return [
             'db_connection' => ['required', Rule::in(['sqlite', 'mysql', 'mariadb'])],
-            'db_database' => ['required', 'string', 'max:512'],
+            'db_database' => ['required', 'string', 'max:512', Rule::notIn([':memory:'])],
             'db_host' => ['nullable', 'string', 'max:255'],
             'db_port' => ['nullable', 'integer', 'between:1,65535'],
             'db_username' => ['nullable', 'string', 'max:255'],
