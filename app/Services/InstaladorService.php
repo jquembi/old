@@ -603,20 +603,24 @@ class InstaladorService
             $nome = $province->nome;
         }
 
+        // Criar apenas quando ainda não existe. A recuperação não deve reactivar
+        // um tenant suspenso nem substituir nomes ou parâmetros administrativos.
+        if (DB::table('tenants')->where('code', $code)->exists()) {
+            return;
+        }
+
         $connection = config('database.default');
-        DB::table('tenants')->updateOrInsert(
-            ['code' => $code],
-            [
-                'name' => $modo === 'central' ? 'Núcleo Central Nacional' : ($nome ?: $code),
-                'type' => $modo === 'central' ? 'central' : 'provincial',
-                'database_name' => (string) config("database.connections.{$connection}.database"),
-                'database_host' => config("database.connections.{$connection}.host"),
-                'database_port' => config("database.connections.{$connection}.port") ? (int) config("database.connections.{$connection}.port") : null,
-                'is_active' => true,
-                'updated_at' => now(),
-                'created_at' => now(),
-            ]
-        );
+        DB::table('tenants')->insert([
+            'code' => $code,
+            'name' => $modo === 'central' ? 'Núcleo Central Nacional' : ($nome ?: $code),
+            'type' => $modo === 'central' ? 'central' : 'provincial',
+            'database_name' => (string) config("database.connections.{$connection}.database"),
+            'database_host' => config("database.connections.{$connection}.host"),
+            'database_port' => config("database.connections.{$connection}.port") ? (int) config("database.connections.{$connection}.port") : null,
+            'is_active' => true,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 
     public function utilizadoresDemonstracao(): void
@@ -877,6 +881,10 @@ class InstaladorService
 
     private static function citar(string $value): string
     {
+        if (preg_match('/[\\r\\n\\x00]/', $value)) {
+            throw new RuntimeException('Uma configuração contém caracteres de controlo ou quebras de linha e não pode ser gravada no .env.');
+        }
+
         if (! preg_match('/[\s#"\'$\\\\]/', $value)) {
             return $value;
         }
