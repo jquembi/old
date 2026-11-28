@@ -4,7 +4,6 @@ namespace App\Livewire;
 
 use App\Models\Croqui;
 use App\Models\Municipio;
-use App\Models\OperacaoUrbanistica;
 use App\Models\Pagamento;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -53,16 +52,13 @@ class CroquisElaborados extends Component
 
     public function getCroquisProperty()
     {
-        $operacao = OperacaoUrbanistica::where('municipio_id', $this->municipio->id)
-            ->where('tipo', 'croqui_elaborado')
-            ->first();
-
-        if (!$operacao) {
-            return Croqui::where('id', 0)->paginate(25); // Empty pagination
-        }
-
-        $query = $operacao->croquis()
+        // O campo "tipo" pertence a croquis, não a operacoes_urbanisticas.
+        // Consultar a tabela de croquis e validar o município através da relação
+        // evita perder registos quando o município possui várias operações.
+        $query = Croqui::query()
             ->where('tipo', 'elaborado')
+            ->whereHas('operacao', fn ($operacaoQuery) => $operacaoQuery
+                ->where('municipio_id', $this->municipio->id))
             ->with(['proprietarios', 'criadoPor', 'pagamentoActivo']);
 
         if ($this->search) {
