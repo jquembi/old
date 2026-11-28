@@ -1,11 +1,11 @@
 <?php
 
-namespace App\\Http\\Middleware;
+namespace App\Http\Middleware;
 
-use App\\Services\\InstaladorService;
+use App\Services\InstaladorService;
 use Closure;
-use Illuminate\\Http\\Request;
-use Illuminate\\Support\\Facades\\Artisan;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Artisan;
 
 class RedirecionarParaInstalacao
 {
