@@ -340,7 +340,7 @@
         </div>
 
         {{-- Erros e botões --}}
-        <div class="rounded-xl border border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
+        <div class="rounded-xl border border-zinc-200 mt-4 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
             <div class="flex justify-end gap-3">
                 <a href="{{ route('municipio.operacoes.croquis-elaborados', $municipio) }}" wire:navigate>
                     <flux:button variant="ghost">Cancelar</flux:button>
