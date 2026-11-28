@@ -39,7 +39,16 @@ class ProvinciasMunicipiosSeeder extends Seeder
 
     public function run(): void
     {
-        foreach ($this->dados() as $codigo => $dados) {
+        $catalogo = $this->dados();
+        if (config('tenancy.deployment_mode') === 'node') {
+            $codigoNode = strtoupper((string) config('tenancy.node.code'));
+            if (! isset($catalogo[$codigoNode])) {
+                throw new \RuntimeException('O código da província configurada não existe no catálogo territorial.');
+            }
+            $catalogo = [$codigoNode => $catalogo[$codigoNode]];
+        }
+
+        foreach ($catalogo as $codigo => $dados) {
             $provincia = Provincia::firstOrCreate(
                 ['codigo' => $codigo],
                 ['nome'   => $dados['nome']]

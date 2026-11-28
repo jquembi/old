@@ -15,7 +15,17 @@ return new class extends Migration
             $table->string('grupo')->default('')->after('descricao');
         });
 
-        // 2. Remover roles antigos
+        // Instalação nova: não há roles nem atribuições legadas para migrar.
+        // O catálogo inicial é responsabilidade dos seeders fundamentais.
+        $temRolesLegadas = DB::table('roles')->exists();
+        $temUtilizadoresLegados = Schema::hasColumn('users', 'role_id')
+            && DB::table('users')->whereNotNull('role_id')->exists();
+
+        if (! $temRolesLegadas && ! $temUtilizadoresLegados) {
+            return;
+        }
+
+        // 2. Remover roles antigos apenas durante a migração de dados legados.
         DB::table('role_permissao')->whereIn(
             'role_id',
             DB::table('roles')->pluck('id')

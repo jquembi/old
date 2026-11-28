@@ -66,6 +66,12 @@ class RolesPermissoesSeederV2 extends Seeder
             ['descricao' => 'Revisor de Pareceres Técnicos Provincial', 'grupo' => Role::GRUPO_GOVERNO, 'nivel' => Role::NIVEL_PROVINCIAL]
         );
 
+        // Papel técnico de administração da plataforma. Não representa o cargo de Governador.
+        $adminSistemaProvincial = Role::firstOrCreate(
+            ['nome' => Role::ADMIN_SISTEMA_PROVINCIAL],
+            ['descricao' => 'Administrador técnico do sistema provincial', 'grupo' => 'Administração do Sistema', 'nivel' => Role::NIVEL_PROVINCIAL]
+        );
+
         // ─── Administração Municipal (nível 3) ──────────────────────
         $adminMunicipal = Role::firstOrCreate(
             ['nome' => Role::ADMIN_MUNICIPAL],
@@ -264,6 +270,10 @@ class RolesPermissoesSeederV2 extends Seeder
             ['nome' => 'croquis_elaborados.aprovar', 'descricao' => 'Aprovar croquis elaborados', 'grupo' => 'Croquis Elaborados'],
             ['nome' => 'croquis_elaborados.assinatura', 'descricao' => 'Assinar croquis elaborados', 'grupo' => 'Croquis Elaborados'],
 
+            // ==== DOCUMENTOS ====
+            ['nome' => 'documentos.ver', 'descricao' => 'Visualizar documentos PDF', 'grupo' => 'Documentos'],
+            ['nome' => 'documentos.download', 'descricao' => 'Descarregar documentos PDF', 'grupo' => 'Documentos'],
+
             // ==== PAGAMENTOS RUPE ====
             ['nome' => 'pagamentos.ver', 'descricao' => 'Ver pagamentos RUPE', 'grupo' => 'Pagamentos'],
             ['nome' => 'pagamentos.submeter_comprovativo', 'descricao' => 'Submeter comprovativo de pagamento', 'grupo' => 'Pagamentos'],
@@ -411,6 +421,7 @@ class RolesPermissoesSeederV2 extends Seeder
             'relatorios.gerar', 'relatorios.exportar',
         ];
         $provincialPermIds = collect($provincialPermissoes)->map(fn ($n) => $permissoesCriadas[$n]->id)->toArray();
+        $adminSistemaProvincial->permissoes()->syncWithoutDetaching($provincialPermIds);
         $governador->permissoes()->syncWithoutDetaching($provincialPermIds);
         $viceGovernador->permissoes()->syncWithoutDetaching($provincialPermIds);
         $assessor->permissoes()->syncWithoutDetaching($provincialPermIds);

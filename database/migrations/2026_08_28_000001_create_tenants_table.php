@@ -26,18 +26,6 @@ return new class extends Migration
             $table->index('is_active');
             $table->index('sync_status');
         });
-
-        // Criar tenant central
-        DB::table('tenants')->insert([
-            'code' => 'CTR',
-            'name' => 'Núcleo Central Nacional',
-            'type' => 'central',
-            'database_name' => env('DB_DATABASE', 'gterras'),
-            'is_active' => true,
-            'sync_status' => 'online',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
     }
 
     public function down(): void

@@ -19,6 +19,7 @@ class Role extends RuleManagerRole
 
     // ─── Grupo Governo Provincial (nível 2) ──────────────
     public const GOVERNADOR = 'governador';
+    public const ADMIN_SISTEMA_PROVINCIAL = 'admin_sistema_provincial';
     public const VICE_GOVERNADOR_TECNICO = 'vice_governador_tecnico';
     public const ASSESSOR_VICE_GOVERNADOR = 'assessor_vice_governador';
 
