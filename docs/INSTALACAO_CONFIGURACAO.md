@@ -14,6 +14,8 @@ A instalação prepara uma instância do G.TERRAS sem criar contas conhecidas, s
 
 O assistente apresenta os drivers realmente disponíveis no servidor. PostgreSQL não é disponibilizado para novas instalações até a compatibilidade integral de todas as migrations ser validada.
 
+No instalador web, SQLite deve utilizar um ficheiro persistente (por exemplo, `database/gterra.sqlite`). A opção `:memory:` é rejeitada porque cada etapa do assistente é um pedido HTTP separado e perderia a base entre etapas.
+
 ## Assistente web
 
 Abrir \`/instalar\` e seguir oito etapas:
