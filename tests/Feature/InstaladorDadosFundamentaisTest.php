@@ -36,3 +36,12 @@ it('permite repetir os seeders fundamentais sem duplicar os catálogos', functio
         ->and(DB::table('tipo_instrumentos')->count())->toBe($firstTypesCount)
         ->and(DB::table('workflows')->count())->toBe($firstWorkflowCount);
 });
+
+it('rejeita SQLite em memória no assistente web multi-etapas', function () {
+    $this->postJson('/instalar/testar-base', [
+        'db_connection' => 'sqlite',
+        'db_database' => ':memory:',
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['db_database']);
+});
