@@ -97,7 +97,6 @@ class InstaladorController
                 'app_env' => ['required', Rule::in(['local', 'producao'])],
                 'app_locale' => ['required', 'string', 'max:12'],
                 'app_country' => ['nullable', 'string', 'size:2'],
-                'app_country' => ['nullable', 'string', 'size:2'],
                 'app_timezone' => ['required', 'timezone'],
                 'modo' => ['required', Rule::in(['central', 'node'])],
                 'dominio' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9.-]+$/'],
