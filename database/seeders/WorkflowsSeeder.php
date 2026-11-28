@@ -13,7 +13,7 @@ class WorkflowsSeeder extends Seeder
      */
     public function run(): void
     {
-        Workflow::query()->updateOrCreate(
+        Workflow::query()->firstOrCreate(
             ['tipo_processo' => 'processo_fundiario'],
             [
                 'name' => 'Processo Fundiário Padrão',

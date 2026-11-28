@@ -376,7 +376,7 @@ class RolesPermissoesSeederV2 extends Seeder
         // INOTU — acesso total a todos os módulos
         $allPermIds = Permissao::pluck('id')->all();
         $chefeSeccao->permissoes()->syncWithoutDetaching($allPermIds);
-        $chefeSeccaoAdministrativa->permissoes()->sync(self::permissoesInformacaoTecnicaIds());
+        $chefeSeccaoAdministrativa->permissoes()->syncWithoutDetaching(self::permissoesInformacaoTecnicaIds());
         $secretariaGabinete->permissoes()->syncWithoutDetaching($allPermIds);
         $directorInotu->permissoes()->syncWithoutDetaching($allPermIds);
 
@@ -479,8 +479,8 @@ class RolesPermissoesSeederV2 extends Seeder
             'municipios.ver_dados', 'municipios.gerir_config',
         ];
         $municipalPermIds = collect($municipalPermissoes)->map(fn ($n) => $permissoesCriadas[$n]->id)->toArray();
-        $adminMunicipal->permissoes()->sync(self::permissoesInformacaoTecnicaIds());
-        $adminAdjunto->permissoes()->sync(self::permissoesInformacaoTecnicaIds());
+        $adminMunicipal->permissoes()->syncWithoutDetaching(self::permissoesInformacaoTecnicaIds());
+        $adminAdjunto->permissoes()->syncWithoutDetaching(self::permissoesInformacaoTecnicaIds());
         $directorInfra->permissoes()->syncWithoutDetaching($municipalPermIds);
 
         // Chefe de Serviços de Urbanismo

@@ -13,7 +13,7 @@ class TipoDocumentoQrConfigSeeder extends Seeder
     public function run(): void
     {
         foreach (\App\Models\TipoDocumentoQrConfig::tiposPredefinidos() as $tipo => $config) {
-            \App\Models\TipoDocumentoQrConfig::updateOrCreate(
+            \App\Models\TipoDocumentoQrConfig::firstOrCreate(
                 ['tipo_documento' => $tipo],
                 array_merge($config, ['ativo' => true])
             );

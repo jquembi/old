@@ -11,7 +11,7 @@ class CategoriaInstrumentosSeeder extends Seeder
     public function run(): void
     {
         // 1.1 Instrumentos de Ordenamento do Território
-        $ordenamento = CategoriaInstrumento::updateOrCreate(['slug' => 'ordenamento-territorio'], [
+        $ordenamento = CategoriaInstrumento::firstOrCreate(['slug' => 'ordenamento-territorio'], [
             'nome' => 'Instrumentos de Ordenamento do Território',
             'slug' => 'ordenamento-territorio',
             'descricao' => 'Instrumentos de planeamento e ordenamento do território municipal',
@@ -26,11 +26,11 @@ class CategoriaInstrumentosSeeder extends Seeder
         ];
 
         foreach ($tiposOrdenamento as $tipo) {
-            $ordenamento->tipoInstrumentos()->updateOrCreate(['slug' => $tipo['slug']], $tipo);
+            $ordenamento->tipoInstrumentos()->firstOrCreate(['slug' => $tipo['slug']], $tipo);
         }
 
         // 1.2 Instrumentos Urbanísticos
-        $urbanisticos = CategoriaInstrumento::updateOrCreate(['slug' => 'instrumentos-urbanisticos'], [
+        $urbanisticos = CategoriaInstrumento::firstOrCreate(['slug' => 'instrumentos-urbanisticos'], [
             'nome' => 'Instrumentos Urbanísticos',
             'slug' => 'instrumentos-urbanisticos',
             'descricao' => 'Instrumentos de planeamento e gestão urbanística',
@@ -45,11 +45,11 @@ class CategoriaInstrumentosSeeder extends Seeder
         ];
 
         foreach ($tiposUrbanisticos as $tipo) {
-            $urbanisticos->tipoInstrumentos()->updateOrCreate(['slug' => $tipo['slug']], $tipo);
+            $urbanisticos->tipoInstrumentos()->firstOrCreate(['slug' => $tipo['slug']], $tipo);
         }
 
         // 1.3 Cartas Municipais
-        $cartas = CategoriaInstrumento::updateOrCreate(['slug' => 'cartas-municipais'], [
+        $cartas = CategoriaInstrumento::firstOrCreate(['slug' => 'cartas-municipais'], [
             'nome' => 'Cartas Municipais',
             'slug' => 'cartas-municipais',
             'descricao' => 'Cartas e mapas municipais diversos',
@@ -61,7 +61,7 @@ class CategoriaInstrumentosSeeder extends Seeder
         ];
 
         foreach ($tiposCartas as $tipo) {
-            $cartas->tipoInstrumentos()->updateOrCreate(['slug' => $tipo['slug']], $tipo);
+            $cartas->tipoInstrumentos()->firstOrCreate(['slug' => $tipo['slug']], $tipo);
         }
     }
 }
